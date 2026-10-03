@@ -562,6 +562,12 @@ Answers to pre-build questions. These override anything above that they contradi
 - `laborVsNational` is reported after the [0.75, 1.6] clamp.
 - Area wording: metro → "For the {areaName} area."; state → "For homes in {stateName}."; national → "Based on national averages."
 
+- Complexity label: ≤ 4 segments "simple", 5–10 "average", > 10 "complex" (same thresholds as waste).
+- Solar API is called with `requiredQuality=LOW`; MEDIUM widens ±10%, LOW ±20%.
+- Google spend: $20/day cap during the build.
+- Test data: engine and Solar unit tests use synthetic fixtures (real Solar response shape, invented coordinates, no addresses). The 20-home manual review calls the APIs live and stays local in a gitignored folder, deleted within 30 days; only a summary (ZIP, squares, ranges, plausible or not) goes in the PR.
+- Database: one Supabase project (https://lrduykitcgfwrlzbhzcb.supabase.co) serves development and production for now; this deviates from Environments above and will be split before ads run. Schema changes are SQL migrations in `supabase/migrations/`.
+
 **Frontend and explanation (Milestone 3)**
 
 - Store the formatted address on the estimate; purge it at 30 days with the measurements, then show the ZIP only.
