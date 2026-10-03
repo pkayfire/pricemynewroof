@@ -6,6 +6,7 @@ import {
   contentChecksum,
   findLargeChanges,
   loadManual,
+  loadPrevious,
   type BuildInputs,
   type BuildOptions,
 } from "../build";
@@ -362,5 +363,24 @@ describe("buildConfig", () => {
     expect(b.version).toBe(8);
     expect(b.checksum).toBe(a.checksum);
     expect(contentChecksum({ ...a, permit: { ...a.permit, max: 1600 } })).not.toBe(a.checksum);
+  });
+});
+
+// ---------- committed config ----------
+
+describe("committed config/dist", () => {
+  const cfg = loadPrevious();
+
+  it("is production-ready, built from real inputs, with a valid checksum", () => {
+    expect(cfg).not.toBeNull();
+    expect(cfg!.productionReady).toBe(true);
+    expect(cfg!.sampleInputs).toEqual([]);
+    expect(cfg!.inputs.every((i) => !i.sample)).toBe(true);
+    expect(contentChecksum(cfg!)).toBe(cfg!.checksum);
+    expect(cfg!.baseDate).toBe("2026-08");
+  });
+
+  it("resolves every ZIP to a wage area carried in the file", () => {
+    for (const [, , area] of Object.values(cfg!.zips)) expect(cfg!.wages.areas[area]).toBeDefined();
   });
 });
