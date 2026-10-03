@@ -1,0 +1,178 @@
+{
+  "_recorded": {
+    "at": "2026-10-03",
+    "request": "GET https://www.huduser.gov/hudapi/public/usps?type=3&query={zip} (Authorization header scrubbed)"
+  },
+  "responses": [
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "92780",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "92780",
+            "geoid": "31080",
+            "city": "TUSTIN",
+            "state": "CA",
+            "res_ratio": 1,
+            "bus_ratio": 1,
+            "oth_ratio": 1,
+            "tot_ratio": 1
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "85004",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "85004",
+            "geoid": "38060",
+            "city": "PHOENIX",
+            "state": "AZ",
+            "res_ratio": 1,
+            "bus_ratio": 1,
+            "oth_ratio": 1,
+            "tot_ratio": 1
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "59715",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "59715",
+            "geoid": "99999",
+            "city": "BOZEMAN",
+            "state": "MT",
+            "res_ratio": 0.003577724774447786,
+            "bus_ratio": 0.0003399048266485384,
+            "oth_ratio": 0.00043402777777777775,
+            "tot_ratio": 0.0028941790314691014
+          },
+          {
+            "zip": "59715",
+            "geoid": "14580",
+            "city": "BOZEMAN",
+            "state": "MT",
+            "res_ratio": 0.9964222752255523,
+            "bus_ratio": 0.9996600951733514,
+            "oth_ratio": 0.9995659722222222,
+            "tot_ratio": 0.997105820968531
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "29125",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "29125",
+            "geoid": "99999",
+            "city": "PINEWOOD",
+            "state": "SC",
+            "res_ratio": 0.5,
+            "bus_ratio": 0.3695652173913043,
+            "oth_ratio": 0,
+            "tot_ratio": 0.4966254218222722
+          },
+          {
+            "zip": "29125",
+            "geoid": "44940",
+            "city": "PINEWOOD",
+            "state": "SC",
+            "res_ratio": 0.5,
+            "bus_ratio": 0.6304347826086957,
+            "oth_ratio": 0,
+            "tot_ratio": 0.5033745781777278
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "14173",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "14173",
+            "geoid": "36460",
+            "city": "YORKSHIRE",
+            "state": "NY",
+            "res_ratio": 0,
+            "bus_ratio": 0,
+            "oth_ratio": 0.9954337899543378,
+            "tot_ratio": 0.9954337899543378
+          },
+          {
+            "zip": "14173",
+            "geoid": "15380",
+            "city": "YORKSHIRE",
+            "state": "NY",
+            "res_ratio": 0,
+            "bus_ratio": 0,
+            "oth_ratio": 0.0045662100456621,
+            "tot_ratio": 0.0045662100456621
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "59301",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "59301",
+            "geoid": "99999",
+            "city": "MILES CITY",
+            "state": "MT",
+            "res_ratio": 1,
+            "bus_ratio": 1,
+            "oth_ratio": 1,
+            "tot_ratio": 1
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "year": "2026",
+        "quarter": "2",
+        "input": "43001",
+        "crosswalk_type": "zip-cbsa",
+        "results": [
+          {
+            "zip": "43001",
+            "geoid": "18140",
+            "city": "ALEXANDRIA",
+            "state": "OH",
+            "res_ratio": 1,
+            "bus_ratio": 1,
+            "oth_ratio": 1,
+            "tot_ratio": 1
+          }
+        ]
+      }
+    }
+  ]
+}
