@@ -21,7 +21,6 @@ import {
   manualSchema,
   oewsSourceSchema,
   ppiSourceSchema,
-  wageSourceOf,
   WAGE_SOURCES,
   type BuiltConfig,
   type HudSource,

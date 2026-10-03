@@ -1,0 +1,16 @@
+{
+  "_note": "SAMPLE: hand-made rows in the OEWS all-data bulk-file column format (header names as in all_data_M_YYYY.xlsx). Wage values are invented, not BLS data.",
+  "rows": [
+    { "AREA": "99", "AREA_TITLE": "U.S.", "AREA_TYPE": 1, "PRIM_STATE": "US", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "00-0000", "H_MEDIAN": 23.1 },
+    { "AREA": "99", "AREA_TITLE": "U.S.", "AREA_TYPE": 1, "PRIM_STATE": "US", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": 25 },
+    { "AREA": "99", "AREA_TITLE": "U.S.", "AREA_TYPE": 1, "PRIM_STATE": "US", "NAICS": "000000", "I_GROUP": "cross-industry, private ownership only", "OWN_CODE": 5, "OCC_CODE": "47-2181", "H_MEDIAN": 99 },
+    { "AREA": "99", "AREA_TITLE": "U.S.", "AREA_TYPE": 1, "PRIM_STATE": "US", "NAICS": "238100", "I_GROUP": "4-digit", "OWN_CODE": 5, "OCC_CODE": "47-2181", "H_MEDIAN": 98 },
+    { "AREA": 4, "AREA_TITLE": "Arizona", "AREA_TYPE": 2, "PRIM_STATE": "AZ", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": 23 },
+    { "AREA": 30, "AREA_TITLE": "Montana", "AREA_TYPE": 2, "PRIM_STATE": "MT", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": "#" },
+    { "AREA": 56, "AREA_TITLE": "Wyoming", "AREA_TYPE": 2, "PRIM_STATE": "WY", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "00-0000", "H_MEDIAN": 22 },
+    { "AREA": "38060", "AREA_TITLE": "Phoenix-Mesa-Chandler, AZ", "AREA_TYPE": 4, "PRIM_STATE": "AZ", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": "23.50" },
+    { "AREA": "14580", "AREA_TITLE": "Bozeman, MT", "AREA_TYPE": 4, "PRIM_STATE": "MT", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": "*" },
+    { "AREA": "3000001", "AREA_TITLE": "Eastern Montana nonmetropolitan area", "AREA_TYPE": 6, "PRIM_STATE": "MT", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": 21.75 },
+    { "AREA": "3000002", "AREA_TITLE": "Western Montana nonmetropolitan area", "AREA_TYPE": 6, "PRIM_STATE": "MT", "NAICS": "000000", "I_GROUP": "cross-industry", "OWN_CODE": 1235, "OCC_CODE": "47-2181", "H_MEDIAN": "" }
+  ]
+}
