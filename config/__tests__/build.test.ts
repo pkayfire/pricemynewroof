@@ -10,7 +10,16 @@ import {
   type BuildOptions,
 } from "../build";
 import { indexWages, resolveZipWage } from "../lib/wages";
-import { wageSourceOf, type HudSource, type Manual, type OewsArea, type OewsSource, type PpiSource } from "../lib/schema";
+import {
+  wageSourceOf,
+  type HudCountySource,
+  type HudSource,
+  type Manual,
+  type OewsArea,
+  type OewsAreaDefsSource,
+  type OewsSource,
+  type PpiSource,
+} from "../lib/schema";
 
 // ---------- helpers ----------
 
@@ -35,10 +44,20 @@ const AREAS: OewsArea[] = [
   area("msa:38060", "msa", "AZ", 23.5),
   area("msa:14580", "msa", "MT", null, "*"),
   area("msa:16700", "msa", "WY", null, "#"),
-  area("nonmetro:3000001", "nonmetro", "MT", 21),
-  area("nonmetro:3000002", "nonmetro", "MT", 22),
-  area("nonmetro:3900001", "nonmetro", "OH", 22.5),
+  area("nonmetro:3000006", "nonmetro", "MT", 21),
+  area("nonmetro:3000003", "nonmetro", "MT", 22),
+  area("nonmetro:3000005", "nonmetro", "MT", null, "*"),
+  area("nonmetro:3900003", "nonmetro", "OH", 22.5),
 ];
+
+/** County → OEWS area (subset of the real May 2025 definitions, plus one suppressed area). */
+const COUNTY_AREAS: Record<string, string> = {
+  "30017": "nonmetro:3000006", // Custer County MT → East-Central Montana
+  "30067": "nonmetro:3000003", // Park County MT → Southwest Montana
+  "30001": "nonmetro:3000005", // Beaverhead County MT → suppressed nonmetro wage
+  "30031": "msa:14580", // Gallatin County MT → Bozeman MSA
+  "39111": "nonmetro:3900003", // Monroe County OH → Eastern Ohio
+};
 
 const manual = (): Manual => structuredClone(loadManual());
 
@@ -49,6 +68,25 @@ const hud = (value: HudSource["value"]): HudSource => ({
   sample: false,
   year: "2026",
   quarter: "2",
+  value,
+});
+
+const hudCounty = (value: HudCountySource["value"]): HudCountySource => ({
+  input: "hud_zip_county",
+  sourceUrl: "https://www.huduser.gov/hudapi/public/usps?type=2&query=All",
+  retrievedAt: "2026-10-03",
+  sample: false,
+  year: "2026",
+  quarter: "2",
+  value,
+});
+
+const areaDefs = (value: Record<string, string> = COUNTY_AREAS, release = "May 2025"): OewsAreaDefsSource => ({
+  input: "oews_area_definitions",
+  sourceUrl: "https://www.bls.gov/oes/area_definitions_m2025.xlsx",
+  retrievedAt: "2026-10-03",
+  sample: false,
+  release,
   value,
 });
 
@@ -82,10 +120,19 @@ const inputs = (over: Partial<BuildInputs> = {}): BuildInputs => ({
     "85004": ["38060", "AZ"], // metro
     "59715": ["14580", "MT"], // suppressed metro → state
     "82001": ["16700", "WY"], // suppressed metro, suppressed state → national
-    "59301": ["99999", "MT"], // non-metro, state has 2 nonmetro areas → state
-    "43001": ["99999", "OH"], // non-metro, state has 1 nonmetro area → that area
+    "59301": ["99999", "MT"], // non-metro, county → East-Central Montana nonmetro area
+    "43793": ["99999", "OH"], // non-metro, county → Eastern Ohio nonmetro area
+    "59001": ["99999", "MT"], // non-metro, no county row → state
+  }),
+  hudCounty: hudCounty({
+    "85004": ["04013", "AZ"],
+    "59715": ["30031", "MT"],
+    "82001": ["56021", "WY"],
+    "59301": ["30017", "MT"],
+    "43793": ["39111", "OH"],
   }),
   oews: oews(),
+  oewsAreaDefs: areaDefs(),
   ppi: [ppi("asphalt", "WPU1361", 370, 377.4), ppi("concrete", "WPU133", 400, 404)],
   ...over,
 });
@@ -100,35 +147,63 @@ const opts = (over: Partial<BuildOptions> = {}): BuildOptions => ({
 // ---------- wage fallback ----------
 
 describe("wage fallback (metro → state → national)", () => {
-  const idx = indexWages(AREAS);
+  const idx = indexWages(AREAS, COUNTY_AREAS);
+  const geo = (cbsa: string, state: string, county: string | null = null) => ({ cbsa, state, county });
 
   it("uses the metro wage when published", () => {
-    expect(resolveZipWage("38060", "AZ", idx)).toEqual({ state: "AZ", cbsa: "38060", wageArea: "msa:38060", wageSource: "metro" });
+    expect(resolveZipWage(geo("38060", "AZ", "04013"), idx)).toEqual({
+      state: "AZ",
+      cbsa: "38060",
+      county: "04013",
+      wageArea: "msa:38060",
+      wageSource: "metro",
+    });
   });
 
   it("falls back to state when the metro wage is suppressed", () => {
-    expect(resolveZipWage("14580", "MT", idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
+    expect(resolveZipWage(geo("14580", "MT", "30031"), idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
   });
 
   it("falls back to national when metro and state are suppressed", () => {
-    expect(resolveZipWage("16700", "WY", idx)).toMatchObject({ wageArea: "national", wageSource: "national" });
+    expect(resolveZipWage(geo("16700", "WY"), idx)).toMatchObject({ wageArea: "national", wageSource: "national" });
   });
 
-  it("falls back to state for a CBSA OEWS does not publish (e.g. micropolitan)", () => {
-    expect(resolveZipWage("12345", "AZ", idx)).toMatchObject({ wageArea: "state:AZ", wageSource: "state" });
+  it("falls back to state for a CBSA OEWS does not publish (micropolitan), even if its county is in a nonmetro area", () => {
+    expect(resolveZipWage(geo("12345", "AZ"), idx)).toMatchObject({ wageArea: "state:AZ", wageSource: "state" });
+    expect(resolveZipWage(geo("33500", "MT", "30017"), idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
   });
 
-  it("maps non-metro ZIPs to the state's nonmetropolitan area when there is exactly one", () => {
-    expect(resolveZipWage("99999", "OH", idx)).toEqual({ state: "OH", cbsa: null, wageArea: "nonmetro:3900001", wageSource: "metro" });
+  it("maps non-CBSA ZIPs to their county's OEWS nonmetropolitan area, counted as metro", () => {
+    expect(resolveZipWage(geo("99999", "MT", "30017"), idx)).toEqual({
+      state: "MT",
+      cbsa: null,
+      county: "30017",
+      wageArea: "nonmetro:3000006",
+      wageSource: "metro",
+    });
+    // Two counties in the same state land in different nonmetro areas
+    expect(resolveZipWage(geo("99999", "MT", "30067"), idx)).toMatchObject({ wageArea: "nonmetro:3000003" });
+    expect(resolveZipWage(geo("99999", "OH", "39111"), idx)).toMatchObject({ wageArea: "nonmetro:3900003", wageSource: "metro" });
   });
 
-  it("uses the state wage for non-metro ZIPs in states with several nonmetro areas", () => {
-    expect(resolveZipWage("99999", "MT", idx)).toMatchObject({ cbsa: null, wageArea: "state:MT", wageSource: "state" });
+  it("uses the state wage for unplaceable non-CBSA ZIPs", () => {
+    // no county row
+    expect(resolveZipWage(geo("99999", "MT", null), idx)).toMatchObject({ cbsa: null, wageArea: "state:MT", wageSource: "state" });
+    // county missing from the definitions
+    expect(resolveZipWage(geo("99999", "OH", "39999"), idx)).toMatchObject({ wageArea: "state:OH", wageSource: "state" });
+    // nonmetro wage suppressed
+    expect(resolveZipWage(geo("99999", "MT", "30001"), idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
+    // definitions put the county in an MSA although HUD says non-CBSA: don't guess
+    expect(resolveZipWage(geo("99999", "MT", "30031"), idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
+  });
+
+  it("falls back to national for an unplaceable ZIP in a state with no usable wage", () => {
+    expect(resolveZipWage(geo("99999", "WY", "56021"), idx)).toMatchObject({ wageArea: "national", wageSource: "national" });
   });
 
   it("returns null when even the national wage is unusable", () => {
     const noNational = indexWages(AREAS.map((a) => (a.key === "national" ? { ...a, hourlyMedian: null, status: "suppressed" as const } : a)));
-    expect(resolveZipWage("16700", "WY", noNational)).toBeNull();
+    expect(resolveZipWage(geo("16700", "WY"), noNational)).toBeNull();
   });
 });
 
@@ -150,14 +225,26 @@ describe("buildConfig", () => {
     expect(cfg.options.concrete_tile.ppiFamily).toBe("concrete");
     expect(cfg.permit).toMatchObject({ percentOfJob: 0.02, min: 250, max: 1500 });
     expect(cfg.steepAdder).toEqual({ low: 75, high: 125 });
-    expect(cfg.zips["43001"]).toEqual(["OH", null, "nonmetro:3900001"]);
+    expect(cfg.zips["43793"]).toEqual(["OH", null, "nonmetro:3900003"]);
+    expect(cfg.zips["59301"]).toEqual(["MT", null, "nonmetro:3000006"]);
+    expect(cfg.zips["59001"]).toEqual(["MT", null, "state:MT"]);
     expect(cfg.zips["82001"]).toEqual(["WY", "16700", "national"]);
-    expect(r.stats.wageSources).toEqual({ metro: 2, state: 2, national: 1 });
+    expect(r.stats.wageSources).toEqual({ metro: 3, state: 2, national: 1 });
+    expect(r.stats.nonmetroZips).toBe(2);
     // wageSource is derivable from the compact ZIP row via the area's kind
     const src = (zip: string) => wageSourceOf(cfg.wages.areas[cfg.zips[zip][2]].kind);
-    expect(["85004", "43001", "59715", "82001"].map(src)).toEqual(["metro", "metro", "state", "national"]);
+    expect(["85004", "43793", "59301", "59715", "82001"].map(src)).toEqual(["metro", "metro", "metro", "state", "national"]);
     // Only areas used by a ZIP (plus national) are carried into the config
-    expect(Object.keys(cfg.wages.areas).sort()).toEqual(["msa:38060", "national", "nonmetro:3900001", "state:MT"]);
+    expect(Object.keys(cfg.wages.areas).sort()).toEqual([
+      "msa:38060",
+      "national",
+      "nonmetro:3000006",
+      "nonmetro:3900003",
+      "state:MT",
+    ]);
+    expect(cfg.hudCounty).toEqual({ year: "2026", quarter: "2" });
+    expect(cfg.oewsAreaDefinitions).toEqual({ release: "May 2025" });
+    expect(cfg.inputs.map((i) => i.input)).toEqual(expect.arrayContaining(["hud_zip_county", "oews_area_definitions"]));
   });
 
   it("check 1: fails when a ZIP resolves to no wage", () => {
@@ -255,6 +342,18 @@ describe("buildConfig", () => {
     expect(allowed.ok).toBe(true);
     expect(allowed.config!.productionReady).toBe(false);
     expect(allowed.config!.sampleInputs).toEqual(["oews_47-2181"]);
+  });
+
+  it("warns when the area definitions and wages come from different OEWS releases", () => {
+    const r = buildConfig(inputs({ oewsAreaDefs: areaDefs(COUNTY_AREAS, "May 2024") }), opts());
+    expect(r.ok).toBe(true);
+    expect(r.warnings.join()).toMatch(/area definitions \(May 2024\) and wages \(May 2025\)/);
+  });
+
+  it("treats sample county or area-definition inputs like any other sample input", () => {
+    const r = buildConfig(inputs({ oewsAreaDefs: { ...areaDefs(), sample: true } }), opts());
+    expect(r.ok).toBe(false);
+    expect(r.errors.join()).toMatch(/sample inputs present \(oews_area_definitions\)/);
   });
 
   it("checksum ignores version and builtAt but changes with content", () => {

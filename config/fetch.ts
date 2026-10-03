@@ -8,7 +8,8 @@ import path from "node:path";
 import { CONFIG_DIR, loadManual } from "./build";
 import { downloadOews, oewsSourceFromXlsx } from "./fetchers/bls_oews";
 import { extractPpi, fetchPpi } from "./fetchers/bls_ppi";
-import { fetchHudCrosswalk, toHudSource } from "./fetchers/hud_crosswalk";
+import { fetchHudCrosswalk, HUD_TYPE, toHudCountySource, toHudSource } from "./fetchers/hud_crosswalk";
+import { areaDefsSourceFromXlsx, downloadAreaDefinitions } from "./fetchers/oews_areas";
 import type { PpiFamily } from "./lib/schema";
 
 const SOURCES_DIR = path.join(CONFIG_DIR, "sources");
@@ -29,11 +30,18 @@ function writeCache(name: string, data: unknown) {
 }
 
 async function fetchHud(today: string) {
-  const res = await fetchHudCrosswalk({ token: process.env.HUD_API_TOKEN });
+  const token = process.env.HUD_API_TOKEN;
+  const res = await fetchHudCrosswalk({ token, type: HUD_TYPE.cbsa });
   writeCache("hud_zip_cbsa_all.json", res);
   const src = toHudSource([res], today);
   writeSource("hud_zip_cbsa.json", src);
-  console.log(`HUD ${src.year} Q${src.quarter}: ${Object.keys(src.value).length} ZIPs`);
+  console.log(`HUD zip-cbsa ${src.year} Q${src.quarter}: ${Object.keys(src.value).length} ZIPs`);
+
+  const countyRes = await fetchHudCrosswalk({ token, type: HUD_TYPE.county });
+  writeCache("hud_zip_county_all.json", countyRes);
+  const county = toHudCountySource([countyRes], today);
+  writeSource("hud_zip_county.json", county);
+  console.log(`HUD zip-county ${county.year} Q${county.quarter}: ${Object.keys(county.value).length} ZIPs`);
 }
 
 async function fetchPpiSources(today: string) {
@@ -68,6 +76,13 @@ async function fetchOews(today: string) {
   const counts = { ok: 0, suppressed: 0, not_published: 0 };
   for (const a of src.value) counts[a.status]++;
   console.log(`OEWS ${src.release}: ${src.value.length} areas (${JSON.stringify(counts)})`);
+
+  // Area definitions from the same release, so nonmetro area codes match the wage file.
+  const defs = await downloadAreaDefinitions({ userAgent: process.env.BLS_USER_AGENT, cacheDir: CACHE_DIR, yy: dl.yy });
+  const defsSrc = await areaDefsSourceFromXlsx(defs.xlsxPath, { url: defs.url, yy: dl.yy, retrievedAt: today });
+  writeSource("oews_area_definitions.json", defsSrc);
+  const nonmetro = Object.values(defsSrc.value).filter((k) => k.startsWith("nonmetro:")).length;
+  console.log(`OEWS area definitions ${defsSrc.release}: ${Object.keys(defsSrc.value).length} counties (${nonmetro} nonmetro)`);
 }
 
 async function main(argv: string[]) {

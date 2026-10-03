@@ -1,18 +1,33 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import oewsFixture from "./fixtures/oews_rows_sample.json";
 import ppiFixture from "./fixtures/bls_ppi_response.json";
 import hudFixture from "./fixtures/hud_zip_cbsa_responses.json";
+import hudCountyFixture from "./fixtures/hud_zip_county_response.json";
+import areaDefsFixture from "./fixtures/oews_area_definitions_rows.json";
 import { downloadOews, parseOewsRows, shortAreaName } from "../fetchers/bls_oews";
+import { downloadAreaDefinitions, oewsAreaDefsUrl, parseAreaDefinitionRows } from "../fetchers/oews_areas";
 import { extractPpi, fetchPpi, ppiRatio, type BlsApiResponse } from "../fetchers/bls_ppi";
 import {
   fetchHudCrosswalk,
+  HUD_TYPE,
   NON_CBSA,
   resolveZipCbsa,
+  resolveZipCounty,
+  toHudCountySource,
   toHudSource,
   type HudResponse,
   type HudRow,
 } from "../fetchers/hud_crosswalk";
-import { hudSourceSchema, oewsSourceSchema, ppiSourceSchema } from "../lib/schema";
+import {
+  hudCountySourceSchema,
+  hudSourceSchema,
+  oewsAreaDefsSourceSchema,
+  oewsSourceSchema,
+  ppiSourceSchema,
+} from "../lib/schema";
 
 const hudResponses = hudFixture.responses as HudResponse[];
 const hudRows = hudResponses.flatMap((r) => r.data.results);
@@ -82,6 +97,93 @@ describe("HUD crosswalk", () => {
   });
 });
 
+describe("HUD ZIP → county crosswalk (type=2)", () => {
+  const response = hudCountyFixture.response as HudResponse;
+  const resolved = resolveZipCounty(response.data.results);
+
+  it("keeps single-county ZIPs", () => {
+    expect(resolved["59301"]).toEqual(["30017", "MT"]); // Miles City, Custer County
+    expect(resolved["43793"]).toEqual(["39111", "OH"]); // Woodsfield, Monroe County
+    expect(resolved["92780"]).toEqual(["06059", "CA"]);
+  });
+
+  it("picks the highest residential ratio, not the first row", () => {
+    // 43006: Coshocton 0.323, Holmes 0.426, Knox 0.251
+    expect(resolved["43006"]).toEqual(["39075", "OH"]);
+    expect(resolved["59715"]).toEqual(["30031", "MT"]);
+  });
+
+  it("breaks residential ties on total ratio, then the lowest code", () => {
+    // 14173: no residential addresses (0 / 0); tot_ratio 0.995 vs 0.005
+    expect(resolved["14173"]).toEqual(["36009", "NY"]);
+    const row = (geoid: string): HudRow => ({ zip: "00001", geoid, state: "ZZ", res_ratio: 0.5, tot_ratio: 0.5 });
+    expect(resolveZipCounty([row("30067"), row("30031")])["00001"][0]).toBe("30031");
+  });
+
+  it("builds a valid source record and refuses a CBSA response", () => {
+    const src = hudCountySourceSchema.parse(toHudCountySource([response], "2026-10-03"));
+    expect(src.sourceUrl).toBe("https://www.huduser.gov/hudapi/public/usps?type=2&query=All");
+    expect(src.value["43006"]).toEqual(["39075", "OH"]);
+    expect(() => toHudCountySource([hudResponses[0]], "2026-10-03")).toThrow(/expected a zip-county crosswalk/);
+  });
+
+  it("requests type=2 when asked", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(response));
+    await fetchHudCrosswalk({ token: "tok", type: HUD_TYPE.county, fetchImpl: fetchImpl as unknown as typeof fetch });
+    const [url] = fetchImpl.mock.calls[0] as unknown as [string];
+    expect(url).toBe("https://www.huduser.gov/hudapi/public/usps?type=2&query=All");
+  });
+});
+
+describe("OEWS area definitions", () => {
+  const defs = parseAreaDefinitionRows(areaDefsFixture.rows);
+
+  it("maps counties to nonmetro areas and MSAs", () => {
+    expect(defs["30017"]).toBe("nonmetro:3000006"); // Custer County MT → East-Central Montana
+    expect(defs["39111"]).toBe("nonmetro:3900003"); // Monroe County OH → Eastern Ohio
+    expect(defs["39075"]).toBe("nonmetro:3900002"); // Holmes County OH → North Northeastern Ohio (noncontiguous)
+    expect(defs["30031"]).toBe("msa:14580"); // Gallatin County MT → Bozeman
+    expect(defs["06059"]).toBe("msa:31080");
+    expect(defs["09110"]).toBe("msa:25540"); // Connecticut planning region
+  });
+
+  it("validates against the source schema", () => {
+    expect(() =>
+      oewsAreaDefsSourceSchema.parse({
+        input: "oews_area_definitions",
+        sourceUrl: oewsAreaDefsUrl("25"),
+        retrievedAt: "2026-10-03",
+        release: "May 2025",
+        value: defs,
+      }),
+    ).not.toThrow();
+  });
+
+  it("reads the area-code column whatever the release year in its header", () => {
+    const row = { "FIPS CODE": "30", "COUNTY CODE": "17", "MAY 2026 AREA CODE": 3000006 };
+    expect(parseAreaDefinitionRows([row])).toEqual({ "30017": "nonmetro:3000006" });
+  });
+
+  it("fails on a county listed under two areas or an unreadable row", () => {
+    const a = { "FIPS CODE": "30", "COUNTY CODE": "017", "MAY 2025 AREA CODE": "3000006" };
+    expect(() => parseAreaDefinitionRows([a, { ...a, "MAY 2025 AREA CODE": "3000003" }])).toThrow(/listed in both/);
+    expect(() => parseAreaDefinitionRows([{ "FIPS CODE": "30", "COUNTY CODE": "", "MAY 2025 AREA CODE": "1" }])).toThrow(
+      /unreadable row/,
+    );
+    expect(() => parseAreaDefinitionRows([])).toThrow(/no county rows/);
+  });
+
+  it("refuses an HTML page served in place of the xlsx", async () => {
+    const fetchImpl = vi.fn(async () => new Response("<!DOCTYPE HTML><html></html>", { status: 200 }));
+    const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "oews-defs-"));
+    await expect(
+      downloadAreaDefinitions({ userAgent: "test (t@example.com)", cacheDir, yy: "25", fetchImpl: fetchImpl as unknown as typeof fetch }),
+    ).rejects.toThrow(/did not return an xlsx/);
+    const [url] = fetchImpl.mock.calls[0] as unknown as [string];
+    expect(url).toBe("https://www.bls.gov/oes/area_definitions_m2025.xlsx");
+  });
+});
+
 describe("OEWS parser", () => {
   const areas = parseOewsRows(oewsFixture.rows);
   const byKey = new Map(areas.map((a) => [a.key, a]));
@@ -105,6 +207,9 @@ describe("OEWS parser", () => {
   it("names nonmetropolitan areas without the suffix", () => {
     expect(byKey.get("nonmetro:3000001")).toMatchObject({ kind: "nonmetro", name: "Eastern Montana", state: "MT" });
     expect(shortAreaName("msa", "Dallas-Fort Worth-Arlington, TX")).toBe("Dallas");
+    expect(shortAreaName("nonmetro", "North Northeastern Ohio nonmetropolitan area (noncontiguous)")).toBe(
+      "North Northeastern Ohio",
+    );
   });
 
   it("output validates against the source schema", () => {

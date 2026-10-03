@@ -135,6 +135,28 @@ export const hudSourceSchema = z.object({
 });
 export type HudSource = z.infer<typeof hudSourceSchema>;
 
+/** ZIP → [county FIPS, state] (HUD type=2, highest residential ratio). */
+export const hudCountySourceSchema = z.object({
+  ...sourceMeta,
+  input: z.literal("hud_zip_county"),
+  year: z.string(),
+  quarter: z.string(),
+  value: z.record(z.string().regex(/^\d{5}$/), z.tuple([z.string().regex(/^\d{5}$/), z.string().regex(/^[A-Z]{2}$/)])),
+});
+export type HudCountySource = z.infer<typeof hudCountySourceSchema>;
+
+/** OEWS area key: "msa:<5-digit CBSA>" or "nonmetro:<7-digit OEWS code>". */
+export const oewsCountyAreaKeySchema = z.string().regex(/^(msa:\d{5}|nonmetro:\d{7})$/);
+
+/** OEWS area definitions: county FIPS → the OEWS MSA or nonmetropolitan area it belongs to. */
+export const oewsAreaDefsSourceSchema = z.object({
+  ...sourceMeta,
+  input: z.literal("oews_area_definitions"),
+  release: z.string(),
+  value: z.record(z.string().regex(/^\d{5}$/), oewsCountyAreaKeySchema),
+});
+export type OewsAreaDefsSource = z.infer<typeof oewsAreaDefsSourceSchema>;
+
 export const OEWS_AREA_KINDS = ["national", "state", "msa", "nonmetro"] as const;
 export const oewsAreaSchema = z.object({
   key: z.string(),
@@ -190,6 +212,7 @@ export const wageAreaSchema = z.object({
 export const zipEntrySchema = z.object({
   state: z.string(),
   cbsa: z.string().nullable(),
+  county: z.string().nullable(),
   wageArea: z.string(),
   wageSource: z.enum(WAGE_SOURCES),
 });
@@ -269,6 +292,8 @@ export const builtConfigSchema = z.object({
     areas: z.record(z.string(), wageAreaSchema),
   }),
   hud: z.object({ year: z.string(), quarter: z.string() }),
+  hudCounty: z.object({ year: z.string(), quarter: z.string() }),
+  oewsAreaDefinitions: z.object({ release: z.string() }),
   zips: z.record(z.string().regex(/^\d{5}$/), builtZipSchema),
 });
 export type BuiltConfig = z.infer<typeof builtConfigSchema>;

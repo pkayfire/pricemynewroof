@@ -1,0 +1,116 @@
+{
+  "_recorded": {
+    "at": "2026-10-03",
+    "request": "GET https://www.huduser.gov/hudapi/public/usps?type=2&query=All (Authorization header scrubbed); results filtered to a few ZIPs"
+  },
+  "response": {
+    "data": {
+      "year": "2026",
+      "quarter": "2",
+      "input": "all",
+      "crosswalk_type": "zip-county",
+      "results": [
+        {
+          "zip": "14173",
+          "geoid": "36009",
+          "city": "YORKSHIRE",
+          "state": "NY",
+          "res_ratio": 0,
+          "bus_ratio": 0,
+          "oth_ratio": 0.9954337899543378,
+          "tot_ratio": 0.9954337899543378
+        },
+        {
+          "zip": "14173",
+          "geoid": "36029",
+          "city": "YORKSHIRE",
+          "state": "NY",
+          "res_ratio": 0,
+          "bus_ratio": 0,
+          "oth_ratio": 0.0045662100456621,
+          "tot_ratio": 0.0045662100456621
+        },
+        {
+          "zip": "43006",
+          "geoid": "39031",
+          "city": "BRINKHAVEN",
+          "state": "OH",
+          "res_ratio": 0.322884012539185,
+          "bus_ratio": 0.5,
+          "oth_ratio": 0.3333333333333333,
+          "tot_ratio": 0.32732732732732733
+        },
+        {
+          "zip": "43006",
+          "geoid": "39075",
+          "city": "BRINKHAVEN",
+          "state": "OH",
+          "res_ratio": 0.4263322884012539,
+          "bus_ratio": 0,
+          "oth_ratio": 0.6666666666666666,
+          "tot_ratio": 0.42042042042042044
+        },
+        {
+          "zip": "43006",
+          "geoid": "39083",
+          "city": "BRINKHAVEN",
+          "state": "OH",
+          "res_ratio": 0.2507836990595611,
+          "bus_ratio": 0.5,
+          "oth_ratio": 0,
+          "tot_ratio": 0.25225225225225223
+        },
+        {
+          "zip": "43793",
+          "geoid": "39111",
+          "city": "WOODSFIELD",
+          "state": "OH",
+          "res_ratio": 1,
+          "bus_ratio": 1,
+          "oth_ratio": 1,
+          "tot_ratio": 1
+        },
+        {
+          "zip": "59301",
+          "geoid": "30017",
+          "city": "MILES CITY",
+          "state": "MT",
+          "res_ratio": 1,
+          "bus_ratio": 1,
+          "oth_ratio": 1,
+          "tot_ratio": 1
+        },
+        {
+          "zip": "59715",
+          "geoid": "30031",
+          "city": "BOZEMAN",
+          "state": "MT",
+          "res_ratio": 0.9964222752255523,
+          "bus_ratio": 0.9996600951733514,
+          "oth_ratio": 0.9995659722222222,
+          "tot_ratio": 0.997105820968531
+        },
+        {
+          "zip": "59715",
+          "geoid": "30067",
+          "city": "BOZEMAN",
+          "state": "MT",
+          "res_ratio": 0.003577724774447786,
+          "bus_ratio": 0.0003399048266485384,
+          "oth_ratio": 0.00043402777777777775,
+          "tot_ratio": 0.0028941790314691014
+        },
+        {
+          "zip": "92780",
+          "geoid": "06059",
+          "city": "TUSTIN",
+          "state": "CA",
+          "res_ratio": 1,
+          "bus_ratio": 1,
+          "oth_ratio": 1,
+          "tot_ratio": 1
+        }
+      ]
+    }
+  }
+}

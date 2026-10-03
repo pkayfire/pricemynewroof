@@ -16,15 +16,19 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { ppiRatio } from "./fetchers/bls_ppi";
 import {
   builtConfigSchema,
+  hudCountySourceSchema,
   hudSourceSchema,
   MANUAL_FILES,
   manualSchema,
+  oewsAreaDefsSourceSchema,
   oewsSourceSchema,
   ppiSourceSchema,
   WAGE_SOURCES,
   type BuiltConfig,
+  type HudCountySource,
   type HudSource,
   type Manual,
+  type OewsAreaDefsSource,
   type OewsSource,
   type PpiFamily,
   type PpiSource,
@@ -37,7 +41,10 @@ export const MAX_CHANGE = 0.15;
 export interface BuildInputs {
   manual: Manual;
   hud: HudSource;
+  /** ZIP → county, used to place non-CBSA ZIPs in their OEWS nonmetropolitan area. */
+  hudCounty: HudCountySource;
   oews: OewsSource;
+  oewsAreaDefs: OewsAreaDefsSource;
   ppi: PpiSource[];
 }
 
@@ -61,6 +68,8 @@ export interface Change {
 export interface BuildStats {
   zipCount: number;
   wageSources: Record<(typeof WAGE_SOURCES)[number], number>;
+  /** ZIPs counted under wageSources.metro that use an OEWS nonmetropolitan area. */
+  nonmetroZips: number;
   unresolvedZips: number;
 }
 
@@ -188,12 +197,12 @@ export function contentChecksum(cfg: Omit<BuiltConfig, "checksum"> | BuiltConfig
 // ---------- build ----------
 
 export function buildConfig(inputs: BuildInputs, opts: BuildOptions): BuildResult {
-  const { manual, hud, oews, ppi } = inputs;
+  const { manual, hud, hudCounty, oews, oewsAreaDefs, ppi } = inputs;
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // Sample inputs
-  const sampleInputs = [hud, oews, ...ppi].filter((s) => s.sample).map((s) => s.input);
+  const sampleInputs = [hud, hudCounty, oews, oewsAreaDefs, ...ppi].filter((s) => s.sample).map((s) => s.input);
   if (sampleInputs.length && !opts.allowSample) {
     errors.push(
       `sample inputs present (${sampleInputs.join(", ")}); fetch real data or pass --allow-sample ` +
@@ -205,22 +214,35 @@ export function buildConfig(inputs: BuildInputs, opts: BuildOptions): BuildResul
 
   errors.push(...checkReviewDates(manual, opts.today));
   errors.push(...checkPpiBase(manual, ppi));
+  if (oewsAreaDefs.release !== oews.release) {
+    warnings.push(
+      `OEWS area definitions (${oewsAreaDefs.release}) and wages (${oews.release}) are from different releases; ` +
+        "nonmetro area codes may not match",
+    );
+  }
 
   // Check 1: ZIP → wage
-  const idx = indexWages(oews.value);
-  const stats: BuildStats = { zipCount: 0, wageSources: { metro: 0, state: 0, national: 0 }, unresolvedZips: 0 };
+  const idx = indexWages(oews.value, oewsAreaDefs.value);
+  const stats: BuildStats = {
+    zipCount: 0,
+    wageSources: { metro: 0, state: 0, national: 0 },
+    nonmetroZips: 0,
+    unresolvedZips: 0,
+  };
   const zips: BuiltConfig["zips"] = {};
   const usedAreas = new Set<string>();
   const unresolved: string[] = [];
   for (const zip of Object.keys(hud.value).sort()) {
     const [cbsa, state] = hud.value[zip];
     stats.zipCount++;
-    const entry = resolveZipWage(cbsa, state, idx);
+    const county = hudCounty.value[zip]?.[0] ?? null;
+    const entry = resolveZipWage({ cbsa, state, county }, idx);
     if (!entry) {
       unresolved.push(zip);
       continue;
     }
     stats.wageSources[entry.wageSource]++;
+    if (entry.wageArea.startsWith("nonmetro:")) stats.nonmetroZips++;
     usedAreas.add(entry.wageArea);
     zips[zip] = [entry.state, entry.cbsa, entry.wageArea];
   }
@@ -296,11 +318,25 @@ export function buildConfig(inputs: BuildInputs, opts: BuildOptions): BuildResul
         detail: `${hud.year} Q${hud.quarter}`,
       },
       {
+        input: hudCounty.input,
+        sourceUrl: hudCounty.sourceUrl,
+        retrievedAt: hudCounty.retrievedAt,
+        sample: hudCounty.sample,
+        detail: `${hudCounty.year} Q${hudCounty.quarter}`,
+      },
+      {
         input: oews.input,
         sourceUrl: oews.sourceUrl,
         retrievedAt: oews.retrievedAt,
         sample: oews.sample,
         detail: oews.sample ? `SAMPLE, not BLS data: ${oews.release}` : oews.release,
+      },
+      {
+        input: oewsAreaDefs.input,
+        sourceUrl: oewsAreaDefs.sourceUrl,
+        retrievedAt: oewsAreaDefs.retrievedAt,
+        sample: oewsAreaDefs.sample,
+        detail: oewsAreaDefs.release,
       },
       ...ppi.map((p) => ({
         input: p.input,
@@ -323,6 +359,8 @@ export function buildConfig(inputs: BuildInputs, opts: BuildOptions): BuildResul
     ppi: ppiOut,
     wages: { occupation: "47-2181", release: oews.release, nationalArea: "national", areas },
     hud: { year: hud.year, quarter: hud.quarter },
+    hudCounty: { year: hudCounty.year, quarter: hudCounty.quarter },
+    oewsAreaDefinitions: { release: oewsAreaDefs.release },
     zips,
   };
 
@@ -365,12 +403,14 @@ export function loadManual(dir = path.join(CONFIG_DIR, "manual")): Manual {
 
 export function loadSources(manual: Manual, dir = path.join(CONFIG_DIR, "sources")) {
   const hud = hudSourceSchema.parse(readJson(path.join(dir, "hud_zip_cbsa.json")));
+  const hudCounty = hudCountySourceSchema.parse(readJson(path.join(dir, "hud_zip_county.json")));
   const oews = oewsSourceSchema.parse(readJson(path.join(dir, "oews_47-2181.json")));
+  const oewsAreaDefs = oewsAreaDefsSourceSchema.parse(readJson(path.join(dir, "oews_area_definitions.json")));
   const ppi = (Object.keys(manual.ppiSeries.families) as PpiFamily[])
     .map((f) => path.join(dir, `ppi_${f}.json`))
     .filter((f) => fs.existsSync(f))
     .map((f) => ppiSourceSchema.parse(readJson(f)));
-  return { hud, oews, ppi };
+  return { hud, hudCounty, oews, oewsAreaDefs, ppi };
 }
 
 /** Highest-numbered config-vN.json in dist, or null. */
@@ -408,7 +448,8 @@ function main(argv: string[]): number {
 
   const s = result.stats;
   console.log(
-    `ZIPs: ${s.zipCount} (wage via metro ${s.wageSources.metro}, state ${s.wageSources.state}, ` +
+    `ZIPs: ${s.zipCount} (wage via metro ${s.wageSources.metro} [of which nonmetro areas ${s.nonmetroZips}], ` +
+      `state ${s.wageSources.state}, ` +
       `national ${s.wageSources.national}, unresolved ${s.unresolvedZips})`,
   );
   for (const w of result.warnings) console.warn(`warning: ${w}`);
