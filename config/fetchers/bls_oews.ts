@@ -26,12 +26,13 @@ function field(row: Row, name: string): string {
 }
 
 /**
- * Short display name: "Phoenix-Mesa-Chandler, AZ" → "Phoenix";
+ * Display name: metros keep every named city so suburbs see their city
+ * ("Los Angeles-Long Beach-Anaheim, CA" → "Los Angeles-Long Beach-Anaheim");
  * "Eastern Montana nonmetropolitan area" → "Eastern Montana";
  * "North Northeastern Ohio nonmetropolitan area (noncontiguous)" → "North Northeastern Ohio".
  */
 export function shortAreaName(kind: OewsArea["kind"], title: string): string {
-  if (kind === "msa") return title.split(/[-,]/)[0].trim();
+  if (kind === "msa") return title.replace(/,\s*[A-Z]{2}(-[A-Z]{2})*\s*$/, "").trim();
   if (kind === "nonmetro") {
     return title
       .replace(/\s*\(noncontiguous\)\s*$/i, "")

@@ -30,12 +30,13 @@ export interface ZipGeo {
  * (the build check then fails).
  *
  * - CBSA that OEWS publishes as an MSA → that MSA's wage (suppressed → state, national).
- * - CBSA 99999 (outside every CBSA) → county (HUD zip-county) → OEWS nonmetropolitan area
- *   (OEWS area definitions). A nonmetro area counts as wageSource "metro" (its own wage,
- *   no fallback); the area's kind ("nonmetro") is kept on the area record for wording.
+ * - CBSA 99999 (outside every CBSA) or a CBSA OEWS doesn't define as an MSA (micropolitan)
+ *   → county (HUD zip-county) → OEWS nonmetropolitan area (OEWS area definitions). A
+ *   nonmetro area counts as wageSource "metro" (its own wage, no fallback); the area's
+ *   kind ("nonmetro") is kept on the area record for wording.
  *   DECISION: if the definitions put that county in an MSA (HUD and OEWS delineations
  *   disagree), we don't guess; the ZIP falls back to the state wage.
- * - Any other CBSA that OEWS doesn't publish (micropolitan areas) → state wage (spec).
+ * - An OEWS MSA with no usable roofer wage → state wage (spec), not the nonmetro area.
  * - Anything unplaceable (no county, county not in the definitions, suppressed nonmetro
  *   wage) → state wage, then national.
  */
@@ -43,12 +44,10 @@ export function resolveZipWage(geo: ZipGeo, idx: WageIndex): ZipEntry | null {
   const { cbsa, state, county } = geo;
   const base = { state, cbsa: cbsa === NON_CBSA ? null : cbsa, county };
 
-  let area: OewsArea | undefined;
-  if (cbsa === NON_CBSA) {
+  let area = cbsa === NON_CBSA ? undefined : idx.byKey.get(`msa:${cbsa}`);
+  if (!area) {
     const key = county ? idx.countyArea.get(county) : undefined;
     if (key?.startsWith("nonmetro:")) area = idx.byKey.get(key);
-  } else {
-    area = idx.byKey.get(`msa:${cbsa}`);
   }
   if (usable(area)) return { ...base, wageArea: area.key, wageSource: "metro" };
 

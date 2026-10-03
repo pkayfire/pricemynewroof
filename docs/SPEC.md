@@ -548,7 +548,8 @@ Answers to pre-build questions. These override anything above that they contradi
 - BLS API key and HUD token: Peter registers them; until then the fetchers run against recorded fixtures.
 - The 15% change check is skipped when there is no previous config version.
 - PPI base month is 2026-08 (2026-09 was not yet published at build time). Series: WPU1361 (prepared asphalt and tar roofing and siding products) and WPU133 (concrete products).
-- Non-metro ZIPs map to their specific OEWS nonmetropolitan area through the ZIP's county (HUD ZIP→county crosswalk plus the OEWS area definitions). CBSAs that OEWS doesn't publish (mostly micropolitan) fall back to the state wage. A nonmetro area counts as `wageSource: "metro"`, so its own name is used ("For the Eastern Montana area.").
+- Non-metro ZIPs map to their specific OEWS nonmetropolitan area through the ZIP's county (HUD ZIP→county crosswalk plus the OEWS area definitions). Micropolitan CBSAs (not OEWS MSAs) use the same county → nonmetro mapping; an OEWS MSA with no usable roofer wage falls back to the state wage. A nonmetro area counts as `wageSource: "metro"`, so its own name is used ("For the Eastern Montana area.").
+- Metro display names keep every named city and drop the state ("For the Los Angeles-Long Beach-Anaheim area."), so suburbs like Tustin see their part of the metro.
 - Multi-CBSA ZIP tie-break: highest residential ratio, then highest total ratio, then a real CBSA over 99999, then the lowest code.
 - The built config carries `productionReady` and `sampleInputs`; the engine refuses a config with `productionReady: false` in production. A config built from sample inputs is never committed.
 - The config-build Action runs monthly on the 20th and fetches all sources each time; unchanged inputs produce no new version.

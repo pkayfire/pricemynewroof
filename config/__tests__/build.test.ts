@@ -169,9 +169,16 @@ describe("wage fallback (metro → state → national)", () => {
     expect(resolveZipWage(geo("16700", "WY"), idx)).toMatchObject({ wageArea: "national", wageSource: "national" });
   });
 
-  it("falls back to state for a CBSA OEWS does not publish (micropolitan), even if its county is in a nonmetro area", () => {
+  it("maps a CBSA OEWS does not define as an MSA (micropolitan) to its county's nonmetro area", () => {
+    expect(resolveZipWage(geo("33500", "MT", "30017"), idx)).toEqual({
+      state: "MT",
+      cbsa: "33500",
+      county: "30017",
+      wageArea: "nonmetro:3000006",
+      wageSource: "metro",
+    });
+    // no county to place it → state
     expect(resolveZipWage(geo("12345", "AZ"), idx)).toMatchObject({ wageArea: "state:AZ", wageSource: "state" });
-    expect(resolveZipWage(geo("33500", "MT", "30017"), idx)).toMatchObject({ wageArea: "state:MT", wageSource: "state" });
   });
 
   it("maps non-CBSA ZIPs to their county's OEWS nonmetropolitan area, counted as metro", () => {

@@ -191,7 +191,7 @@ describe("OEWS parser", () => {
   it("reads the cross-industry, all-ownership roofers median", () => {
     expect(byKey.get("national")).toMatchObject({ kind: "national", hourlyMedian: 25, status: "ok", state: null });
     expect(byKey.get("state:AZ")).toMatchObject({ code: "04", hourlyMedian: 23, status: "ok" });
-    expect(byKey.get("msa:38060")).toMatchObject({ name: "Phoenix", hourlyMedian: 23.5, state: "AZ" });
+    expect(byKey.get("msa:38060")).toMatchObject({ name: "Phoenix-Mesa-Chandler", hourlyMedian: 23.5, state: "AZ" });
   });
 
   it("marks suppressed values as suppressed, never zero", () => {
@@ -204,9 +204,12 @@ describe("OEWS parser", () => {
     expect(byKey.get("state:WY")).toMatchObject({ status: "not_published", hourlyMedian: null });
   });
 
-  it("names nonmetropolitan areas without the suffix", () => {
+  it("names areas without the state or nonmetro suffix", () => {
     expect(byKey.get("nonmetro:3000001")).toMatchObject({ kind: "nonmetro", name: "Eastern Montana", state: "MT" });
-    expect(shortAreaName("msa", "Dallas-Fort Worth-Arlington, TX")).toBe("Dallas");
+    expect(shortAreaName("msa", "Dallas-Fort Worth-Arlington, TX")).toBe("Dallas-Fort Worth-Arlington");
+    expect(shortAreaName("msa", "Los Angeles-Long Beach-Anaheim, CA")).toBe("Los Angeles-Long Beach-Anaheim");
+    expect(shortAreaName("msa", "New York-Newark-Jersey City, NY-NJ")).toBe("New York-Newark-Jersey City");
+    expect(shortAreaName("msa", "Bozeman, MT")).toBe("Bozeman");
     expect(shortAreaName("nonmetro", "North Northeastern Ohio nonmetropolitan area (noncontiguous)")).toBe(
       "North Northeastern Ohio",
     );
