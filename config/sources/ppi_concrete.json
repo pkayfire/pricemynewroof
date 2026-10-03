@@ -1,0 +1,21 @@
+{
+  "input": "ppi_concrete",
+  "sourceUrl": "https://data.bls.gov/timeseries/WPU133",
+  "retrievedAt": "2026-10-03",
+  "sample": false,
+  "family": "concrete",
+  "seriesId": "WPU133",
+  "title": "PPI Commodity data for Nonmetallic mineral products-Concrete products, not seasonally adjusted",
+  "baseDate": "2026-08",
+  "base": {
+    "period": "2026-08",
+    "value": 409.479,
+    "preliminary": true
+  },
+  "latest": {
+    "period": "2026-08",
+    "value": 409.479,
+    "preliminary": true
+  },
+  "value": 409.479
+}

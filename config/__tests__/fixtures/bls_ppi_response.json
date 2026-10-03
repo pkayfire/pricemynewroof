@@ -1,0 +1,215 @@
+{
+  "_recorded": {
+    "at": "2026-10-03",
+    "request": "POST https://api.bls.gov/publicAPI/v2/timeseries/data/ {seriesid:[WPU1361,WPU133],startyear:2026,endyear:2026,catalog:true} (registrationkey scrubbed)"
+  },
+  "response": {
+    "status": "REQUEST_SUCCEEDED",
+    "responseTime": 74,
+    "message": [],
+    "Results": {
+      "series": [
+        {
+          "seriesID": "WPU1361",
+          "catalog": {
+            "series_title": "PPI Commodity data for Nonmetallic mineral products-Prepared asphalt and tar roofing and siding products, not seasonally adjusted",
+            "series_id": "WPU1361",
+            "seasonality": "Not Seasonally Adjusted",
+            "survey_name": "PPI Commodity Data",
+            "survey_abbreviation": "WP",
+            "measure_data_type": "Prepared asphalt and tar roofing and siding products",
+            "commerce_sector": "Nonmetallic mineral products",
+            "item": "Prepared asphalt and tar roofing and siding products"
+          },
+          "data": [
+            {
+              "year": "2026",
+              "period": "M08",
+              "periodName": "August",
+              "latest": "true",
+              "value": "374.098",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M07",
+              "periodName": "July",
+              "value": "372.301",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M06",
+              "periodName": "June",
+              "value": "367.585",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M05",
+              "periodName": "May",
+              "value": "354.678",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M04",
+              "periodName": "April",
+              "value": "347.632",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M03",
+              "periodName": "March",
+              "value": "346.394",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "352.546",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M01",
+              "periodName": "January",
+              "value": "347.005",
+              "footnotes": [
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "seriesID": "WPU133",
+          "catalog": {
+            "series_title": "PPI Commodity data for Nonmetallic mineral products-Concrete products, not seasonally adjusted",
+            "series_id": "WPU133",
+            "seasonality": "Not Seasonally Adjusted",
+            "survey_name": "PPI Commodity Data",
+            "survey_abbreviation": "WP",
+            "measure_data_type": "Concrete products",
+            "commerce_sector": "Nonmetallic mineral products",
+            "item": "Concrete products"
+          },
+          "data": [
+            {
+              "year": "2026",
+              "period": "M08",
+              "periodName": "August",
+              "latest": "true",
+              "value": "409.479",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M07",
+              "periodName": "July",
+              "value": "407.793",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M06",
+              "periodName": "June",
+              "value": "407.659",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M05",
+              "periodName": "May",
+              "value": "405.701",
+              "footnotes": [
+                {
+                  "code": "P",
+                  "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                }
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M04",
+              "periodName": "April",
+              "value": "403.647",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M03",
+              "periodName": "March",
+              "value": "401.189",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "399.405",
+              "footnotes": [
+                {}
+              ]
+            },
+            {
+              "year": "2026",
+              "period": "M01",
+              "periodName": "January",
+              "value": "399.454",
+              "footnotes": [
+                {}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

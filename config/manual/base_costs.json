@@ -1,0 +1,97 @@
+{
+  "reviewedAt": "2026-10-03",
+  "reviewDue": "2027-10-03",
+  "baseDate": "2026-08",
+  "unit": "USD per roofing square (100 sq ft), installed, all-in including tear-off, national",
+  "options": {
+    "architectural_shingle": {
+      "name": "Architectural shingle",
+      "low": 550,
+      "high": 900,
+      "shares": { "labor": 0.55, "material": 0.3, "other": 0.15 },
+      "confidence": "medium",
+      "ppiFamily": "asphalt",
+      "note": "Low kept at $550, between the sources below.",
+      "sources": [
+        {
+          "name": "Modernize cost calculator",
+          "url": "https://modernize.com/roof/cost-calculator",
+          "publishedLow": 600,
+          "publishedHigh": 900,
+          "pageDate": "Updated 2026-08-21",
+          "retrievedAt": "2026-10-03"
+        },
+        {
+          "name": "HomeAdvisor: roof replacement",
+          "url": "https://www.homeadvisor.com/cost/roofing/install-a-roof/",
+          "publishedLow": 400,
+          "publishedHigh": 600,
+          "pageDate": "Updated 2026-06-17",
+          "retrievedAt": "2026-10-03"
+        },
+        {
+          "name": "The Roofing Brief: 2026 Roofing Cost Report",
+          "url": "https://theroofingbrief.com/2026-roofing-cost-report/",
+          "publishedLow": 500,
+          "publishedHigh": 800,
+          "pageDate": "Published 2026-06-17, reviewed 2026-09",
+          "retrievedAt": "2026-10-03"
+        }
+      ]
+    },
+    "concrete_tile": {
+      "name": "New concrete tile",
+      "low": 1000,
+      "high": 1800,
+      "shares": { "labor": 0.55, "material": 0.3, "other": 0.15 },
+      "confidence": "medium",
+      "ppiFamily": "concrete",
+      "sources": [
+        {
+          "name": "Modernize cost calculator",
+          "url": "https://modernize.com/roof/cost-calculator",
+          "publishedLow": 1000,
+          "publishedHigh": 1800,
+          "pageDate": "Updated 2026-08-21",
+          "retrievedAt": "2026-10-03"
+        },
+        {
+          "name": "HomeAdvisor: tile roof",
+          "url": "https://www.homeadvisor.com/cost/roofing/install-replace-tile-roof/",
+          "publishedLow": 900,
+          "publishedHigh": 1800,
+          "pageDate": "Updated 2026-06-19",
+          "retrievedAt": "2026-10-03"
+        },
+        {
+          "name": "The Roofing Brief: 2026 Roofing Cost Report",
+          "url": "https://theroofingbrief.com/2026-roofing-cost-report/",
+          "publishedLow": 700,
+          "publishedHigh": 1900,
+          "pageDate": "Published 2026-06-17, reviewed 2026-09",
+          "retrievedAt": "2026-10-03"
+        }
+      ]
+    },
+    "lift_and_relay": {
+      "name": "Tile lift and relay",
+      "low": 550,
+      "high": 900,
+      "shares": { "labor": 0.65, "material": 0.2, "other": 0.15 },
+      "confidence": "low",
+      "ppiFamily": "asphalt",
+      "note": "Low raised from $400 to $550: no source goes below $600 and the only one is Florida, a high-cost market. No solid national source; calibrate with real quotes before scaling. PPI family is asphalt because the material replaced is the underlayment.",
+      "sources": [
+        {
+          "name": "RoofCost Florida: tile re-underlayment",
+          "url": "https://roofcostflorida.com/tile-re-underlayment",
+          "publishedLow": 600,
+          "publishedHigh": 1170,
+          "note": "Florida, all-in. Independent pricing guide, not a roofer.",
+          "pageDate": "Updated 2026-09-26",
+          "retrievedAt": "2026-10-03"
+        }
+      ]
+    }
+  }
+}

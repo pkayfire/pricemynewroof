@@ -1,0 +1,17 @@
+{
+  "reviewedAt": "2026-10-03",
+  "reviewDue": "2027-10-03",
+  "baseDate": "2026-08",
+  "families": {
+    "asphalt": {
+      "seriesId": "WPU1361",
+      "title": "PPI Commodity data for Nonmetallic mineral products-Prepared asphalt and tar roofing and siding products, not seasonally adjusted",
+      "sourceUrl": "https://data.bls.gov/timeseries/WPU1361"
+    },
+    "concrete": {
+      "seriesId": "WPU133",
+      "title": "PPI Commodity data for Nonmetallic mineral products-Concrete products, not seasonally adjusted",
+      "sourceUrl": "https://data.bls.gov/timeseries/WPU133"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+# Config build: fetches HUD, OEWS and PPI, runs the build checks, and opens a pull request
+# with the new config/dist/config-vN.json for review. Nothing is merged automatically.
+#
+# Required repository secrets: BLS_API_KEY, HUD_API_TOKEN, BLS_USER_AGENT
+# (BLS_USER_AGENT: descriptive User-Agent with contact info, required by BLS bulk downloads).
+name: Config build
+
+on:
+  schedule:
+    # DECISION: the 20th of each month, after BLS publishes the previous month's PPI (mid-month).
+    - cron: "0 14 20 * *"
+  workflow_dispatch:
+    inputs:
+      allow_large_changes:
+        description: "Allow values to move more than 15% from the previous version (review the PR carefully)"
+        type: boolean
+        default: false
+      sources:
+        description: "Sources to fetch (comma-separated: hud,ppi,oews)"
+        type: string
+        default: "hud,ppi,oews"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: config-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Unit tests (no network)
+        run: pnpm test
+
+      - name: Fetch sources
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+          HUD_API_TOKEN: ${{ secrets.HUD_API_TOKEN }}
+          BLS_USER_AGENT: ${{ secrets.BLS_USER_AGENT }}
+          SOURCES: ${{ github.event.inputs.sources || 'hud,ppi,oews' }}
+        run: pnpm config:fetch --only="$SOURCES"
+
+      - name: Build config
+        env:
+          ALLOW_LARGE_CHANGES: ${{ github.event.inputs.allow_large_changes || 'false' }}
+        run: |
+          if [ "$ALLOW_LARGE_CHANGES" = "true" ]; then
+            pnpm config:build --allow-large-changes
+          else
+            pnpm config:build
+          fi
+
+      - name: Detect new config version
+        id: dist
+        run: |
+          if [ -n "$(git status --porcelain config/dist)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "file=$(git status --porcelain config/dist | awk '{print $2}' | head -n1)" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No new config version; skipping pull request."
+          fi
+
+      - name: Open pull request
+        if: steps.dist.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: config-build/${{ github.run_id }}
+          add-paths: |
+            config/dist/**
+            config/sources/**
+          commit-message: "Config build: ${{ steps.dist.outputs.file }}"
+          title: "Config build: ${{ steps.dist.outputs.file }}"
+          body: |
+            Automated config build (run ${{ github.run_id }}).
+
+            - New file: `${{ steps.dist.outputs.file }}`
+            - Large-change override: `${{ github.event.inputs.allow_large_changes || 'false' }}`
+
+            Review the source diffs and the build log before merging. Deploys pin the config
+            version, so merging does not change what production uses until the pin is updated.

@@ -1,0 +1,89 @@
+{
+  "_recorded": {
+    "at": "2026-10-03",
+    "source": "https://www.bls.gov/oes/area_definitions_m2025.xlsx (first sheet, header row as read by readXlsxRows; rows filtered to a few counties)"
+  },
+  "rows": [
+    {
+      "FIPS CODE": "06",
+      "STATE": "California",
+      "STATE ABBREVIATION": "CA",
+      "MAY 2025 AREA CODE": "31080",
+      "MAY 2025 AREA TITLE": "Los Angeles-Long Beach-Anaheim, CA",
+      "COUNTY CODE": "059",
+      "COUNTY NAME": "Orange County"
+    },
+    {
+      "FIPS CODE": "09",
+      "STATE": "Connecticut",
+      "STATE ABBREVIATION": "CT",
+      "MAY 2025 AREA CODE": "25540",
+      "MAY 2025 AREA TITLE": "Hartford-West Hartford-East Hartford, CT",
+      "COUNTY CODE": "110",
+      "COUNTY NAME": "Capitol Planning Region"
+    },
+    {
+      "FIPS CODE": "30",
+      "STATE": "Montana",
+      "STATE ABBREVIATION": "MT",
+      "MAY 2025 AREA CODE": "3000006",
+      "MAY 2025 AREA TITLE": "East-Central Montana nonmetropolitan area",
+      "COUNTY CODE": "017",
+      "COUNTY NAME": "Custer County"
+    },
+    {
+      "FIPS CODE": "30",
+      "STATE": "Montana",
+      "STATE ABBREVIATION": "MT",
+      "MAY 2025 AREA CODE": "14580",
+      "MAY 2025 AREA TITLE": "Bozeman, MT",
+      "COUNTY CODE": "031",
+      "COUNTY NAME": "Gallatin County"
+    },
+    {
+      "FIPS CODE": "30",
+      "STATE": "Montana",
+      "STATE ABBREVIATION": "MT",
+      "MAY 2025 AREA CODE": "3000003",
+      "MAY 2025 AREA TITLE": "Southwest Montana nonmetropolitan area",
+      "COUNTY CODE": "067",
+      "COUNTY NAME": "Park County"
+    },
+    {
+      "FIPS CODE": "39",
+      "STATE": "Ohio",
+      "STATE ABBREVIATION": "OH",
+      "MAY 2025 AREA CODE": "3900003",
+      "MAY 2025 AREA TITLE": "Eastern Ohio nonmetropolitan area",
+      "COUNTY CODE": "031",
+      "COUNTY NAME": "Coshocton County"
+    },
+    {
+      "FIPS CODE": "39",
+      "STATE": "Ohio",
+      "STATE ABBREVIATION": "OH",
+      "MAY 2025 AREA CODE": "3900002",
+      "MAY 2025 AREA TITLE": "North Northeastern Ohio nonmetropolitan area (noncontiguous)",
+      "COUNTY CODE": "075",
+      "COUNTY NAME": "Holmes County"
+    },
+    {
+      "FIPS CODE": "39",
+      "STATE": "Ohio",
+      "STATE ABBREVIATION": "OH",
+      "MAY 2025 AREA CODE": "3900002",
+      "MAY 2025 AREA TITLE": "North Northeastern Ohio nonmetropolitan area (noncontiguous)",
+      "COUNTY CODE": "083",
+      "COUNTY NAME": "Knox County"
+    },
+    {
+      "FIPS CODE": "39",
+      "STATE": "Ohio",
+      "STATE ABBREVIATION": "OH",
+      "MAY 2025 AREA CODE": "3900003",
+      "MAY 2025 AREA TITLE": "Eastern Ohio nonmetropolitan area",
+      "COUNTY CODE": "111",
+      "COUNTY NAME": "Monroe County"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "reviewedAt": "2026-10-03",
+  "reviewDue": "2027-10-03",
+  "source": "docs/SPEC.md, Build decisions (Oct 3, 2026): $75 (low) to $125 (high) per steep square",
+  "unit": "USD per steep square (segments steeper than 6/12)",
+  "low": 75,
+  "high": 125
+}
