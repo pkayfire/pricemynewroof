@@ -117,8 +117,12 @@ const sourceMeta = {
   input: z.string(),
   sourceUrl: url,
   retrievedAt: isoDate,
-  /** True when built from a hand-made sample rather than a real download. Never allowed in a build. */
+  /**
+   * True when built from a hand-made sample rather than a real download. A build only
+   * accepts sample inputs with --allow-sample, and then marks itself productionReady: false.
+   */
   sample: z.boolean().default(false),
+  note: z.string().optional(),
 };
 
 /** ZIP → [cbsa, state]. cbsa "99999" = not in any CBSA. */
@@ -182,6 +186,7 @@ export const wageAreaSchema = z.object({
   hourlyMedian: z.number().positive(),
 });
 
+/** Result of resolving one ZIP through the wage fallback chain (build-time only). */
 export const zipEntrySchema = z.object({
   state: z.string(),
   cbsa: z.string().nullable(),
@@ -190,11 +195,31 @@ export const zipEntrySchema = z.object({
 });
 export type ZipEntry = z.infer<typeof zipEntrySchema>;
 
+/**
+ * Compact ZIP row in the built config: [state, cbsa or null, wage area key].
+ * wageSource is derived from the wage area's kind (see wageSourceOf), which keeps
+ * the ~40k-ZIP table small.
+ */
+export const builtZipSchema = z.tuple([
+  z.string().regex(/^[A-Z]{2}$/),
+  z.string().regex(/^\d{5}$/).nullable(),
+  z.string(),
+]);
+
+export function wageSourceOf(kind: (typeof OEWS_AREA_KINDS)[number]): (typeof WAGE_SOURCES)[number] {
+  if (kind === "state") return "state";
+  if (kind === "national") return "national";
+  return "metro"; // msa or nonmetro: the area's own wage, no fallback
+}
+
 export const builtConfigSchema = z.object({
   schemaVersion: z.literal(1),
   version: z.number().int().positive(),
   builtAt: z.string(),
   checksum: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  /** False when any input is a hand-made sample. The engine must refuse such a config in production. */
+  productionReady: z.boolean(),
+  sampleInputs: z.array(z.string()),
   overrides: z.object({
     allowLargeChanges: z.boolean(),
     largeChangeCount: z.number().int().nonnegative(),
@@ -204,6 +229,7 @@ export const builtConfigSchema = z.object({
       input: z.string(),
       sourceUrl: z.string(),
       retrievedAt: z.string(),
+      sample: z.boolean(),
       detail: z.string().optional(),
     }),
   ),
@@ -217,6 +243,7 @@ export const builtConfigSchema = z.object({
       shares: z.object({ labor: share, material: share, other: share }),
       confidence: z.enum(["high", "medium", "low"]),
       ppiFamily: ppiFamilySchema,
+      sources: z.array(baseCostSourceSchema),
     }),
   ),
   steepAdder: z.object({ low: z.number(), high: z.number() }),
@@ -226,6 +253,8 @@ export const builtConfigSchema = z.object({
     ppiFamilySchema,
     z.object({
       seriesId: z.string(),
+      title: z.string(),
+      sourceUrl: url,
       basePeriod: yearMonth,
       baseValue: z.number().positive(),
       latestPeriod: yearMonth,
@@ -236,8 +265,10 @@ export const builtConfigSchema = z.object({
   wages: z.object({
     occupation: z.literal("47-2181"),
     release: z.string(),
+    nationalArea: z.literal("national"),
     areas: z.record(z.string(), wageAreaSchema),
   }),
-  zips: z.record(z.string().regex(/^\d{5}$/), zipEntrySchema),
+  hud: z.object({ year: z.string(), quarter: z.string() }),
+  zips: z.record(z.string().regex(/^\d{5}$/), builtZipSchema),
 });
 export type BuiltConfig = z.infer<typeof builtConfigSchema>;

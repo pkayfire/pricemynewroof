@@ -1,0 +1,6 @@
+{
+  "reviewedAt": "2026-10-03",
+  "reviewDue": "2027-10-03",
+  "source": "docs/SPEC.md, Configuration data pipeline: tile-common states (static list)",
+  "states": ["AZ", "CA", "FL", "HI", "NM", "NV", "TX"]
+}

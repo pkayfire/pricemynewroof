@@ -1,0 +1,26 @@
+{
+  "input": "oews_47-2181",
+  "sourceUrl": "https://www.bls.gov/oes/tables.htm",
+  "retrievedAt": "2026-10-03",
+  "sample": true,
+  "note": "SAMPLE: hand-made placeholder wages, NOT BLS data. Area codes and titles follow the OEWS format; every wage value is invented. Replace with `pnpm config:fetch --only=oews` once BLS_USER_AGENT is set. A config built from this file has productionReady: false.",
+  "occupation": "47-2181",
+  "release": "SAMPLE",
+  "value": [
+    { "key": "national", "kind": "national", "code": "99", "title": "U.S.", "name": "U.S.", "state": null, "hourlyMedian": 25, "status": "ok", "marker": null },
+    { "key": "state:AZ", "kind": "state", "code": "04", "title": "Arizona", "name": "Arizona", "state": "AZ", "hourlyMedian": 23, "status": "ok", "marker": null },
+    { "key": "state:CA", "kind": "state", "code": "06", "title": "California", "name": "California", "state": "CA", "hourlyMedian": 30, "status": "ok", "marker": null },
+    { "key": "state:MT", "kind": "state", "code": "30", "title": "Montana", "name": "Montana", "state": "MT", "hourlyMedian": 24, "status": "ok", "marker": null },
+    { "key": "state:OH", "kind": "state", "code": "39", "title": "Ohio", "name": "Ohio", "state": "OH", "hourlyMedian": 24, "status": "ok", "marker": null },
+    { "key": "state:TX", "kind": "state", "code": "48", "title": "Texas", "name": "Texas", "state": "TX", "hourlyMedian": 21, "status": "ok", "marker": null },
+    { "key": "state:WY", "kind": "state", "code": "56", "title": "Wyoming", "name": "Wyoming", "state": "WY", "hourlyMedian": null, "status": "suppressed", "marker": "*" },
+    { "key": "msa:14580", "kind": "msa", "code": "14580", "title": "Bozeman, MT", "name": "Bozeman", "state": "MT", "hourlyMedian": null, "status": "suppressed", "marker": "*" },
+    { "key": "msa:18140", "kind": "msa", "code": "18140", "title": "Columbus, OH", "name": "Columbus", "state": "OH", "hourlyMedian": 24.5, "status": "ok", "marker": null },
+    { "key": "msa:19100", "kind": "msa", "code": "19100", "title": "Dallas-Fort Worth-Arlington, TX", "name": "Dallas", "state": "TX", "hourlyMedian": 21.5, "status": "ok", "marker": null },
+    { "key": "msa:31080", "kind": "msa", "code": "31080", "title": "Los Angeles-Long Beach-Anaheim, CA", "name": "Los Angeles", "state": "CA", "hourlyMedian": 31, "status": "ok", "marker": null },
+    { "key": "msa:38060", "kind": "msa", "code": "38060", "title": "Phoenix-Mesa-Chandler, AZ", "name": "Phoenix", "state": "AZ", "hourlyMedian": 23.5, "status": "ok", "marker": null },
+    { "key": "nonmetro:3000001", "kind": "nonmetro", "code": "3000001", "title": "Eastern Montana nonmetropolitan area", "name": "Eastern Montana", "state": "MT", "hourlyMedian": 23, "status": "ok", "marker": null },
+    { "key": "nonmetro:3000002", "kind": "nonmetro", "code": "3000002", "title": "Western Montana nonmetropolitan area", "name": "Western Montana", "state": "MT", "hourlyMedian": 24, "status": "ok", "marker": null },
+    { "key": "nonmetro:5600001", "kind": "nonmetro", "code": "5600001", "title": "Wyoming nonmetropolitan area", "name": "Wyoming", "state": "WY", "hourlyMedian": 22, "status": "ok", "marker": null }
+  ]
+}
