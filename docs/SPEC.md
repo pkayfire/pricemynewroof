@@ -138,7 +138,7 @@ Shares describe the first option shown only (see Options shown), computed at the
 
 Each is divided by the option's total price. Round labor and materials to two decimals and set `other = 1 − labor − materials`, so the shares always sum to 1. The steep adder and the permit belong to `other`; there is no separate permit slice.
 
-**Initial base costs (national, per square, installed, base date 2026-09)**
+**Initial base costs (national, per square, installed, base date 2026-08)**
 
 | Option | Low | High | Labor / material / other | Confidence |
 | --- | --- | --- | --- | --- |
@@ -547,6 +547,11 @@ Answers to pre-build questions. These override anything above that they contradi
 - PPI series per option: shingle → asphalt roofing products; new tile → concrete products; lift and relay → asphalt roofing products (underlayment).
 - BLS API key and HUD token: Peter registers them; until then the fetchers run against recorded fixtures.
 - The 15% change check is skipped when there is no previous config version.
+- PPI base month is 2026-08 (2026-09 was not yet published at build time). Series: WPU1361 (prepared asphalt and tar roofing and siding products) and WPU133 (concrete products).
+- Non-metro ZIPs map to their specific OEWS nonmetropolitan area through the ZIP's county (HUD ZIP→county crosswalk plus the OEWS area definitions). CBSAs that OEWS doesn't publish (mostly micropolitan) fall back to the state wage. A nonmetro area counts as `wageSource: "metro"`, so its own name is used ("For the Eastern Montana area.").
+- Multi-CBSA ZIP tie-break: highest residential ratio, then highest total ratio, then a real CBSA over 99999, then the lowest code.
+- The built config carries `productionReady` and `sampleInputs`; the engine refuses a config with `productionReady: false` in production. A config built from sample inputs is never committed.
+- The config-build Action runs monthly on the 20th and fetches all sources each time; unchanged inputs produce no new version.
 
 **Estimate engine (Milestone 2)**
 
