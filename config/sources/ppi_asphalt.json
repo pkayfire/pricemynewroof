@@ -6,8 +6,12 @@
   "family": "asphalt",
   "seriesId": "WPU1361",
   "title": "PPI Commodity data for Nonmetallic mineral products-Prepared asphalt and tar roofing and siding products, not seasonally adjusted",
-  "baseDate": "2026-09",
-  "base": null,
+  "baseDate": "2026-08",
+  "base": {
+    "period": "2026-08",
+    "value": 374.098,
+    "preliminary": true
+  },
   "latest": {
     "period": "2026-08",
     "value": 374.098,

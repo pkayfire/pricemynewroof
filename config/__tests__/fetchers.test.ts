@@ -151,6 +151,12 @@ describe("BLS PPI", () => {
     expect(src.title).toMatch(/asphalt and tar roofing/);
   });
 
+  it("extracts the 2026-08 base month (the configured base date)", () => {
+    const src = extractPpi(ppiResponse, spec, "2026-08", "2026-10-03");
+    expect(src.base).toEqual({ period: "2026-08", value: 374.098, preliminary: true });
+    expect(src.latest.period).toBe("2026-08");
+  });
+
   it("returns base null when the base month is not published yet", () => {
     const src = extractPpi(ppiResponse, spec, "2026-09", "2026-10-03");
     expect(src.base).toBeNull();

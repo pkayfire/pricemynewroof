@@ -70,9 +70,9 @@ const ppi = (family: "asphalt" | "concrete", seriesId: string, base: number | nu
   family,
   seriesId,
   title: seriesId,
-  baseDate: "2026-09",
-  base: base === null ? null : { period: "2026-09", value: base, preliminary: true },
-  latest: { period: base === null ? "2026-08" : "2026-10", value: latest, preliminary: true },
+  baseDate: "2026-08",
+  base: base === null ? null : { period: "2026-08", value: base, preliminary: true },
+  latest: { period: base === null ? "2026-07" : "2026-09", value: latest, preliminary: true },
   value: latest,
 });
 
@@ -227,7 +227,15 @@ describe("buildConfig", () => {
   it("check 4: fails when a PPI base-date value is missing", () => {
     const r = buildConfig(inputs({ ppi: [ppi("asphalt", "WPU1361", null, 374), ppi("concrete", "WPU133", 400, 404)] }), opts());
     expect(r.ok).toBe(false);
-    expect(r.errors.join()).toMatch(/WPU1361 \(asphalt\) has no value for 2026-09; latest published is 2026-08/);
+    expect(r.errors.join()).toMatch(/WPU1361 \(asphalt\) has no value for 2026-08; latest published is 2026-07/);
+  });
+
+  it("committed PPI base month is 2026-08 for both the series list and base costs", () => {
+    const m = manual();
+    expect(m.ppiSeries.baseDate).toBe("2026-08");
+    expect(m.baseCosts.baseDate).toBe("2026-08");
+    expect(m.ppiSeries.families.asphalt.seriesId).toBe("WPU1361");
+    expect(m.ppiSeries.families.concrete.seriesId).toBe("WPU133");
   });
 
   it("check 4: fails when a used family has no fetched series or the wrong series", () => {
