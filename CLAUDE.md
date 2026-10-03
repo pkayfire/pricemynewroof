@@ -1,0 +1,13 @@
+# Project rules
+- Stack: Next.js (App Router) + TypeScript on Vercel; Supabase Postgres. No other hosting.
+- Spec: docs/SPEC.md is the source of truth. Ask before deviating.
+- Design: follow the Design section of docs/SPEC.md; docs/design/ holds the reference mockups.
+- The estimate engine is a pure function with no network calls. Every change needs unit tests.
+- The LLM never produces prices. Explanations use only the drivers object and must pass the validator.
+- Never commit secrets. Read keys from environment variables only.
+- Google data (Solar API, Places) is displayed only on Google maps; respect the 30-day caching limit.
+- Roof planes are shown as markers at segment centers; never draw plane outlines in v1.
+- No live external API calls in tests; use recorded fixtures.
+- Location text is always generated from data; never hard-code a city.
+- Copy rules: general estimate, not a quote; referral service, not a contractor; no unverified claims.
+- Brand: Price My New Roof (pricemynewroof.com).
