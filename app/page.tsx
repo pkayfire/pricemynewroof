@@ -28,7 +28,7 @@ export default function Home() {
             <SampleRoofIllustration />
           </div>
           <figcaption>
-            <span>A sample roof, not yours: each plane labeled with its pitch, and an arrow pointing downhill.</span>
+            <span>Sample roof</span>
             <span className="num">6 main planes, 2,040 sq ft</span>
           </figcaption>
         </figure>
