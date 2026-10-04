@@ -1,0 +1,13 @@
+{
+  "id": "SYNTHETIC_PLACE_ID_2",
+  "types": ["route"],
+  "formattedAddress": "Example Way, Testville, AZ 85032, USA",
+  "addressComponents": [
+    { "longText": "Example Way", "shortText": "Example Way", "types": ["route"], "languageCode": "en" },
+    { "longText": "Testville", "shortText": "Testville", "types": ["locality", "political"], "languageCode": "en" },
+    { "longText": "Arizona", "shortText": "AZ", "types": ["administrative_area_level_1", "political"], "languageCode": "en" },
+    { "longText": "United States", "shortText": "US", "types": ["country", "political"], "languageCode": "en" },
+    { "longText": "85032", "shortText": "85032", "types": ["postal_code"], "languageCode": "en-US" }
+  ],
+  "location": { "latitude": 10.0, "longitude": -30.0 }
+}

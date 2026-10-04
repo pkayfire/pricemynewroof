@@ -1,0 +1,1 @@
+{ "error": { "code": 400, "message": "Not a valid Place ID: SYNTHETIC_BAD_ID", "status": "INVALID_ARGUMENT" } }
