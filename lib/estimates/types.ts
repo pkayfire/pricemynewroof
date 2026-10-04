@@ -1,5 +1,6 @@
 // Request, stored record and response for POST /api/estimate (docs/SPEC.md, API contracts and data model).
 import { z } from "zod";
+import type { CoverageResponse } from "@/lib/api/contracts";
 import {
   CURRENT_ROOFS,
   ROOF_SHAPES,
@@ -88,11 +89,7 @@ export interface EstimateRecord {
   client: Client;
 }
 
-export interface Coverage {
-  covered: boolean;
-  trackingNumber?: string;
-  leadTypes: string[];
-}
+export type { CoverageResponse as Coverage } from "@/lib/api/contracts";
 
 export interface EstimateResponse {
   estimateId: string;
@@ -106,7 +103,7 @@ export interface EstimateResponse {
   /** "For the {areaName} area." etc., generated from data. */
   locationText: string | null;
   configVersion: number;
-  coverage: Coverage;
+  coverage: CoverageResponse;
   address: { formattedAddress: string; zip: string; state: string };
   currentRoof: CurrentRoof | null;
   client: Client;

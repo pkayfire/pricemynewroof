@@ -7,7 +7,7 @@ import type { LatLng, RoofMeasurements } from "@/lib/engine/types";
 import { GoogleApiError } from "@/lib/google/http";
 import { PlaceError, type PlaceDetails } from "@/lib/google/places";
 import type { SolarResult } from "@/lib/google/solar";
-import type { CoverageProvider } from "./coverage";
+import type { CoverageProvider } from "@/lib/coverage";
 import type { EstimateStore } from "./store";
 import {
   estimateRequestSchema,

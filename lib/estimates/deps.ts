@@ -4,7 +4,8 @@ import { loadConfig } from "@/lib/config/load";
 import { requireServerKey } from "@/lib/google/http";
 import { getPlaceDetails } from "@/lib/google/places";
 import { findClosestBuilding } from "@/lib/google/solar";
-import { stubCoverage } from "./coverage";
+import { buyerConfigFromEnv } from "@/lib/buyer/config";
+import { coverageProviderFor } from "@/lib/coverage";
 import type { EstimateDeps } from "./service";
 import { MemoryEstimateStore, type EstimateStore } from "./store";
 import { SupabaseEstimateStore } from "./supabase-store";
@@ -38,7 +39,7 @@ export function productionDeps(env: NodeJS.ProcessEnv = process.env): EstimateDe
   const apiKey = requireServerKey(env);
   return {
     store: getEstimateStore(env),
-    coverage: stubCoverage,
+    coverage: coverageProviderFor(buyerConfigFromEnv(env)),
     config: loadConfig(),
     getPlace: (placeId) => getPlaceDetails(placeId, { apiKey }),
     findBuilding: (location) => findClosestBuilding(location, { apiKey }),

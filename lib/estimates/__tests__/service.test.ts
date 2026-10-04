@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stubCoverage } from "@/lib/estimates/coverage";
+import { noCoverage } from "@/lib/coverage";
 import { handleEstimatePost } from "@/lib/estimates/http";
 import { handleEstimate, type EstimateDeps } from "@/lib/estimates/service";
 import { MemoryEstimateStore } from "@/lib/estimates/store";
@@ -21,7 +21,7 @@ function setup(solar: string | SolarResult = "simple", place = "details-address"
   let n = 0;
   const deps: EstimateDeps = {
     store,
-    coverage: stubCoverage,
+    coverage: noCoverage,
     config: testConfig(),
     getPlace: async (id) => {
       calls.places++;
