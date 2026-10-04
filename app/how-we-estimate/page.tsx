@@ -198,7 +198,7 @@ price = squares × (1 + waste) × cost per square
         </ul>
         <p>That&apos;s why it&apos;s a general estimate, not a quote. A roofer confirms the details on site.</p>
 
-        <h2>How this service is paid for</h2>
+        <h2>How referrals work</h2>
         <p>{referralDisclosure()}</p>
 
         <h2>Data sources</h2>
