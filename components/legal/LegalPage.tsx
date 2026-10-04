@@ -1,10 +1,10 @@
 // Shared frame for the privacy policy, terms and do-not-sell pages.
-// LEGAL DRAFT: all three are drafts pending legal review; bracketed placeholders must be filled in by the owner.
+// LEGAL DRAFT: all three are drafts pending legal review (owner-supplied entity, contact, date and law state).
 
-export const LEGAL_ENTITY = "[LEGAL ENTITY NAME]";
-export const CONTACT_EMAIL = "[CONTACT EMAIL]";
-export const EFFECTIVE_DATE = "[EFFECTIVE DATE]";
-export const GOVERNING_STATE = "[GOVERNING LAW STATE]";
+export const LEGAL_ENTITY = "PriceMyNewRoof";
+export const CONTACT_EMAIL = "pricemynewroof@gmail.com";
+export const EFFECTIVE_DATE = "October 3, 2026";
+export const GOVERNING_STATE = "California";
 
 export function DraftBanner() {
   return (

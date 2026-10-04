@@ -1,4 +1,4 @@
-// LEGAL DRAFT pending legal review. Placeholders: [CONTACT EMAIL], [EFFECTIVE DATE].
+// LEGAL DRAFT pending legal review.
 // The form posts to POST /api/do-not-sell, which is a validating stub until Milestone 4 stores requests.
 import type { Metadata } from "next";
 import Link from "next/link";

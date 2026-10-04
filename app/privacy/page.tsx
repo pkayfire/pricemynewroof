@@ -1,7 +1,6 @@
-// LEGAL DRAFT pending legal review. Placeholders: [LEGAL ENTITY NAME], [CONTACT EMAIL], [EFFECTIVE DATE].
+// LEGAL DRAFT pending legal review.
 // DECISION: retention periods (quote requests and consent 5 years, logs 13 months) are proposals.
-// DECISION: says OpenAI Conversions API reports may include hashed email/phone; confirm against the
-// Milestone 4 integration and drop that sentence if it sends only the click ID.
+// The OpenAI paragraph matches lib/openai-ads/capi.ts: hashed email and phone plus click IDs only.
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL, LEGAL_ENTITY, LegalPage } from "@/components/legal/LegalPage";
@@ -116,10 +115,12 @@ export default function PrivacyPage() {
           </ul>
         </li>
         <li>
-          <strong>OpenAI advertising measurement</strong>: we use the OpenAI Pixel on our pages and OpenAI&apos;s
-          Conversions API from our servers to report page views, estimate steps and completed requests, with the ad click
-          identifier, so OpenAI can measure and improve our ads. Conversion reports may include your email address or
-          phone number in hashed (scrambled) form so they can be matched to an ad click.
+          <strong>OpenAI advertising measurement</strong>: we use the OpenAI Pixel on our pages to report page views and
+          estimate steps, and OpenAI&apos;s Conversions API from our servers to report when a quote request is passed to
+          a roofer, so OpenAI can measure and improve our ads. A Conversions API report contains your email address and
+          phone number in hashed (scrambled) form plus the ad click identifiers from OpenAI&apos;s link and pixel. We
+          don&apos;t send your name, address, IP address or browser details, and we send nothing to OpenAI if you opt out
+          or your browser sends a Global Privacy Control signal.
         </li>
         <li>
           <strong>Legal and safety</strong>: when required by law or legal process, or to protect the rights, safety and
@@ -224,7 +225,8 @@ export default function PrivacyPage() {
       <h2>Cookies and similar tools</h2>
       <p>
         We use a first-party cookie and session storage to remember how you arrived (ad and campaign parameters) for up
-        to 30 days. The OpenAI Pixel and the Google map set or read their own cookies and identifiers. You can block or
+        to 30 days, a session cookie that links the steps of one visit and expires after 30 minutes without activity,
+        and, if you opt out, a cookie that remembers your choice for a year. The OpenAI Pixel and the Google map set or read their own cookies and identifiers. You can block or
         clear cookies in your browser; the site still works, but we may not be able to tell which ad brought you.
       </p>
 

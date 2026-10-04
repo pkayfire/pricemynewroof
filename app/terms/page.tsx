@@ -1,5 +1,4 @@
-// LEGAL DRAFT pending legal review. Placeholders: [LEGAL ENTITY NAME], [CONTACT EMAIL], [EFFECTIVE DATE],
-// [GOVERNING LAW STATE].
+// LEGAL DRAFT pending legal review.
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL, GOVERNING_STATE, LEGAL_ENTITY, LegalPage } from "@/components/legal/LegalPage";
