@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Measurements, StoredEstimate } from "@/lib/api/types";
-import { getStoredEstimate, isExpired } from "@/lib/estimates/source";
+import type { EstimateView, Measurements } from "@/lib/api/types";
+import { getEstimateView, isExpired } from "@/lib/estimates/source";
+import { CONFIRMABLE_REASONS } from "@/lib/estimates/view";
 import { formatInt, formatSqft, formatSquares } from "@/lib/format";
+import { ConfirmBuilding } from "@/components/estimate/ConfirmBuilding";
 import { RoofMap } from "@/components/estimate/RoofMap";
 import { MeasurementTable, PlanesSummary, measurementCaption } from "@/components/estimate/MeasurementTable";
 import { CurrentRoofSelect } from "@/components/estimate/CurrentRoofSelect";
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-function TitleRow({ title, estimate }: { title: string; estimate: StoredEstimate }) {
+function TitleRow({ title, estimate }: { title: string; estimate: EstimateView }) {
   return (
     <div className="estimate-title">
       <div>
@@ -51,7 +53,7 @@ function HomeSizeSummary({ m }: { m: Measurements }) {
         </tr>
         <tr>
           <th scope="row">Stories</th>
-          <td>{h.stories >= 3 ? "3 or more" : h.stories}</td>
+          <td>{h.stories >= 4 ? "4 or more" : h.stories}</td>
         </tr>
         <tr>
           <th scope="row">Roof shape</th>
@@ -70,7 +72,7 @@ function HomeSizeSummary({ m }: { m: Measurements }) {
   );
 }
 
-function ExpiredState({ estimate }: { estimate: StoredEstimate }) {
+function ExpiredState({ estimate }: { estimate: EstimateView }) {
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title="This estimate has expired" estimate={estimate} />
@@ -85,11 +87,52 @@ function ExpiredState({ estimate }: { estimate: StoredEstimate }) {
   );
 }
 
-function FallbackState({ estimate }: { estimate: StoredEstimate }) {
+function MeasuredRoof({ m, mapsKey }: { m: Measurements; mapsKey: string | null }) {
+  return (
+    <>
+      <RoofMap apiKey={mapsKey} segments={m.segments} buildingCenter={m.buildingCenter} />
+      <div className="planes-desktop">
+        <MeasurementTable m={m} />
+      </div>
+      <div className="planes-phone">
+        <PlanesSummary m={m} />
+        <p className="fine muted" style={{ marginTop: 8 }}>
+          {measurementCaption(m)}
+        </p>
+      </div>
+    </>
+  );
+}
+
+/** out_of_range or far_building: show what was measured and ask whether it's the right house. */
+function ConfirmState({ estimate, m }: { estimate: EstimateView; m: Measurements }) {
+  const question =
+    estimate.reason === "far_building"
+      ? "The building we measured is set back from your address point, so it may be a neighbor's house or an outbuilding. Is this your house?"
+      : `The roof we measured is ${formatSqft(m.totalAreaSqft)} (${formatSquares(m.squares)} squares), ${
+          m.squares < 8 ? "smaller" : "larger"
+        } than a typical house, so it may be the wrong building. Is this your house?`;
+  return (
+    <main id="main" className="container estimate-main">
+      <TitleRow title="Is this your house?" estimate={estimate} />
+      <div className="estimate-grid">
+        <div className="estimate-left">
+          <MeasuredRoof m={m} mapsKey={process.env.GOOGLE_MAPS_API_KEY || null} />
+        </div>
+        <div className="estimate-right">
+          <section className="sheet state-panel" aria-label="Confirm your house">
+            <h2 className="h2-sheet">Check the building</h2>
+            <ConfirmBuilding placeId={estimate.placeId} currentRoof={estimate.currentRoof} question={question} />
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function FallbackState({ estimate }: { estimate: EstimateView }) {
   const intro =
-    estimate.reason === "out_of_range"
-      ? "The roof we found doesn't look like a single house, so it may be the wrong building. Answer a few questions and we'll estimate from your home's size instead."
-      : "We couldn't measure this roof from satellite data. Answer a few questions and we'll estimate from your home's size instead.";
+    "We couldn't measure this roof from satellite data. Answer a few questions and we'll estimate from your home's size instead.";
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title="Tell us about your home" estimate={estimate} />
@@ -106,11 +149,16 @@ function FallbackState({ estimate }: { estimate: StoredEstimate }) {
 
 export default async function EstimatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const estimate = await getStoredEstimate(id);
+  const estimate = await getEstimateView(id);
   if (!estimate) notFound();
 
-  if (estimate.needsFallback) return <FallbackState estimate={estimate} />;
-  if (isExpired(estimate) || !estimate.measurements || !estimate.drivers) return <ExpiredState estimate={estimate} />;
+  if (isExpired(estimate)) return <ExpiredState estimate={estimate} />;
+  if (estimate.needsFallback) {
+    if (estimate.reason && CONFIRMABLE_REASONS.has(estimate.reason) && estimate.measurements?.source === "solar")
+      return <ConfirmState estimate={estimate} m={estimate.measurements} />;
+    return <FallbackState estimate={estimate} />;
+  }
+  if (!estimate.measurements || !estimate.drivers) return <ExpiredState estimate={estimate} />;
 
   const m = estimate.measurements;
   const drivers = estimate.drivers;
@@ -123,18 +171,7 @@ export default async function EstimatePage({ params }: { params: Promise<{ id: s
       <div className="estimate-grid">
         <div className="estimate-left">
           {solar ? (
-            <>
-              <RoofMap apiKey={mapsKey} segments={m.segments} buildingCenter={m.buildingCenter} />
-              <div className="planes-desktop">
-                <MeasurementTable m={m} />
-              </div>
-              <div className="planes-phone">
-                <PlanesSummary m={m} />
-                <p className="fine muted" style={{ marginTop: 8 }}>
-                  {measurementCaption(m)}
-                </p>
-              </div>
-            </>
+            <MeasuredRoof m={m} mapsKey={mapsKey} />
           ) : (
             <HomeSizeSummary m={m} />
           )}

@@ -1,5 +1,5 @@
 import type { Measurements } from "@/lib/api/types";
-import { compassFromAzimuth, formatImageryDate, formatSqft, formatSquares } from "@/lib/format";
+import { compassName, formatImageryDate, formatSqft, formatSquares } from "@/lib/format";
 
 export function measurementCaption(m: Measurements): string {
   const date = formatImageryDate(m.imageryDate);
@@ -29,7 +29,7 @@ export function MeasurementTable({ m, captionHidden = false }: { m: Measurements
               {s.letter}
             </th>
             <td className="pitch">{s.pitch}</td>
-            <td className="dir">{s.compass === null ? "Flat" : (s.compass ?? compassFromAzimuth(s.azimuth))}</td>
+            <td className="dir">{compassName(s.compass, s.azimuth)}</td>
             <td className="area">{formatSqft(s.areaSqft)}</td>
           </tr>
         ))}

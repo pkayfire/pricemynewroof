@@ -1,5 +1,6 @@
 // Pure display helpers for estimate data. Location text is always generated from data.
 import type { CurrentRoof, Drivers, Fallback, Measurements, WageSource } from "@/lib/api/types";
+import { WIDENING } from "@/lib/engine/estimate";
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const int = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
@@ -34,6 +35,16 @@ const COMPASS = ["North", "Northeast", "East", "Southeast", "South", "Southwest"
 export function compassFromAzimuth(azimuth: number): string {
   const i = Math.round((((azimuth % 360) + 360) % 360) / 45) % 8;
   return COMPASS[i];
+}
+
+const COMPASS_NAMES: Record<string, string> = {
+  N: "North", NE: "Northeast", E: "East", SE: "Southeast", S: "South", SW: "Southwest", W: "West", NW: "Northwest",
+};
+
+/** The engine reports "N", "NE"…; the table says "North", "Northeast"…; null means a flat plane. */
+export function compassName(compass: string | null, azimuth: number): string {
+  if (compass === null) return "Flat";
+  return COMPASS_NAMES[compass] ?? (COMPASS.includes(compass) ? compass : compassFromAzimuth(azimuth));
 }
 
 /** "For the {areaName} area." / "For homes in {state}." / "Based on national averages." (Build decisions) */
@@ -76,14 +87,12 @@ export function sourcesSentence(drivers: Pick<Drivers, "wageSource">, measuremen
 
 export const CURRENT_ROOF_LABELS: Record<CurrentRoof, string> = {
   shingle: "Asphalt shingle",
-  tile: "Tile (concrete or clay)",
+  tile: "Tile",
   metal: "Metal",
-  flat: "Flat or low-slope",
-  other: "Something else",
   not_sure: "Not sure",
 };
 
-/** Plain-language reasons behind each fallback, for the low-confidence note. */
+/** Plain-language reasons behind each fallback, for the notes on the estimate sheet. */
 export function fallbackReason(f: Fallback): string {
   switch (f) {
     case "home_size":
@@ -92,8 +101,12 @@ export function fallbackReason(f: Fallback): string {
       return "the satellite imagery for this roof is medium resolution";
     case "imagery_low":
       return "the satellite imagery for this roof is low resolution";
+    case "imagery_old":
+      return "the satellite imagery for this home is several years old";
     case "size_confirmed":
-      return "the measured roof is outside the usual size for a house";
+      return "you confirmed a roof outside the usual size for a house";
+    case "building_confirmed":
+      return "you confirmed a building set back from the address";
     case "wage_state":
       return "local roofer wages aren't published for your area, so labor uses your state's figure";
     case "wage_national":
@@ -101,15 +114,26 @@ export function fallbackReason(f: Fallback): string {
   }
 }
 
-/** Range widening per imagery quality (Build decisions: MEDIUM ±10%, LOW ±20%, home size ±20%). */
-export function imageryNote(fallbacks: Fallback[]): string | null {
-  if (fallbacks.includes("imagery_low"))
-    return "The satellite imagery for this roof is low resolution, so we widened each range by 20%.";
-  if (fallbacks.includes("imagery_medium"))
-    return "The satellite imagery for this roof is medium resolution, so we widened each range by 10%.";
-  if (fallbacks.includes("home_size"))
-    return "We estimated this roof from your home's size instead of satellite data, so we widened each range by 20%.";
-  return null;
+/** How much the engine widened the ranges, from its own table (widenings add up). */
+export function wideningOf(fallbacks: Fallback[]): number {
+  return fallbacks.reduce((acc, f) => acc + WIDENING[f], 0);
+}
+
+/** "Each range is 20% wider because …", or null when nothing widened the range. */
+export function wideningNote(fallbacks: Fallback[]): string | null {
+  const widening = fallbacks.filter((f) => WIDENING[f] > 0);
+  if (!widening.length) return null;
+  const pct = Math.round(wideningOf(fallbacks) * 100);
+  return `Each range is ${pct}% wider because ${widening.map(fallbackReason).join(", and ")}.`;
+}
+
+/** Old imagery lowers confidence without widening (owner decision); say how old it is. */
+export function oldImageryNote(fallbacks: Fallback[], imageryDate: string | null): string | null {
+  if (!fallbacks.includes("imagery_old")) return null;
+  const year = imageryDate?.slice(0, 4);
+  return year
+    ? `Satellite imagery for this home is from ${year}; recent changes may not show.`
+    : "Satellite imagery for this home is several years old; recent changes may not show.";
 }
 
 export function capitalize(s: string): string {
@@ -118,9 +142,8 @@ export function capitalize(s: string): string {
 
 export function lowConfidenceNote(drivers: Pick<Drivers, "confidence" | "fallbacks" | "sharesOption">): string | null {
   if (drivers.confidence !== "low") return null;
-  const reasons = drivers.fallbacks.map(fallbackReason);
-  if (drivers.sharesOption === "lift_and_relay")
-    reasons.push("tile lift and relay has the least published cost data behind it");
-  const body = reasons.length ? `${capitalize(reasons.join("; "))}.` : "";
-  return `${body} Treat these ranges as a rough guide until a roofer sees the roof.`.trim();
+  // The reasons are already on the page: the widening and old-imagery notes, and the engine's
+  // lift-and-relay option note ("Few published prices exist…").
+  void drivers.sharesOption;
+  return "Treat these ranges as a rough guide until a roofer sees the roof.";
 }

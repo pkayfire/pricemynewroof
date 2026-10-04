@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { Drivers, EstimateOption, Measurements, StoredEstimate } from "@/lib/api/types";
+import type { Drivers, EstimateOption, EstimateView, Measurements, OptionId } from "@/lib/api/types";
 import {
   formatRange,
   formatShare,
-  imageryNote,
   lowConfidenceNote,
+  oldImageryNote,
+  wideningNote,
   sheetSubtitle,
   sourcesSentence,
 } from "@/lib/format";
@@ -13,6 +14,13 @@ import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
+
+/** Shown when the engine gives an option no note of its own (accepted option-note copy). */
+const DEFAULT_NOTES: Record<OptionId, string | null> = {
+  architectural_shingle: "Full tear-off, new underlayment and architectural shingles.",
+  concrete_tile: "Full tear-off, new tile and underlayment.",
+  lift_and_relay: null,
+};
 
 export function BreakdownBar({ drivers, options }: { drivers: Drivers; options: EstimateOption[] }) {
   const option = options.find((o) => o.id === drivers.sharesOption) ?? options[0];
@@ -43,15 +51,21 @@ export function BreakdownBar({ drivers, options }: { drivers: Drivers; options: 
   );
 }
 
-function Notes({ drivers }: { drivers: Drivers }) {
-  const imagery = imageryNote(drivers.fallbacks);
+function Notes({ drivers, imageryDate }: { drivers: Drivers; imageryDate: string | null }) {
+  const wider = wideningNote(drivers.fallbacks);
+  const old = oldImageryNote(drivers.fallbacks, imageryDate);
   const low = lowConfidenceNote(drivers);
-  if (!imagery && !low) return null;
+  if (!wider && !old && !low) return null;
   return (
     <div className="sheet-notes">
-      {imagery && (
+      {wider && (
         <p className="note">
-          <strong>Imagery note.</strong> {imagery}
+          <strong>Wider range.</strong> {wider}
+        </p>
+      )}
+      {old && (
+        <p className="note">
+          <strong>Older imagery.</strong> {old}
         </p>
       )}
       {low && (
@@ -63,7 +77,7 @@ function Notes({ drivers }: { drivers: Drivers }) {
   );
 }
 
-function QuoteCta({ estimate }: { estimate: StoredEstimate }) {
+function QuoteCta({ estimate }: { estimate: EstimateView }) {
   const tracking = estimate.coverage?.trackingNumber;
   return (
     <>
@@ -90,7 +104,7 @@ export function EstimateSheet({
   drivers,
   measurements,
 }: {
-  estimate: StoredEstimate;
+  estimate: EstimateView;
   drivers: Drivers;
   measurements: Measurements;
 }) {
@@ -103,13 +117,13 @@ export function EstimateSheet({
         </h2>
         <p>{sheetSubtitle(drivers)}</p>
       </div>
-      <Notes drivers={drivers} />
+      <Notes drivers={drivers} imageryDate={measurements.imageryDate} />
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }} aria-label="Roof options">
         {estimate.options.map((o) => (
           <li key={o.id} className="option-row">
             <div className="option-text">
               <div className="option-name">{o.name}</div>
-              {o.note && <div className="option-note">{o.note}</div>}
+              {(o.note ?? DEFAULT_NOTES[o.id]) && <div className="option-note">{o.note ?? DEFAULT_NOTES[o.id]}</div>}
             </div>
             <div className="option-range">{formatRange(o.low, o.high)}</div>
           </li>

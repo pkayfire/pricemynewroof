@@ -17,7 +17,8 @@ const SHAPES: { value: RoofShape; label: string; hint: string }[] = [
 const STORIES = [
   { value: 1, label: "1" },
   { value: 2, label: "2" },
-  { value: 3, label: "3 or more" },
+  { value: 3, label: "3" },
+  { value: 4, label: "4 or more" },
 ];
 
 export function FallbackForm({ placeId, currentRoof }: { placeId: string; currentRoof: CurrentRoof | null }) {
@@ -36,8 +37,8 @@ export function FallbackForm({ placeId, currentRoof }: { placeId: string; curren
     if (busy) return;
     const next: Record<string, string> = {};
     const homeSqft = Number(sqft.replace(/[,\s]/g, ""));
-    if (!Number.isInteger(homeSqft) || homeSqft < 400 || homeSqft > 10000)
-      next.sqft = "Enter your home's living space in square feet, between 400 and 10,000.";
+    if (!Number.isInteger(homeSqft) || homeSqft < 400 || homeSqft > 15000)
+      next.sqft = "Enter your home's living space in square feet, between 400 and 15,000.";
     if (stories === null) next.stories = "Choose how many stories your home has.";
     if (shape === null) next.shape = "Choose the shape that looks closest to your roof.";
     setErrors(next);

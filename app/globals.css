@@ -1034,6 +1034,27 @@ body > main {
   }
 }
 
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.confirm-actions .btn {
+  flex: 1 1 220px;
+}
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  font: inherit;
+  font-weight: 500;
+  color: var(--asphalt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
 /* Single-panel states: fallback form, expired, quote placeholder */
 .state-panel {
   max-width: 720px;

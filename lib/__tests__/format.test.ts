@@ -3,9 +3,12 @@ import {
   compassFromAzimuth,
   formatImageryDate,
   formatRange,
-  imageryNote,
+  CURRENT_ROOF_LABELS,
+  compassName,
   locationText,
   lowConfidenceNote,
+  oldImageryNote,
+  wideningNote,
   sheetSubtitle,
   sourcesSentence,
 } from "../format";
@@ -44,17 +47,35 @@ describe("format helpers", () => {
     expect(sourcesSentence({ wageSource: "state" }, { source: "home_size" })).toContain("BLS wage data for your state");
   });
 
-  it("explains widened ranges and low confidence", () => {
-    expect(imageryNote(["imagery_medium"])).toContain("10%");
-    expect(imageryNote(["imagery_low", "wage_state"])).toContain("20%");
-    expect(imageryNote([])).toBeNull();
-    expect(lowConfidenceNote({ confidence: "medium", fallbacks: ["imagery_medium"], sharesOption: "architectural_shingle" })).toBeNull();
-    expect(
-      lowConfidenceNote({ confidence: "low", fallbacks: ["imagery_low", "wage_state"], sharesOption: "architectural_shingle" }),
-    ).toMatch(/^The satellite imagery .* low resolution; local roofer wages .*\. Treat these ranges/);
-    expect(lowConfidenceNote({ confidence: "low", fallbacks: [], sharesOption: "lift_and_relay" })).toContain(
-      "Tile lift and relay has the least published cost data",
+  it("explains widened ranges from the engine's widening table", () => {
+    expect(wideningNote(["imagery_medium"])).toBe(
+      "Each range is 10% wider because the satellite imagery for this roof is medium resolution.",
     );
+    expect(wideningNote(["imagery_low", "wage_state"])).toMatch(/^Each range is 30% wider because .* low resolution, and local roofer wages/);
+    expect(wideningNote(["building_confirmed"])).toContain("10% wider because you confirmed a building set back");
+    expect(wideningNote([])).toBeNull();
+    // Old imagery lowers confidence but never widens.
+    expect(wideningNote(["imagery_old"])).toBeNull();
+  });
+
+  it("notes old imagery with its year", () => {
+    expect(oldImageryNote(["imagery_old"], "2019-05-10")).toBe(
+      "Satellite imagery for this home is from 2019; recent changes may not show.",
+    );
+    expect(oldImageryNote([], "2019-05-10")).toBeNull();
+  });
+
+  it("adds a low-confidence note only for low confidence", () => {
+    expect(lowConfidenceNote({ confidence: "medium", fallbacks: ["imagery_medium"], sharesOption: "architectural_shingle" })).toBeNull();
+    expect(lowConfidenceNote({ confidence: "low", fallbacks: [], sharesOption: "lift_and_relay" })).toBe(
+      "Treat these ranges as a rough guide until a roofer sees the roof.",
+    );
+  });
+
+  it("labels the current-roof choices and compass points", () => {
+    expect(CURRENT_ROOF_LABELS).toEqual({ shingle: "Asphalt shingle", tile: "Tile", metal: "Metal", not_sure: "Not sure" });
+    expect(compassName("NE", 45)).toBe("Northeast");
+    expect(compassName(null, 0)).toBe("Flat");
   });
 });
 
