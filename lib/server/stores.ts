@@ -25,6 +25,8 @@ export interface LeadRecord {
   phone: string;
   email: string;
   timing: Timing;
+  /** Service address the homeowner confirmed on the quote form. */
+  address: string;
   zip: string;
   state: string;
   consentVersion: string;
@@ -47,8 +49,8 @@ export interface LeadRecord {
   duplicateOf: string | null;
 }
 
-/** A lead with its estimate's address (available until the 30-day purge) for the admin view. */
-export type AdminLead = LeadRecord & { address: string | null };
+/** What the admin page and CSV show (the lead's own confirmed address). */
+export type AdminLead = LeadRecord;
 
 export interface LeadStore {
   insert(lead: LeadRecord): Promise<void>;

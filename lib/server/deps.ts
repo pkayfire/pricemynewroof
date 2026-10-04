@@ -6,7 +6,7 @@ import { adminEmail } from "@/lib/admin/auth";
 import { buyerConfigFromEnv } from "@/lib/buyer/config";
 import { coverageProviderFor } from "@/lib/coverage";
 import { LogEmailSender, type EmailSender } from "@/lib/email";
-import { DEFAULT_SITE_URL, getEstimateStore } from "@/lib/estimates/deps";
+import { DEFAULT_SITE_URL } from "@/lib/estimates/deps";
 import { getEstimateView } from "@/lib/estimates/source";
 import type { EmailEstimateDeps, DoNotSellDeps, EventsDeps, Common } from "@/lib/leads/endpoints";
 import { serviceDirectForwarderStub } from "@/lib/leads/forwarder";
@@ -45,7 +45,7 @@ export function getLeadStore(env: NodeJS.ProcessEnv = process.env): LeadStore {
   const c = cache();
   return (c.leads ??= supabaseEnabled(env)
     ? new SupabaseLeadStore(getServiceClient(env))
-    : new MemoryLeadStore(async (id) => (await getEstimateStore(env).get(id))?.formattedAddress ?? null));
+    : new MemoryLeadStore());
 }
 
 export function getEventStore(env: NodeJS.ProcessEnv = process.env): EventStore {

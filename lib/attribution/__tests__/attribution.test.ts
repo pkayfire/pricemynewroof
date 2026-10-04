@@ -74,13 +74,23 @@ describe("proxy", () => {
     // Single URI encoding: parseCookies (one decode) yields the JSON.
     const value = attr.split(";")[0].slice("pmnr_attr=".length);
     expect(JSON.parse(decodeURIComponent(value))).toMatchObject({ oppref: "o1", ad_group_id: "ag" });
-    expect(cookies.find((c) => c.startsWith("pmnr_sid="))).not.toMatch(/Max-Age/);
+    expect(cookies.find((c) => c.startsWith("pmnr_sid="))).toMatch(/Max-Age=1800/);
   });
 
-  it("does nothing for a returning visitor without params, and never blocks crawlers", async () => {
+  it("rolls the session: the same ID gets a fresh 30-minute expiry; attribution is untouched without params", async () => {
     const res = await proxy(new NextRequest("https://pricemynewroof.com/how-we-estimate", { headers: { cookie: "pmnr_sid=abcdef12-3456", "user-agent": "OAI-AdsBot/1.0" } }));
     expect(res.status).toBe(200);
-    expect(res.headers.getSetCookie()).toEqual([]);
+    const cookies = res.headers.getSetCookie();
+    expect(cookies).toHaveLength(1);
+    expect(cookies[0]).toMatch(/^pmnr_sid=abcdef12-3456;.*Max-Age=1800/);
+  });
+
+  it("refreshes the session on API calls but never captures attribution there", async () => {
+    const res = await proxy(new NextRequest("https://pricemynewroof.com/api/events?oppref=x", { method: "POST", headers: { cookie: "pmnr_sid=abcdef12-3456" } }));
+    expect(setCookies(res)).toEqual(["pmnr_sid"]);
+  });
+
+  it("never blocks or redirects crawlers", async () => {
     const bot = await proxy(new NextRequest("https://pricemynewroof.com/", { headers: { "user-agent": "OAI-AdsBot/1.0" } }));
     expect(bot.status).toBe(200);
     expect(bot.headers.get("location")).toBeNull();

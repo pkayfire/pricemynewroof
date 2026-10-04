@@ -1,4 +1,12 @@
--- daily_report: funnel by day (UTC), ad group and metro (docs/SPEC.md, Tracking and attribution →
+-- The reporting time zone: days in daily_report are America/Los_Angeles calendar days.
+-- Change it here only.
+create or replace function public.report_time_zone()
+returns text
+language sql
+immutable
+as $$ select 'America/Los_Angeles'::text $$;
+
+-- daily_report: funnel by day (report_time_zone()), ad group and metro (docs/SPEC.md, Tracking and attribution →
 -- Daily report). One row per (day, ad_group_id, cbsa). A session's day is its first event's day;
 -- its ad group is the first non-null ad_group_id on its events; its metro is the CBSA of its first
 -- estimate. Spend, CPC and cost per qualified lead are null until an ads spend source exists.
@@ -41,7 +49,7 @@ session_leads as (
 ),
 sessions as (
   select
-    (s.first_ts at time zone 'UTC')::date as day,
+    (s.first_ts at time zone public.report_time_zone())::date as day,
     m.cbsa,
     coalesce(l.leads, 0) as leads,
     s.*

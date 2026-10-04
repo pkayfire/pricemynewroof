@@ -46,6 +46,8 @@ export const leadRequestSchema = z
     phone: z.string().trim().min(1).max(32),
     email: z.string().trim().max(254).email("enter a valid email"),
     timing: z.enum(TIMING_IDS),
+    /** The service address: pre-filled from the estimate, confirmed or edited by the homeowner. */
+    address: z.string().trim().min(5, "enter the street address for the project").max(300),
     /** The version id of the consent text shown next to the checkbox (see CONSENT_TEXTS). */
     consentVersion: z.string().min(1).max(64),
     /** DECISION: the contract adds the checkbox state; it must be true (unchecked by default in the UI). */

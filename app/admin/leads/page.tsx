@@ -41,7 +41,7 @@ function LeadTable({ leads, showAction }: { leads: AdminLead[]; showAction: bool
                 <a href={`mailto:${l.email}`}>{l.email}</a>
               </td>
               <td>{timing(l.timing)}</td>
-              <td>{l.address ?? `ZIP ${l.zip}, ${l.state}`}</td>
+              <td>{l.address}</td>
               <td>
                 {l.estimateSummary?.squares != null ? `${l.estimateSummary.squares} squares` : "Size unknown"}
                 {l.estimateSummary?.maxPitch ? `, max pitch ${l.estimateSummary.maxPitch}` : ""}

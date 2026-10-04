@@ -14,6 +14,8 @@ import { parseCookies } from "@/lib/http/request";
 import { isOptedOut } from "@/lib/privacy/opt-out";
 
 export const ATTRIBUTION_MAX_AGE_S = 30 * 24 * 60 * 60;
+/** Session cookie lifetime: 30 minutes of inactivity, refreshed on every request (proxy.ts). */
+export const SESSION_IDLE_S = 30 * 60;
 const MAX_VALUE = 200;
 
 /** The pixel's browser reference cookie; sent raw to the Conversions API (not PII per OpenAI docs). */

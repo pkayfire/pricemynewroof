@@ -114,6 +114,7 @@ describe("marking a lead forwarded", () => {
     phone: "+16025550123",
     email: "pat@example.com",
     timing: "asap",
+    address: "100 Example Way, Testville, AZ 85032",
     zip: "85032",
     state: "AZ",
     consentVersion: "manual-2026-10-03",

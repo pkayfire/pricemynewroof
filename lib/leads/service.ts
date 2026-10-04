@@ -76,6 +76,7 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
     phone,
     email,
     timing: req.timing,
+    address: req.address,
     zip: estimate.zip,
     state: estimate.state,
     consentVersion: consent.version,

@@ -10,6 +10,8 @@ create table if not exists public.leads (
   phone                 text not null check (phone ~ '^\+1[2-9][0-9]{2}[2-9][0-9]{6}$'),
   email                 text not null check (char_length(email) <= 254),
   timing                text not null check (timing in ('asap', 'within_3_months', '3_to_12_months', 'just_researching')),
+  -- The service address the homeowner confirmed (or edited) on the quote form.
+  address               text not null check (char_length(address) between 5 and 300),
   zip                   text not null check (zip ~ '^[0-9]{5}$'),
   state                 text not null check (state ~ '^[A-Z]{2}$'),
   -- Consent record: the exact text version shown, SHA-256 of that text, when, from where.

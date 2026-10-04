@@ -18,6 +18,7 @@ const lead = (over: Partial<LeadRecord> = {}): LeadRecord => ({
   phone: "+16025550123",
   email: "pat@example.com",
   timing: "3_to_12_months",
+  address: "100 Example Way, Testville, AZ 85032",
   zip: "85032",
   state: "AZ",
   consentVersion: "manual-2026-10-03",
@@ -81,7 +82,7 @@ describe("admin routes", () => {
     }
   });
 
-  it("export returns the CSV with the estimate address for the admin", async () => {
+  it("export returns the CSV with the lead's confirmed address for the admin", async () => {
     const s = await setup();
     const res = await handleLeadsExport({ checkAdmin: as({ status: "ok", email: "a" }), leads: s.leads, now: s.now });
     expect(res.status).toBe(200);
@@ -91,7 +92,7 @@ describe("admin routes", () => {
     const [header, row] = text.split("\r\n");
     expect(header.split(",").slice(0, 3)).toEqual(["id", "created_at", "forward_status"]);
     expect(row).toContain("Pat Example,+16025550123,pat@example.com,3–12 months");
-    expect(row).toContain('"100 Example Way, Testville, AZ 85032, USA"');
+    expect(row).toContain('"100 Example Way, Testville, AZ 85032"');
   });
 
   it("mark forwarded rejects non-admins, cross-site posts and bad IDs", async () => {
@@ -153,7 +154,7 @@ describe("CSV escaping", () => {
   });
 
   it("escapes hostile lead fields in the export", () => {
-    const hostile: AdminLead = { ...lead({ name: '=cmd|" /C calc"!A0', email: "x@y.z" }), address: "1 Main St, Apt 2\nTown" };
+    const hostile: AdminLead = lead({ name: '=cmd|" /C calc"!A0', email: "x@y.z", address: "1 Main St, Apt 2\nTown" });
     const [, row] = leadsCsv([hostile]).split("\r\n");
     expect(row).toContain("\"'=cmd|\"\" /C calc\"\"!A0\"");
     expect(row).toContain('"1 Main St, Apt 2\nTown"');

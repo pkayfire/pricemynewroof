@@ -56,7 +56,7 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   let n = 0;
   const now = () => clock;
   const estimates = new MemoryEstimateStore();
-  const leads = new MemoryLeadStore(async (id) => (await estimates.get(id))?.formattedAddress ?? null);
+  const leads = new MemoryLeadStore();
   const events = new MemoryEventStore();
   const signups = new MemoryEmailSignupStore();
   const doNotSell = new MemoryDoNotSellStore();

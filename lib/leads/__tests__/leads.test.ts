@@ -16,6 +16,7 @@ const valid = (over: Partial<LeadRequest> = {}): LeadRequest => ({
   phone: "(602) 555-0123",
   email: "Pat@Example.com",
   timing: "within_3_months",
+  address: "100 Example Way, Unit 2, Testville, AZ 85032",
   consentVersion: CONSENT.version,
   consent: true,
   pageUrl: "https://example.test/estimate/x/quote",
@@ -80,6 +81,7 @@ describe("POST /api/lead validation", () => {
     expect((await handleLead(valid({ email: "nope" }), ctx(), s.leadDeps)).status).toBe(400);
     expect((await handleLead({ ...valid(), timing: "someday" }, ctx(), s.leadDeps)).status).toBe(400);
     expect((await handleLead(valid({ name: " " }), ctx(), s.leadDeps)).status).toBe(400);
+    expect(await handleLead(valid({ address: "  " }), ctx(), s.leadDeps)).toMatchObject({ status: 400, body: { field: "address" } });
     expect((await handleLead({ ...valid(), address: "x" }, ctx(), s.leadDeps)).status).toBe(400);
   });
 
@@ -107,6 +109,7 @@ describe("POST /api/lead persistence", () => {
       phone: "+16025550123",
       email: "Pat@Example.com",
       timing: "within_3_months",
+      address: "100 Example Way, Unit 2, Testville, AZ 85032",
       zip: "85032",
       state: "AZ",
       consentVersion: "manual-2026-10-03",

@@ -14,9 +14,6 @@ import type {
 
 export class MemoryLeadStore implements LeadStore {
   readonly rows = new Map<string, LeadRecord>();
-  /** Optional address lookup by estimate ID, standing in for the estimates join. */
-  constructor(private readonly addressOf: (estimateId: string) => Promise<string | null> = async () => null) {}
-
   async insert(lead: LeadRecord) {
     if (this.rows.has(lead.id)) throw new Error("duplicate lead id");
     this.rows.set(lead.id, structuredClone(lead));
@@ -34,8 +31,10 @@ export class MemoryLeadStore implements LeadStore {
     return best ? structuredClone(best) : null;
   }
   async list(limit: number): Promise<AdminLead[]> {
-    const rows = [...this.rows.values()].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, limit);
-    return Promise.all(rows.map(async (r) => ({ ...structuredClone(r), address: await this.addressOf(r.estimateId) })));
+    return [...this.rows.values()]
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+      .slice(0, limit)
+      .map((r) => structuredClone(r));
   }
   async markForwarded(id: string, at: Date, buyerRef: string | null) {
     const r = this.rows.get(id);

@@ -26,6 +26,7 @@ export interface LeadRow {
   phone: string;
   email: string;
   timing: string;
+  address: string;
   zip: string;
   state: string;
   consent_version: string;
@@ -56,6 +57,7 @@ export function leadToRow(l: LeadRecord): LeadRow {
     phone: l.phone,
     email: l.email,
     timing: l.timing,
+    address: l.address,
     zip: l.zip,
     state: l.state,
     consent_version: l.consentVersion,
@@ -85,6 +87,7 @@ export function leadFromRow(r: LeadRow): LeadRecord {
     phone: r.phone,
     email: r.email,
     timing: r.timing as Timing,
+    address: r.address,
     zip: r.zip,
     state: r.state,
     consentVersion: r.consent_version,
@@ -133,16 +136,9 @@ export class SupabaseLeadStore implements LeadStore {
   }
 
   async list(limit: number): Promise<AdminLead[]> {
-    const { data, error } = await this.db
-      .from("leads")
-      .select("*, estimates(formatted_address)")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    const { data, error } = await this.db.from("leads").select("*").order("created_at", { ascending: false }).limit(limit);
     if (error) throw new Error(`leads list failed: ${error.message}`);
-    return (data as (LeadRow & { estimates: { formatted_address: string | null } | null })[]).map((row) => {
-      const { estimates, ...rest } = row;
-      return { ...leadFromRow(rest), address: estimates?.formatted_address ?? null };
-    });
+    return (data as LeadRow[]).map(leadFromRow);
   }
 
   async markForwarded(id: string, at: Date, buyerRef: string | null) {
