@@ -1,7 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { canonicalJson, driversHash } from "../canonical";
-import { LayeredExplanationCache, MemoryExplanationCache, type ExplanationCache } from "../cache";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  LayeredExplanationCache,
+  MemoryExplanationCache,
+  SupabaseExplanationCache,
+  type ExplanationCache,
+} from "../cache";
 import { getExplanation, type MessagesClient } from "../service";
 import { templateExplanation } from "../template";
 import { SPEC_DRIVERS } from "./fixtures";
@@ -193,5 +199,42 @@ describe("explanation cache", () => {
   it("hashes canonicalized drivers", () => {
     expect(driversHash(SPEC_DRIVERS)).toMatch(/^[0-9a-f]{64}$/);
     expect(canonicalJson({ b: 1, a: { d: 2, c: [3, { f: 4, e: 5 }] } })).toBe('{"a":{"c":[3,{"e":5,"f":4}],"d":2},"b":1}');
+  });
+});
+
+describe("SupabaseExplanationCache", () => {
+  it("reads and upserts the explanations table by drivers_hash", async () => {
+    const hash = "b".repeat(64);
+    const row = {
+      drivers_hash: hash,
+      text: GOOD,
+      model: "claude-haiku-4-5",
+      latency_ms: 420,
+      source: "llm",
+      created_at: new Date().toISOString(),
+    };
+    const upserts: unknown[] = [];
+    const query = {
+      select: () => query,
+      eq: (col: string, v: string) => (col === "drivers_hash" && v === hash ? query : null),
+      abortSignal: () => query,
+      maybeSingle: async () => ({ data: row, error: null }),
+      upsert: (r: unknown, o: unknown) => {
+        upserts.push([r, o]);
+        return { abortSignal: async () => ({ error: null }) };
+      },
+    };
+    const db = { from: (t: string) => (t === "explanations" ? query : null) } as unknown as SupabaseClient;
+    const cache = new SupabaseExplanationCache(db);
+    expect(await cache.get(hash)).toMatchObject({ driversHash: hash, text: GOOD, latencyMs: 420, source: "llm" });
+    await cache.set({
+      driversHash: hash,
+      text: GOOD,
+      model: "claude-haiku-4-5",
+      latencyMs: 420,
+      source: "llm",
+      createdAt: row.created_at,
+    });
+    expect(upserts).toEqual([[row, { onConflict: "drivers_hash" }]]);
   });
 });
