@@ -3,7 +3,7 @@
 // TODO(Milestone 5): AI crawler logging (write an events row for OAI-AdsBot, OAI-SearchBot, …).
 import { NextResponse, type NextRequest } from "next/server";
 import { ATTRIBUTION_COOKIE, SESSION_COOKIE } from "@/lib/api/contracts";
-import { ATTRIBUTION_MAX_AGE_S, attributionFromUrl, encodeAttribution, isSessionId, newSessionId } from "@/lib/attribution";
+import { ATTRIBUTION_MAX_AGE_S, attributionFromUrl, isSessionId, newSessionId } from "@/lib/attribution";
 import { createAuthClient } from "@/lib/supabase/auth";
 
 export async function proxy(request: NextRequest) {
@@ -16,7 +16,8 @@ export async function proxy(request: NextRequest) {
   // DECISION: last touch wins: a landing URL with any attribution param replaces the stored set
   // (matching how the OpenAI pixel resets __oppref); URLs without params leave it alone.
   const attribution = attributionFromUrl(url);
-  if (attribution) set.push({ name: ATTRIBUTION_COOKIE, value: encodeAttribution(attribution), maxAge: ATTRIBUTION_MAX_AGE_S });
+  // Next URI-encodes cookie values, so the JSON is set as is (read back with decodeAttribution).
+  if (attribution) set.push({ name: ATTRIBUTION_COOKIE, value: JSON.stringify(attribution), maxAge: ATTRIBUTION_MAX_AGE_S });
 
   // DECISION: the session ID is a browser-session cookie (no Max-Age), assigned once.
   if (!isSessionId(request.cookies.get(SESSION_COOKIE)?.value)) set.push({ name: SESSION_COOKIE, value: newSessionId() });

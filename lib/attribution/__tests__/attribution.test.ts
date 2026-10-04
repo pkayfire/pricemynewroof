@@ -71,7 +71,9 @@ describe("proxy", () => {
     expect(attr).toMatch(/Max-Age=2592000/);
     expect(attr).toMatch(/SameSite=lax/i);
     expect(attr).toMatch(/Secure/);
-    expect(decodeAttribution(decodeURIComponent(attr.split(";")[0].slice("pmnr_attr=".length)))).toMatchObject({ oppref: "o1", ad_group_id: "ag" });
+    // Single URI encoding: parseCookies (one decode) yields the JSON.
+    const value = attr.split(";")[0].slice("pmnr_attr=".length);
+    expect(JSON.parse(decodeURIComponent(value))).toMatchObject({ oppref: "o1", ad_group_id: "ag" });
     expect(cookies.find((c) => c.startsWith("pmnr_sid="))).not.toMatch(/Max-Age/);
   });
 
