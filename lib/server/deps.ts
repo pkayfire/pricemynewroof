@@ -12,6 +12,7 @@ import type { EmailEstimateDeps, DoNotSellDeps, EventsDeps, Common } from "@/lib
 import { serviceDirectForwarderStub } from "@/lib/leads/forwarder";
 import type { MarkForwardedDeps } from "@/lib/leads/mark-forwarded";
 import type { LeadDeps } from "@/lib/leads/service";
+import { after } from "next/server";
 import { conversionsFromEnv } from "@/lib/openai-ads/capi";
 import { MemoryRateLimiter, SupabaseRateLimiter, type RateLimiter } from "@/lib/ratelimit";
 import { getServiceClient, hasServiceRole } from "@/lib/supabase/service";
@@ -90,6 +91,8 @@ export function leadDeps(env: NodeJS.ProcessEnv = process.env): LeadDeps & Commo
     newId: randomUUID,
     siteUrl: siteUrl(env),
     adminEmail: adminEmail(env),
+    conversions: conversionsFromEnv(env),
+    defer: (work) => after(work),
   };
 }
 

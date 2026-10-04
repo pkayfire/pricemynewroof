@@ -163,6 +163,36 @@ describe("POST /api/lead persistence", () => {
   });
 });
 
+describe("lead_created conversion on submit", () => {
+  it("sends lead_created for a new quote request with the pixel's event ID and hashed-only match data", async () => {
+    const s = await seeded();
+    const r = await handleLead(valid(), ctx(), s.leadDeps);
+    const leadId = (r.body as { leadId: string }).leadId;
+    expect(s.conversionsSent).toHaveLength(1);
+    expect(s.conversionsSent[0]).toMatchObject({ kind: "lead_submitted", id: `lead_${leadId}`, oppref: "opp-abc", optedOut: false });
+  });
+
+  it("sends nothing for a duplicate or an opted-out person", async () => {
+    const s = await seeded();
+    await handleLead(valid(), ctx(), s.leadDeps);
+    await handleLead(valid(), ctx(), s.leadDeps); // duplicate phone
+    expect(s.conversionsSent).toHaveLength(1);
+    const gpc = await seeded();
+    await handleLead(valid(), ctx({ optedOut: true }), gpc.leadDeps);
+    expect(gpc.conversionsSent).toHaveLength(0);
+  });
+
+  it("can run after the response via defer", async () => {
+    const s = await seeded();
+    const deferred: Array<() => Promise<unknown>> = [];
+    s.leadDeps.defer = (w) => void deferred.push(w);
+    await handleLead(valid(), ctx(), s.leadDeps);
+    expect(s.conversionsSent).toHaveLength(0);
+    await deferred[0]();
+    expect(s.conversionsSent).toHaveLength(1);
+  });
+});
+
 describe("dedupe", () => {
   it("accepts the same phone within 30 days but doesn't forward or alert again", async () => {
     const s = await seeded();

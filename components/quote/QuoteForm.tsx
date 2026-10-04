@@ -8,6 +8,7 @@ import { postJsonDetailed } from "@/lib/api/client";
 import { TIMING_OPTIONS, type LeadRequest, type LeadResponse, type Timing } from "@/lib/api/types";
 import { track } from "@/lib/analytics/client";
 import { toE164US } from "@/lib/leads/phone";
+import { leadEventId } from "@/lib/openai-ads/event-id";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -70,7 +71,7 @@ export function QuoteForm({ estimateId, defaultAddress, consentVersion, consentT
     };
     const r = await postJsonDetailed<LeadResponse>("/api/lead", body);
     if (r.ok) {
-      track("form_submit", { duplicate: r.data.duplicate, timing: timing! });
+      track("form_submit", { duplicate: r.data.duplicate, timing: timing!, event_id: leadEventId(r.data.leadId) });
       router.push(`/estimate/${encodeURIComponent(estimateId)}/thanks${r.data.duplicate ? "?duplicate=1" : ""}`);
       return;
     }

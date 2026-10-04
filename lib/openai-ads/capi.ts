@@ -1,5 +1,6 @@
-// OpenAI Conversions API client (server side) for lead_forwarded and call_qualified, so ad
-// bidding optimizes toward real leads (docs/SPEC.md, Tracking and attribution).
+// OpenAI Conversions API client (server side). A submitted quote request is the lead_created
+// conversion (also sent by the pixel with the same event ID); forwarded leads and qualified calls
+// are custom events (docs/SPEC.md, Tracking and attribution and Build decisions).
 //
 // Shape per https://developers.openai.com/ads/conversions-api (retrieved 2026-10-03):
 //   POST https://bzr.openai.com/v1/events?pid=<PIXEL-ID>, Authorization: Bearer <API-KEY>
@@ -12,7 +13,7 @@ import { hashEmail, hashPhone } from "./hash";
 export const CAPI_ENDPOINT = "https://bzr.openai.com/v1/events";
 export const CAPI_TIMEOUT_MS = 5000;
 
-export type ConversionKind = "lead_forwarded" | "call_qualified";
+export type ConversionKind = "lead_submitted" | "lead_forwarded" | "call_qualified";
 
 export interface ConversionEvent {
   kind: ConversionKind;
@@ -51,8 +52,8 @@ export function capiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): CapiCon
 }
 
 /**
- * DECISION: lead_forwarded is sent as the standard `lead_created` event with
- * data.type "customer_action"; call_qualified as a `custom` event named "call_qualified".
+ * lead_submitted is the standard `lead_created` event with data.type "customer_action" (owner
+ * decision); lead_forwarded and call_qualified are `custom` events with those names.
  * DECISION: only hashed email and phone are sent as match keys (plus oppref and the pixel's
  * obref); no names, IP or user agent.
  */
@@ -70,9 +71,9 @@ export function buildCapiEvent(e: ConversionEvent) {
     ...(e.oppref ? { oppref: e.oppref } : {}),
     ...(Object.keys(user).length ? { user } : {}),
   };
-  return e.kind === "lead_forwarded"
+  return e.kind === "lead_submitted"
     ? { ...base, type: "lead_created", data: { type: "customer_action" } }
-    : { ...base, type: "custom", custom_event_name: "call_qualified", data: { type: "custom" } };
+    : { ...base, type: "custom", custom_event_name: e.kind, data: { type: "custom" } };
 }
 
 export class OpenAIConversionsClient implements ConversionsClient {

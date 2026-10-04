@@ -7,6 +7,7 @@ import { MemoryEstimateStore } from "@/lib/estimates/store";
 import type { EstimateRecord } from "@/lib/estimates/types";
 import { serviceDirectForwarderStub } from "@/lib/leads/forwarder";
 import type { LeadDeps } from "@/lib/leads/service";
+import type { ConversionEvent, ConversionsClient } from "@/lib/openai-ads/capi";
 import { MemoryRateLimiter } from "@/lib/ratelimit";
 import { MemoryDoNotSellStore, MemoryEmailSignupStore, MemoryEventStore, MemoryLeadStore } from "@/lib/server/memory-stores";
 
@@ -66,6 +67,15 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   const newId = () => `10000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
   const coverage = coverageProviderFor(buyerConfig);
   const getEstimate = (id: string) => getEstimateView(id, { store: () => estimates, coverage, demos: () => null });
+  const conversionsSent: ConversionEvent[] = [];
+  const conversions: ConversionsClient = {
+    enabled: true,
+    async send(e) {
+      if (e.optedOut) return "suppressed";
+      conversionsSent.push(e);
+      return "sent";
+    },
+  };
   const leadDeps: LeadDeps & { limiter: MemoryRateLimiter } = {
     getEstimate,
     leads,
@@ -78,6 +88,7 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
     newId,
     siteUrl: "https://example.test",
     adminEmail: "admin@example.test",
+    conversions,
     limiter,
   };
   return {
@@ -90,6 +101,7 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
     email,
     limiter,
     leadDeps,
+    conversionsSent,
     now,
     newId,
     setNow: (d: Date) => (clock = d),
