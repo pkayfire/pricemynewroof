@@ -7,8 +7,9 @@
 import type { Coverage, LatLng, Segment, StoredEstimate } from "@/lib/api/types";
 import { compassFromAzimuth } from "@/lib/format";
 
-// DECISION: one invented point (open desert, no buildings) for every demo estimate.
-const DEMO_CENTER: LatLng = { latitude: 33.30212, longitude: -112.12884 };
+// DECISION: one invented point on an open public lawn (no buildings) for every demo estimate, so
+// screenshots show sharp imagery without labeling anyone's home.
+const DEMO_CENTER: LatLng = { latitude: 40.78125, longitude: -73.9665 };
 
 const M_PER_DEG_LAT = 111_320;
 function offset(eastM: number, northM: number): LatLng {

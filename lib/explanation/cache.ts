@@ -60,7 +60,7 @@ export class SupabaseExplanationCache implements ExplanationCache {
   constructor(
     private readonly url: string,
     private readonly serviceKey: string,
-    private readonly timeoutMs = 600,
+    private readonly timeoutMs = 800,
     private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
   ) {}
 
