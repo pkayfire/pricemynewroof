@@ -101,7 +101,7 @@ describe("POST /api/lead persistence", () => {
   it("saves the lead with its consent record, estimate summary and attribution", async () => {
     const s = await seeded();
     const r = await handleLead(valid(), ctx(), s.leadDeps);
-    expect(r).toEqual({ status: 200, body: { ok: true, leadId: "10000000-0000-4000-8000-000000000001" } });
+    expect(r).toEqual({ status: 200, body: { ok: true, leadId: "10000000-0000-4000-8000-000000000001", duplicate: false } });
     const lead = await s.leads.get("10000000-0000-4000-8000-000000000001");
     expect(lead).toMatchObject({
       estimateId: ESTIMATE_ID,
@@ -170,6 +170,7 @@ describe("dedupe", () => {
     s.setNow(new Date(T0.getTime() + 29 * DAY));
     const second = await handleLead(valid({ phone: "+1 602-555-0123", email: "other@example.org" }), ctx(), s.leadDeps);
     expect(second.status).toBe(200);
+    expect(second.body).toMatchObject({ ok: true, duplicate: true });
     const firstId = (first.body as { leadId: string }).leadId;
     const secondLead = await s.leads.get((second.body as { leadId: string }).leadId);
     expect(secondLead).toMatchObject({ forwardStatus: "duplicate", duplicateOf: firstId });

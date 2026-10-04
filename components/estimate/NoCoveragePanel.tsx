@@ -6,6 +6,7 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import { postJson } from "@/lib/api/client";
+import { track } from "@/lib/analytics/client";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -31,7 +32,10 @@ export function NoCoveragePanel({ estimateId }: { estimateId: string }) {
       email: trimmed,
       notifyWhenCovered: notify,
     });
-    if (r.ok) setState("sent");
+    if (r.ok) {
+      setState("sent");
+      track("email_estimate", { notify_when_covered: notify });
+    }
     else {
       setState("idle");
       setError("We couldn't send that just now. Please try again.");

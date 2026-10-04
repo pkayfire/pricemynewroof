@@ -28,3 +28,23 @@ export function referralDisclosure(mode: BuyerMode = BUYER_MODE, paid = PAYING_B
   const pay = paid ? " Roofers pay us for the referral." : "";
   return `${base}${forward}${pay} Seeing your estimate never shares your details.`;
 }
+
+/** "What happens next" on the thanks page; describes what actually happens in each mode. */
+export function nextSteps(mode: BuyerMode = BUYER_MODE): string[] {
+  switch (mode) {
+    case "manual":
+      return [
+        `A person at ${SITE_NAME} reads your request and passes it to a local roofer within one business day.`,
+        "The roofer contacts you by phone, text or email to arrange a visit. Only they can give you an exact quote.",
+        "You decide whether to go ahead. You don't owe anyone anything for asking.",
+      ];
+    case "service_direct":
+      return [
+        "We pass your request to a local roofer.",
+        "The roofer contacts you by phone, text or email to arrange a visit. Only they can give you an exact quote.",
+        "You decide whether to go ahead. You don't owe anyone anything for asking.",
+      ];
+    case "none":
+      return ["Quote requests are not being forwarded to roofers right now, so no roofer will contact you."];
+  }
+}

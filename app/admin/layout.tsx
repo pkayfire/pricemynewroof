@@ -1,11 +1,15 @@
-// Admin area: noindex, plain markup (restyled after the Milestone 3 merge).
+// Admin area: noindex (also X-Robots-Tag from proxy.ts and disallowed in robots.txt).
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin | Price My New Roof",
-  robots: { index: false, follow: false },
+  title: "Admin",
+  robots: { index: false, follow: false, nocache: true },
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return <main style={{ padding: "16px 18px", maxWidth: 1180, margin: "0 auto" }}>{children}</main>;
+  return (
+    <main id="main" className="container estimate-main admin">
+      {children}
+    </main>
+  );
 }

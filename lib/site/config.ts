@@ -15,3 +15,6 @@ export const BUYER_MODE: BuyerMode = BUYER_CONFIG.buyerMode;
 // DECISION: false until a paying buyer is confirmed; referral copy mentions payment only then
 // (Build decisions, Leads).
 export const PAYING_BUYER_CONFIRMED = false;
+
+/** Times on the admin pages (the owner's zone; the daily report uses the same zone in SQL). */
+export const ADMIN_TIME_ZONE = "America/Los_Angeles";

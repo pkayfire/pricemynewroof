@@ -3,6 +3,8 @@ import { Barlow, Barlow_Semi_Condensed } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SITE_NAME, SITE_URL } from "@/lib/site/config";
+import { Analytics } from "@/components/analytics/Analytics";
+import { pixelConfig } from "@/lib/openai-ads/pixel";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -53,6 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         {children}
         <SiteFooter />
+        {/* Opt-outs (GPC, do-not-sell) are checked in the browser so pages stay static. */}
+        <Analytics pixel={pixelConfig({ optedOut: false })} />
       </body>
     </html>
   );

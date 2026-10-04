@@ -1,5 +1,5 @@
 // Browser calls to the app's own API routes.
-import type { EstimateRequestBody, EstimateResponse } from "./types";
+import type { ApiError, EstimateRequestBody, EstimateResponse } from "./types";
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number };
 
@@ -14,6 +14,29 @@ export async function postJson<T>(url: string, body: unknown): Promise<ApiResult
     return { ok: true, data: (await res.json()) as T };
   } catch {
     return { ok: false, status: 0 };
+  }
+}
+
+export type DetailedResult<T> = { ok: true; data: T } | { ok: false; status: number; error: ApiError | null };
+
+/** Like postJson, but returns the API's error body ({ error, message, field? }) on failure. */
+export async function postJsonDetailed<T>(url: string, body: unknown): Promise<DetailedResult<T>> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) return { ok: true, data: (await res.json()) as T };
+    let error: ApiError | null = null;
+    try {
+      error = (await res.json()) as ApiError;
+    } catch {
+      error = null;
+    }
+    return { ok: false, status: res.status, error };
+  } catch {
+    return { ok: false, status: 0, error: null };
   }
 }
 

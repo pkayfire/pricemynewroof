@@ -65,6 +65,11 @@ export type LeadRequest = z.input<typeof leadRequestSchema>;
 export interface LeadResponse {
   ok: true;
   leadId: string;
+  /**
+   * DECISION: added to the contract. True when the same phone already asked within 30 days: the
+   * request is saved but not forwarded again, and the thanks page says so.
+   */
+  duplicate: boolean;
 }
 
 export type LeadErrorCode =

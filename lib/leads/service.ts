@@ -123,5 +123,5 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
       console.error("[lead] alert email failed:", (e as Error).message);
     }
   }
-  return { status: 200, body: { ok: true, leadId: lead.id } };
+  return { status: 200, body: { ok: true, leadId: lead.id, duplicate: prior !== null } };
 }
