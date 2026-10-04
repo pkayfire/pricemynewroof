@@ -9,7 +9,8 @@ export const json = (body: unknown, status = 200, headers: Record<string, string
 export function parseCookies(header: string | null | undefined): Record<string, string> {
   const out: Record<string, string> = {};
   if (!header) return out;
-  for (const part of header.split(";")) {
+  for (const rawPart of header.split(";")) {
+    const part = rawPart.trim();
     const i = part.indexOf("=");
     if (i < 1) continue;
     const name = part.slice(0, i).trim();
