@@ -18,3 +18,6 @@ config/.cache/
 
 # Manual 20-home review: address-level Google data, local only, delete within 30 days
 review/
+
+# Agent worktrees
+.claude/worktrees/
