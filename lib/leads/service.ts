@@ -6,7 +6,7 @@ import type { BuyerConfig } from "@/lib/buyer/config";
 import type { CoverageProvider } from "@/lib/coverage";
 import type { EmailSender } from "@/lib/email";
 import { leadAlertEmail } from "@/lib/email/templates";
-import type { EstimateStore } from "@/lib/estimates/store";
+import type { EstimateView } from "@/lib/estimates/view";
 import { invalidRequest } from "@/lib/http/request";
 import { sha256Hex } from "@/lib/server/hash";
 import type { DoNotSellStore, LeadRecord, LeadStore } from "@/lib/server/stores";
@@ -17,7 +17,8 @@ export const DEDUPE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export interface LeadDeps {
-  estimates: Pick<EstimateStore, "get">;
+  /** The estimate as the page shows it (lib/estimates/source.ts getEstimateView). */
+  getEstimate(id: string): Promise<EstimateView | null>;
   leads: LeadStore;
   doNotSell: DoNotSellStore;
   coverage: CoverageProvider;
@@ -53,7 +54,7 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
     return { status: 400, body: { error: "unknown_consent_version", message: "Reload the page and try again.", field: "consentVersion" } };
   }
 
-  const estimate = await deps.estimates.get(req.estimateId);
+  const estimate = await deps.getEstimate(req.estimateId);
   if (!estimate) return { status: 404, body: { error: "estimate_not_found", message: "Estimate not found." } };
   const coverage = await deps.coverage.forZip(estimate.zip);
   if (!coverage.covered || !coverage.leadTypes.includes("form")) {
@@ -63,14 +64,14 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
   const now = deps.now();
   const email = req.email.trim();
   const sessionId = req.sessionId ?? ctx.sessionId;
-  const optOut = ctx.optedOut || (await deps.doNotSell.isOptedOut({ email, sessionId }));
+  const optOut = ctx.optedOut || (await deps.doNotSell.isOptedOut({ email, phone, sessionId }));
   // Dedupe: same phone within 30 days is accepted but never forwarded again.
   const prior = await deps.leads.findRecentByPhone(phone, new Date(now.getTime() - DEDUPE_DAYS * DAY_MS));
 
   const lead: LeadRecord = {
     id: deps.newId(),
     createdAt: now.toISOString(),
-    estimateId: estimate.id,
+    estimateId: estimate.estimateId,
     name: req.name,
     phone,
     email,

@@ -6,7 +6,7 @@ import { handleLeadPost } from "@/lib/leads/endpoints";
 import { toE164US } from "@/lib/leads/phone";
 import { handleLead } from "@/lib/leads/service";
 import { sha256Hex } from "@/lib/server/hash";
-import { DAY, ESTIMATE_ID, estimateRecord, m4Setup, postJson, T0 } from "@/test/m4";
+import { DAY, ESTIMATE_ID, estimateRecord, m4Setup, postJson, T0, dnsRecord } from "@/test/m4";
 
 const CONSENT = consentFor("manual")!;
 
@@ -219,7 +219,7 @@ describe("opt-outs on leads", () => {
 
   it("marks the lead opted out when the email has a do-not-sell request", async () => {
     const s = await seeded();
-    await s.doNotSell.insert({ id: "d", createdAt: T0.toISOString(), email: "pat@example.com", name: null, state: "CA", ipHash: null, sessionId: null });
+    await s.doNotSell.insert(dnsRecord({ email: "pat@example.com" }));
     await handleLead(valid(), ctx(), s.leadDeps);
     expect([...s.leads.rows.values()][0].optOut).toBe(true);
   });

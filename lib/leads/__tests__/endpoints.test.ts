@@ -81,7 +81,7 @@ describe("POST /api/email-estimate", () => {
   it("stores the signup and emails the estimate", async () => {
     const s = m4Setup();
     await s.estimates.insert(estimateRecord());
-    const deps = () => ({ estimates: s.estimates, signups: s.signups, email: s.email, limiter: s.limiter, now: s.now, newId: s.newId, siteUrl: "https://example.test" });
+    const deps = () => ({ getEstimate: s.getEstimate, signups: s.signups, email: s.email, limiter: s.limiter, now: s.now, newId: s.newId, siteUrl: "https://example.test" });
     const res = await handleEmailEstimatePost(postJson("/api/email-estimate", { estimateId: ESTIMATE_ID, email: "a@example.org", notifyWhenCovered: true }, { cookie: "pmnr_sid=sess-abc-123" }), deps);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -103,16 +103,39 @@ describe("POST /api/do-not-sell", () => {
   it("stores the request with a hashed IP and sets the opt-out cookie", async () => {
     const s = m4Setup();
     const deps = () => ({ doNotSell: s.doNotSell, limiter: s.limiter, now: s.now, newId: s.newId });
-    const res = await handleDoNotSellPost(postJson("/api/do-not-sell", { email: " Pat@Example.COM ", state: "ca" }, { cookie: "pmnr_sid=sess-dns-1" }), deps);
+    const res = await handleDoNotSellPost(
+      postJson("/api/do-not-sell", { email: " Pat@Example.COM ", phone: "(602) 555-0123", state: "ca", authorizedAgent: true, details: "Please" }, { cookie: "pmnr_sid=sess-dns-1" }),
+      deps,
+    );
     expect(res.status).toBe(200);
     expect(res.headers.get("set-cookie")).toMatch(/^pmnr_optout=1; Path=\/; Max-Age=\d+; SameSite=Lax; Secure$/);
     const row = s.doNotSell.rows[0];
-    expect(row).toMatchObject({ email: "pat@example.com", state: "CA", name: null, sessionId: "sess-dns-1", createdAt: T0.toISOString() });
+    expect(row).toMatchObject({
+      email: "pat@example.com",
+      phone: "+16025550123",
+      state: "CA",
+      name: null,
+      requestType: "opt_out_sale_share",
+      authorizedAgent: true,
+      details: "Please",
+      sessionId: "sess-dns-1",
+      createdAt: T0.toISOString(),
+    });
     expect(row.ipHash).toMatch(/^[0-9a-f]{64}$/);
     expect(JSON.stringify(row)).not.toContain("203.0.113.7");
     expect(await s.doNotSell.isOptedOut({ email: "PAT@example.com" })).toBe(true);
+    expect(await s.doNotSell.isOptedOut({ phone: "+16025550123" })).toBe(true);
     expect(await s.doNotSell.isOptedOut({ sessionId: "sess-dns-1" })).toBe(true);
     expect(await s.doNotSell.isOptedOut({ email: "x@example.com", sessionId: "other" })).toBe(false);
-    expect((await handleDoNotSellPost(postJson("/api/do-not-sell", { email: "a@b.co", state: "California" }), deps)).status).toBe(400);
+  });
+
+  it("accepts a phone alone and rejects requests with neither, or bad values", async () => {
+    const s = m4Setup();
+    const deps = () => ({ doNotSell: s.doNotSell, limiter: s.limiter, now: s.now, newId: s.newId });
+    expect((await handleDoNotSellPost(postJson("/api/do-not-sell", { phone: "(555) 555-0100" }), deps)).status).toBe(200);
+    expect(s.doNotSell.rows[0]).toMatchObject({ email: null, phone: "+15555550100" });
+    for (const body of [{ name: "A" }, { email: "nope" }, { phone: "123" }, { email: "a@b.co", state: "California" }]) {
+      expect((await handleDoNotSellPost(postJson("/api/do-not-sell", body), deps)).status).toBe(400);
+    }
   });
 });

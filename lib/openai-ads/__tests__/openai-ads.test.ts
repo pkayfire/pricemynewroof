@@ -5,7 +5,7 @@ import { normalizePhone } from "@/lib/openai-ads/hash";
 import { pixelConfig } from "@/lib/openai-ads/pixel";
 import { sha256Hex } from "@/lib/server/hash";
 import type { LeadRecord } from "@/lib/server/stores";
-import { m4Setup, T0 } from "@/test/m4";
+import { m4Setup, T0, dnsRecord } from "@/test/m4";
 
 const env = (o: Record<string, string>) => o as unknown as NodeJS.ProcessEnv;
 const ON = env({ OPENAI_PIXEL_ID: "oai-px-TEST", OPENAI_CAPI_TOKEN: "tok-secret" });
@@ -164,7 +164,7 @@ describe("marking a lead forwarded", () => {
 
     const b = setup(lead());
     await b.ready;
-    await b.s.doNotSell.insert({ id: "d", createdAt: T0.toISOString(), email: "pat@example.com", name: null, state: "CA", ipHash: null, sessionId: null });
+    await b.s.doNotSell.insert(dnsRecord({ email: "pat@example.com" }));
     expect((await markLeadForwarded(lead().id, null, b.deps)) as { conversion: string }).toMatchObject({ conversion: "suppressed" });
     expect(b.f).not.toHaveBeenCalled();
   });

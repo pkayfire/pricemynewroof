@@ -9,6 +9,7 @@ import type {
   EventStore,
   LeadRecord,
   LeadStore,
+  OptOutLookup,
 } from "./stores";
 
 export class MemoryLeadStore implements LeadStore {
@@ -66,8 +67,10 @@ export class MemoryDoNotSellStore implements DoNotSellStore {
   async insert(record: DoNotSellRecord) {
     this.rows.push(structuredClone(record));
   }
-  async isOptedOut(by: { email?: string | null; sessionId?: string | null }) {
+  async isOptedOut(by: OptOutLookup) {
     const email = by.email?.trim().toLowerCase();
-    return this.rows.some((r) => (email && r.email === email) || (by.sessionId && r.sessionId === by.sessionId));
+    return this.rows.some(
+      (r) => (email && r.email === email) || (by.phone && r.phone === by.phone) || (by.sessionId && r.sessionId === by.sessionId),
+    );
   }
 }

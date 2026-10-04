@@ -2,6 +2,7 @@
 import { BUYER_CONFIG, type BuyerConfig } from "@/lib/buyer/config";
 import { coverageProviderFor } from "@/lib/coverage";
 import { MemoryEmailSender } from "@/lib/email";
+import { getEstimateView } from "@/lib/estimates/source";
 import { MemoryEstimateStore } from "@/lib/estimates/store";
 import type { EstimateRecord } from "@/lib/estimates/types";
 import { serviceDirectForwarderStub } from "@/lib/leads/forwarder";
@@ -63,11 +64,13 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   const limiter = new MemoryRateLimiter(now);
   const buyerConfig: BuyerConfig = { ...BUYER_CONFIG, ...buyer };
   const newId = () => `10000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
+  const coverage = coverageProviderFor(buyerConfig);
+  const getEstimate = (id: string) => getEstimateView(id, { store: () => estimates, coverage, demos: () => null });
   const leadDeps: LeadDeps & { limiter: MemoryRateLimiter } = {
-    estimates,
+    getEstimate,
     leads,
     doNotSell,
-    coverage: coverageProviderFor(buyerConfig),
+    coverage,
     buyer: buyerConfig,
     email,
     forwarder: serviceDirectForwarderStub,
@@ -79,6 +82,7 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   };
   return {
     estimates,
+    getEstimate,
     leads,
     events,
     signups,
@@ -98,4 +102,21 @@ export function postJson(path: string, body: unknown, headers: Record<string, st
     headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.7", ...headers },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
+}
+
+export function dnsRecord(over: Partial<import("@/lib/server/stores").DoNotSellRecord> = {}): import("@/lib/server/stores").DoNotSellRecord {
+  return {
+    id: "d",
+    createdAt: T0.toISOString(),
+    email: null,
+    phone: null,
+    name: null,
+    state: "CA",
+    requestType: "opt_out_sale_share",
+    authorizedAgent: false,
+    details: null,
+    ipHash: null,
+    sessionId: null,
+    ...over,
+  };
 }

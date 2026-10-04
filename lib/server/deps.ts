@@ -7,6 +7,7 @@ import { buyerConfigFromEnv } from "@/lib/buyer/config";
 import { coverageProviderFor } from "@/lib/coverage";
 import { LogEmailSender, type EmailSender } from "@/lib/email";
 import { DEFAULT_SITE_URL, getEstimateStore } from "@/lib/estimates/deps";
+import { getEstimateView } from "@/lib/estimates/source";
 import type { EmailEstimateDeps, DoNotSellDeps, EventsDeps, Common } from "@/lib/leads/endpoints";
 import { serviceDirectForwarderStub } from "@/lib/leads/forwarder";
 import type { MarkForwardedDeps } from "@/lib/leads/mark-forwarded";
@@ -68,7 +69,7 @@ export function getEmailSender(): EmailSender {
   return (c.email ??= new LogEmailSender());
 }
 
-const siteUrl = (env: NodeJS.ProcessEnv) => env.SITE_URL || DEFAULT_SITE_URL;
+const siteUrl = (env: NodeJS.ProcessEnv) => env.NEXT_PUBLIC_SITE_URL || env.SITE_URL || DEFAULT_SITE_URL;
 const now = () => new Date();
 
 function common(env: NodeJS.ProcessEnv): Common {
@@ -79,7 +80,7 @@ export function leadDeps(env: NodeJS.ProcessEnv = process.env): LeadDeps & Commo
   const buyer = buyerConfigFromEnv(env);
   return {
     ...common(env),
-    estimates: getEstimateStore(env),
+    getEstimate: (id) => getEstimateView(id),
     leads: getLeadStore(env),
     doNotSell: getDoNotSellStore(env),
     coverage: coverageProviderFor(buyer),
@@ -95,7 +96,7 @@ export function leadDeps(env: NodeJS.ProcessEnv = process.env): LeadDeps & Commo
 export function emailEstimateDeps(env: NodeJS.ProcessEnv = process.env): EmailEstimateDeps {
   return {
     ...common(env),
-    estimates: getEstimateStore(env),
+    getEstimate: (id) => getEstimateView(id),
     signups: getEmailSignupStore(env),
     email: getEmailSender(),
     newId: randomUUID,

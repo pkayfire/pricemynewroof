@@ -35,9 +35,12 @@ export const TIMING_OPTIONS = [
 export type Timing = (typeof TIMING_OPTIONS)[number]["id"];
 const TIMING_IDS = TIMING_OPTIONS.map((t) => t.id) as [Timing, ...Timing[]];
 
+/** Estimate IDs are UUIDs (demo estimates, local only, start with "demo-"). */
+const estimateIdSchema = z.string().trim().min(1).max(200);
+
 export const leadRequestSchema = z
   .object({
-    estimateId: z.string().uuid(),
+    estimateId: estimateIdSchema,
     name: z.string().trim().min(2, "enter your name").max(100),
     /** Any common US format; normalized to E.164 (+1XXXXXXXXXX) on the server. */
     phone: z.string().trim().min(1).max(32),
@@ -82,7 +85,7 @@ export interface ApiError<C extends string = string> {
 
 export const emailEstimateRequestSchema = z
   .object({
-    estimateId: z.string().uuid(),
+    estimateId: estimateIdSchema,
     email: z.string().trim().max(254).email("enter a valid email"),
     notifyWhenCovered: z.boolean(),
   })
@@ -135,18 +138,29 @@ export type EventRequest = z.input<typeof eventRequestSchema>;
 
 // ---------- California do-not-sell ----------
 
+const DNS_EMAIL = z.string().trim().max(254).email();
+
+/** POST /api/do-not-sell body. Email or phone (or both) identifies the records to opt out. */
 export const doNotSellRequestSchema = z
   .object({
-    email: z.string().trim().max(254).email("enter a valid email"),
-    name: z.string().trim().min(1).max(100).optional(),
-    /** Two-letter state of residence. */
+    name: z.string().trim().max(200).optional().default(""),
+    email: z.string().trim().max(254).optional().default(""),
+    phone: z.string().trim().max(40).optional().default(""),
+    /** Two-letter state of residence (the form sends "CA"). */
     state: z
       .string()
       .trim()
       .regex(/^[A-Za-z]{2}$/)
-      .transform((s) => s.toUpperCase()),
+      .transform((s) => s.toUpperCase())
+      .optional(),
+    requestType: z.enum(["opt_out_sale_share", "limit_sensitive"]).default("opt_out_sale_share"),
+    authorizedAgent: z.boolean().default(false),
+    details: z.string().trim().max(2000).optional().default(""),
   })
-  .strict();
+  .strict()
+  .refine((v) => v.email.length > 0 || v.phone.length > 0, { message: "email or phone required", path: ["email"] })
+  .refine((v) => v.email.length === 0 || DNS_EMAIL.safeParse(v.email).success, { message: "invalid email", path: ["email"] })
+  .refine((v) => v.phone.length === 0 || v.phone.replace(/\D/g, "").length >= 10, { message: "invalid phone", path: ["phone"] });
 export type DoNotSellRequest = z.input<typeof doNotSellRequestSchema>;
 
 // ---------- Attribution ----------

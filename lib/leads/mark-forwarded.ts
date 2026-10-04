@@ -42,7 +42,7 @@ export async function markLeadForwarded(id: string, buyerRef: string | null, dep
   let optedOut = lead.optOut;
   if (!optedOut && deps.conversions.enabled) {
     try {
-      optedOut = await deps.doNotSell.isOptedOut({ email: lead.email, sessionId: lead.sessionId });
+      optedOut = await deps.doNotSell.isOptedOut({ email: lead.email, phone: lead.phone, sessionId: lead.sessionId });
     } catch {
       optedOut = true; // when unsure, don't send
     }

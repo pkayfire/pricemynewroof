@@ -92,16 +92,27 @@ export interface EmailSignupStore {
 export interface DoNotSellRecord {
   id: string;
   createdAt: string;
-  /** Lowercased. */
-  email: string;
+  /** Lowercased; null when only a phone was given. */
+  email: string | null;
+  /** E.164 when valid, else the digits; null when only an email was given. */
+  phone: string | null;
   name: string | null;
-  state: string;
+  state: string | null;
+  requestType: "opt_out_sale_share" | "limit_sensitive";
+  authorizedAgent: boolean;
+  details: string | null;
   ipHash: string | null;
   sessionId: string | null;
 }
 
+export interface OptOutLookup {
+  email?: string | null;
+  phone?: string | null;
+  sessionId?: string | null;
+}
+
 export interface DoNotSellStore {
   insert(record: DoNotSellRecord): Promise<void>;
-  /** True if a request exists for this email (case-insensitive) or session. */
-  isOptedOut(by: { email?: string | null; sessionId?: string | null }): Promise<boolean>;
+  /** True if a request exists for this email (case-insensitive), phone (E.164) or session. */
+  isOptedOut(by: OptOutLookup): Promise<boolean>;
 }

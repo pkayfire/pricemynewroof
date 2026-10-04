@@ -13,6 +13,7 @@ import type {
   ForwardStatus,
   LeadRecord,
   LeadStore,
+  OptOutLookup,
   StoredAttribution,
 } from "./stores";
 
@@ -198,22 +199,27 @@ export class SupabaseDoNotSellStore implements DoNotSellStore {
       id: r.id,
       created_at: r.createdAt,
       email: r.email,
+      phone: r.phone,
       name: r.name,
       state: r.state,
+      request_type: r.requestType,
+      authorized_agent: r.authorizedAgent,
+      details: r.details,
       ip_hash: r.ipHash,
       session_id: r.sessionId,
     });
     if (error) throw new Error(`do_not_sell_requests insert failed: ${error.message}`);
   }
-  async isOptedOut(by: { email?: string | null; sessionId?: string | null }) {
+  async isOptedOut(by: OptOutLookup) {
     const email = by.email?.trim().toLowerCase();
     const checks: Promise<boolean>[] = [];
-    const exists = async (col: "email" | "session_id", value: string) => {
+    const exists = async (col: "email" | "phone" | "session_id", value: string) => {
       const { count, error } = await this.db.from("do_not_sell_requests").select("id", { count: "exact", head: true }).eq(col, value);
       if (error) throw new Error(`do_not_sell lookup failed: ${error.message}`);
       return (count ?? 0) > 0;
     };
     if (email) checks.push(exists("email", email));
+    if (by.phone) checks.push(exists("phone", by.phone));
     if (by.sessionId) checks.push(exists("session_id", by.sessionId));
     return (await Promise.all(checks)).some(Boolean);
   }

@@ -10,12 +10,13 @@ import {
 import { requestContext, type RequestContext } from "@/lib/attribution";
 import type { EmailSender } from "@/lib/email";
 import { estimateEmail } from "@/lib/email/templates";
-import type { EstimateStore } from "@/lib/estimates/store";
+import type { EstimateView } from "@/lib/estimates/view";
 import { clientIp, invalidRequest, json, readJson } from "@/lib/http/request";
 import { OPT_OUT_MAX_AGE_S } from "@/lib/privacy/opt-out";
 import { enforceLimit, LIMITS, type RateLimiter } from "@/lib/ratelimit";
 import { sha256Hex } from "@/lib/server/hash";
 import type { DoNotSellStore, EmailSignupStore, EventStore } from "@/lib/server/stores";
+import { toE164US } from "./phone";
 import { handleLead, type LeadDeps } from "./service";
 
 const MAX_FORM_BYTES = 8192;
@@ -58,7 +59,7 @@ export async function handleLeadPost(request: Request, deps: () => LeadDeps & Co
 // ---------- POST /api/email-estimate ----------
 
 export interface EmailEstimateDeps extends Common {
-  estimates: Pick<EstimateStore, "get">;
+  getEstimate(id: string): Promise<EstimateView | null>;
   signups: EmailSignupStore;
   email: EmailSender;
   newId(): string;
@@ -72,14 +73,14 @@ export async function handleEmailEstimatePost(request: Request, deps: () => Emai
     if (start.done) return start.response;
     const parsed = emailEstimateRequestSchema.safeParse(start.body);
     if (!parsed.success) return json(invalidRequest(parsed.error.issues), 400);
-    const estimate = await d.estimates.get(parsed.data.estimateId);
+    const estimate = await d.getEstimate(parsed.data.estimateId);
     if (!estimate) return json({ error: "estimate_not_found", message: "Estimate not found." }, 404);
     const now = d.now().toISOString();
     const id = d.newId();
     await d.signups.insert({
       id,
       createdAt: now,
-      estimateId: estimate.id,
+      estimateId: estimate.estimateId,
       email: parsed.data.email,
       notifyWhenCovered: parsed.data.notifyWhenCovered,
       consentTs: now,
@@ -141,12 +142,17 @@ export async function handleDoNotSellPost(request: Request, deps: () => DoNotSel
     const parsed = doNotSellRequestSchema.safeParse(start.body);
     if (!parsed.success) return json(invalidRequest(parsed.error.issues), 400);
     const ctx: RequestContext = start.ctx;
+    const v = parsed.data;
     await d.doNotSell.insert({
       id: d.newId(),
       createdAt: d.now().toISOString(),
-      email: parsed.data.email.toLowerCase(),
-      name: parsed.data.name ?? null,
-      state: parsed.data.state,
+      email: v.email ? v.email.toLowerCase() : null,
+      phone: v.phone ? (toE164US(v.phone) ?? v.phone.replace(/\D/g, "")) : null,
+      name: v.name || null,
+      state: v.state ?? null,
+      requestType: v.requestType,
+      authorizedAgent: v.authorizedAgent,
+      details: v.details || null,
       ipHash: ctx.ip ? sha256Hex(`ip:${ctx.ip}`) : null,
       sessionId: ctx.sessionId,
     });

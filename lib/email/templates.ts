@@ -1,6 +1,6 @@
 // Email bodies. Plain text for now; restyle with the provider.
 import { TIMING_OPTIONS, type Timing } from "@/lib/api/contracts";
-import type { EstimateRecord } from "@/lib/estimates/types";
+import type { EstimateView } from "@/lib/estimates/view";
 import type { EmailMessage } from "./index";
 
 const site = (url: string) => url.replace(/\/+$/, "");
@@ -32,7 +32,7 @@ export function leadAlertEmail(args: { to: string; leadId: string; zip: string; 
 }
 
 /** "Email me this estimate" (no-coverage panel). */
-export function estimateEmail(args: { to: string; signupId: string; estimate: EstimateRecord; notifyWhenCovered: boolean; siteUrl: string }): EmailMessage {
+export function estimateEmail(args: { to: string; signupId: string; estimate: EstimateView; notifyWhenCovered: boolean; siteUrl: string }): EmailMessage {
   const e = args.estimate;
   const lines = [`Here is the roof replacement estimate you asked us to send.`, ``];
   if (e.options && e.options.length > 0) {
@@ -43,7 +43,7 @@ export function estimateEmail(args: { to: string; signupId: string; estimate: Es
   lines.push(
     ``,
     `A general estimate, not a quote. Actual prices depend on an on-site inspection.`,
-    `See it again: ${site(args.siteUrl)}/estimate/${e.id}`,
+    `See it again: ${site(args.siteUrl)}/estimate/${e.estimateId}`,
     `How we estimate: ${site(args.siteUrl)}/how-we-estimate`,
     ``,
   );
