@@ -588,8 +588,13 @@ Answers to pre-build questions. These override anything above that they contradi
 
 - Referral copy depends on `buyerMode`. `manual`: "We'll pass your request to a local roofer within one business day." Mention payment ("they pay us for the referral") only once a paying buyer is confirmed.
 - Timing options: "As soon as possible", "Within 3 months", "3–12 months", "Just researching".
-- Rate limiting uses a Supabase table.
-- Still open: launch ZIP or metro allowlist.
+- Rate limiting uses a Supabase table: 500 estimates per hour per IP and per session.
+- Coverage is open for v1: every US ZIP counts as covered (`buyerMode: "manual"`, `primaryCta: "form"`). Ad geo targeting still decides where traffic comes from.
+- Email: the provider is chosen by the owner later; code sends through an `EmailSender` interface with a log-only implementation until a provider key exists.
+- New-lead alert: one email per lead with a link to `/admin/leads`. Lead alerts, admin login and system alerts all go to peterkim45366@gmail.com for now.
+- Consent text: placeholder wording that describes what actually happens in manual mode (a person forwards the request to a local roofer); versioned and hashed; legal review before ads run.
+- OpenAI Pixel and Conversions API: built behind a switch that stays off until `OPENAI_PIXEL_ID` and `OPENAI_CAPI_TOKEN` are set.
+- Extra tables beyond the data model: `rate_limits` and `do_not_sell_requests`.
 
 ## Phase 2: agent access (MCP)
 
