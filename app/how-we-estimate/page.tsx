@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { loadMethodFacts } from "@/lib/site/method";
+import {
+  IMAGERY_OLD_YEARS,
+  LABOR_RATIO_MAX,
+  LABOR_RATIO_MIN,
+  MAX_BUILDING_DISTANCE_M,
+  SQUARES_MAX,
+  SQUARES_MIN,
+  WIDENING,
+} from "@/lib/engine";
 import { formatImageryDate as monthName, formatUsd } from "@/lib/format";
 import { referralDisclosure } from "@/lib/site/copy";
 
@@ -53,11 +62,23 @@ export default function HowWeEstimatePage() {
           15% for more than 10.
         </p>
         <p>
-          When the satellite imagery is lower quality we still use it, but we widen the range: by 10% for medium
-          quality and 20% for low quality. If we can&apos;t find your roof, or the measurement looks like the wrong
-          building, we ask for your home&apos;s size, stories and roof shape instead and estimate the roof area from
-          those (living space divided by stories, times 1.15 for overhang and a typical pitch, times 1.0, 1.1 or 1.25
-          for a simple, average or complex shape). Those estimates are also widened by 20%.
+          When the satellite imagery is lower quality we still use it, but we widen the range: by{" "}
+          {pct(WIDENING.imagery_medium)} for medium quality and {pct(WIDENING.imagery_low)} for low quality. Imagery{" "}
+          {IMAGERY_OLD_YEARS} or more years old lowers our confidence, since recent changes may not show, but
+          doesn&apos;t widen the range.
+        </p>
+        <p>
+          If the roof we find is smaller than {SQUARES_MIN} or larger than {SQUARES_MAX} squares, or the building is
+          more than {MAX_BUILDING_DISTANCE_M} meters from your address, it may be the wrong building. We show you what
+          we measured and ask: if you confirm it&apos;s your house, we price it and widen the range by{" "}
+          {pct(WIDENING.building_confirmed)}.
+        </p>
+        <p>
+          If we can&apos;t find your roof, or you&apos;d rather not use the measured one, we ask for your home&apos;s
+          size, stories and roof shape instead and estimate the roof area from those (living space divided by stories,
+          times 1.15 for overhang and a typical pitch, times 1.0, 1.1 or 1.25 for a simple, average or complex shape).
+          Those estimates are widened by {pct(WIDENING.home_size)}. When more than one of these applies, the widenings
+          add up.
         </p>
 
         <h2>Pricing each option</h2>
@@ -144,9 +165,10 @@ price = squares × (1 + waste) × cost per square
           We map your ZIP code to its metro area with the HUD USPS ZIP code crosswalk ({f.hud.year} Q{f.hud.quarter}),
           then look up the median hourly wage for roofers (occupation {f.wages.occupation}) in the BLS Occupational
           Employment and Wage Statistics, {f.wages.release} release. ZIP codes outside a metro area use their
-          nonmetropolitan area. Your local labor ratio is that wage divided by the national median, kept between 0.75
-          and 1.6. If BLS doesn&apos;t publish a wage for your area, we use your state&apos;s, then the national figure,
-          and we say so on your estimate.
+          nonmetropolitan area. Your local labor ratio is that wage divided by the national median, kept between{" "}
+          {LABOR_RATIO_MIN} and {LABOR_RATIO_MAX}. If BLS doesn&apos;t publish a wage for your area, we use your
+          state&apos;s, then the national figure, widen the range by {pct(WIDENING.wage_state)}, and say so on your
+          estimate.
         </p>
 
         <h2>Material prices</h2>
@@ -175,7 +197,7 @@ price = squares × (1 + waste) × cost per square
         <h2>Confidence</h2>
         <ul>
           <li>High: good satellite imagery and a wage for your metro area.</li>
-          <li>Medium: one fallback, such as medium-quality imagery or a state wage.</li>
+          <li>Medium: one fallback, such as medium-quality or older imagery, a confirmed building or a state wage.</li>
           <li>Low: two or more fallbacks, or tile lift and relay is the first option shown.</li>
         </ul>
 

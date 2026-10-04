@@ -1,6 +1,7 @@
 // Explanation cache keyed by SHA-256 of the canonicalized drivers (docs/SPEC.md "Caching and review").
 // Supabase `explanations` table (server-only, service role key) with an in-memory fallback when
 // Supabase isn't configured or can't be reached.
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export interface CachedExplanation {
   driversHash: string;
@@ -55,38 +56,28 @@ interface Row {
   created_at: string;
 }
 
-/** PostgREST access to the `explanations` table with the service role key (server only). */
+/** The `explanations` table via supabase-js with the service role key (server only). */
 export class SupabaseExplanationCache implements ExplanationCache {
   constructor(
-    private readonly url: string,
-    private readonly serviceKey: string,
+    private readonly db: SupabaseClient,
     private readonly timeoutMs = 800,
-    private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
   ) {}
 
-  private headers(extra: Record<string, string> = {}) {
-    return {
-      apikey: this.serviceKey,
-      authorization: `Bearer ${this.serviceKey}`,
-      "content-type": "application/json",
-      ...extra,
-    };
+  static fromEnv(url: string, serviceKey: string): SupabaseExplanationCache {
+    return new SupabaseExplanationCache(
+      createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } }),
+    );
   }
 
   async get(hash: string) {
-    const q = new URLSearchParams({
-      drivers_hash: `eq.${hash}`,
-      select: "drivers_hash,text,model,latency_ms,source,created_at",
-      limit: "1",
-    });
-    const res = await this.fetchImpl(`${this.url}/rest/v1/explanations?${q}`, {
-      headers: this.headers(),
-      signal: AbortSignal.timeout(this.timeoutMs),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`explanations select failed: ${res.status}`);
-    const rows = (await res.json()) as Row[];
-    const r = rows[0];
+    const { data, error } = await this.db
+      .from("explanations")
+      .select("drivers_hash,text,model,latency_ms,source,created_at")
+      .eq("drivers_hash", hash)
+      .abortSignal(AbortSignal.timeout(this.timeoutMs))
+      .maybeSingle();
+    if (error) throw new Error(`explanations select failed: ${error.message}`);
+    const r = data as Row | null;
     if (!r) return null;
     const entry: CachedExplanation = {
       driversHash: r.drivers_hash,
@@ -108,14 +99,11 @@ export class SupabaseExplanationCache implements ExplanationCache {
       source: e.source,
       created_at: e.createdAt,
     };
-    const res = await this.fetchImpl(`${this.url}/rest/v1/explanations?on_conflict=drivers_hash`, {
-      method: "POST",
-      headers: this.headers({ prefer: "resolution=merge-duplicates,return=minimal" }),
-      body: JSON.stringify(row),
-      signal: AbortSignal.timeout(this.timeoutMs),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`explanations upsert failed: ${res.status}`);
+    const { error } = await this.db
+      .from("explanations")
+      .upsert(row, { onConflict: "drivers_hash" })
+      .abortSignal(AbortSignal.timeout(this.timeoutMs));
+    if (error) throw new Error(`explanations upsert failed: ${error.message}`);
   }
 }
 
@@ -157,7 +145,7 @@ export function getDefaultCache(): ExplanationCache {
   if (defaultCache) return defaultCache;
   const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const durable = url && key ? new SupabaseExplanationCache(url, key) : null;
+  const durable = url && key ? SupabaseExplanationCache.fromEnv(url, key) : null;
   defaultCache = new LayeredExplanationCache(durable, new MemoryExplanationCache(), (op, err) =>
     console.warn(
       JSON.stringify({ event: "explanation_cache_error", op, error: err instanceof Error ? err.message : String(err) }),
