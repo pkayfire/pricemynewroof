@@ -7,7 +7,7 @@ export default defineConfig({
   },
   test: {
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**", "review/**"],
+    exclude: ["**/node_modules/**", ".next/**", ".claude/**", "review/**"],
     setupFiles: ["./test/no-network.ts"],
     environment: "node",
   },
