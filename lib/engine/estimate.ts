@@ -22,6 +22,7 @@ import type {
   MeasurementsOut,
   OptionOut,
   RoofMeasurements,
+  LatLng,
   RoofShape,
   WageSource,
 } from "./types";
@@ -29,18 +30,43 @@ import type {
 export const LABOR_RATIO_MIN = 0.75;
 export const LABOR_RATIO_MAX = 1.6;
 export const ROUND_TO = 500;
+/** A measured building farther than this from the address point is likely the wrong one. */
+export const MAX_BUILDING_DISTANCE_M = 40;
+export const IMAGERY_OLD_YEARS = 5;
+
+/** Great-circle distance in meters. */
+export function distanceMeters(a: LatLng, b: LatLng): number {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.latitude - a.latitude);
+  const dLng = rad(b.longitude - a.longitude);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6_371_000 * Math.asin(Math.sqrt(h));
+}
+
+/** Whole years from the imagery date (YYYY-MM-DD or YYYY-MM) to asOf (YYYY-MM-DD). */
+export function imageryAgeYears(imageryDate: string, asOf: string): number {
+  const [iy, im = 1, id = 1] = imageryDate.split("-").map(Number);
+  const [ay, am, ad] = asOf.split("-").map(Number);
+  let years = ay - iy;
+  if (am < im || (am === im && ad < id)) years -= 1;
+  return years;
+}
 
 /**
  * Range widening per fallback (fraction of the price, applied as low × (1 − w), high × (1 + w)).
  * Spec: home-size fallback ±20%, MEDIUM imagery ±10%, LOW imagery ±20%.
  * DECISION: the spec says every fallback widens the range but gives no figure for wage
- * fallbacks or a user-confirmed out-of-range size; they widen ±10%. Widenings add up.
+ * fallbacks or a user-confirmed building (size or distance); they widen ±10%. Widenings add up.
+ * Imagery older than IMAGERY_OLD_YEARS lowers confidence one level (it counts as a fallback)
+ * but doesn't widen the range (owner decision).
  */
 export const WIDENING: Record<Fallback, number> = {
   home_size: 0.2,
   imagery_medium: 0.1,
   imagery_low: 0.2,
   size_confirmed: 0.1,
+  building_confirmed: 0.1,
+  imagery_old: 0,
   wage_state: 0.1,
   wage_national: 0.1,
 };
@@ -181,13 +207,26 @@ export function computeEstimate(
     };
     // DECISION: bounds apply to the displayed squares (one decimal), so the check matches what the user sees.
     if (outOfBounds(solar.out.squares)) {
-      if (!measurements.confirmedOutOfRange) {
+      if (!measurements.confirmedBuilding) {
         return { needsFallback: true, reason: "out_of_range", measurements: out, configVersion };
       }
       fallbacks.push("size_confirmed");
     }
+    if (
+      inputs.addressLocation &&
+      measurements.buildingCenter &&
+      distanceMeters(inputs.addressLocation, measurements.buildingCenter) > MAX_BUILDING_DISTANCE_M
+    ) {
+      if (!measurements.confirmedBuilding) {
+        return { needsFallback: true, reason: "far_building", measurements: out, configVersion };
+      }
+      fallbacks.push("building_confirmed");
+    }
     if (measurements.imageryQuality === "MEDIUM") fallbacks.push("imagery_medium");
     if (measurements.imageryQuality === "LOW") fallbacks.push("imagery_low");
+    if (inputs.asOf && measurements.imageryDate && imageryAgeYears(measurements.imageryDate, inputs.asOf) >= IMAGERY_OLD_YEARS) {
+      fallbacks.push("imagery_old");
+    }
     roof = { squares: solar.squares, steepSquares: solar.steepSquares, waste: wasteFor(solar.segmentCount) };
     sections = solar.out.segments.length;
     complexity = complexityFor(solar.segmentCount);

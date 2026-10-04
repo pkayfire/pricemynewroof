@@ -2,5 +2,13 @@
   "reviewedAt": "2026-10-03",
   "reviewDue": "2027-10-03",
   "source": "docs/SPEC.md, Configuration data pipeline: tile-common states (static list)",
-  "states": ["AZ", "CA", "FL", "HI", "NM", "NV", "TX"]
+  "states": [
+    "AZ",
+    "CA",
+    "FL",
+    "HI",
+    "NM",
+    "NV"
+  ],
+  "note": "TX removed 2026-10-03: most Texas homes have shingle roofs; tile options still appear when the current roof is tile."
 }

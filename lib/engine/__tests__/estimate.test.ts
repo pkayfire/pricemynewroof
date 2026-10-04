@@ -20,6 +20,7 @@ import {
   type EstimateResult,
   type RawSegment,
   type RoofMeasurements,
+  imageryAgeYears,
 } from "@/lib/engine";
 import { parseBuildingInsights } from "@/lib/google/solar";
 import { solarFixture } from "@/test/fixtures";
@@ -151,7 +152,8 @@ describe("location factors", () => {
 describe("options shown", () => {
   it("shows lift and relay, new tile, shingle in a tile state", () => {
     expect(optionsShown("AZ", undefined, config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
-    expect(optionsShown("TX", "shingle", config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
+    expect(optionsShown("TX", "shingle", config)).toEqual(["architectural_shingle", "concrete_tile"]);
+    expect(optionsShown("TX", "tile", config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
   });
 
   it("shows the tile options first when the current roof is tile, anywhere", () => {
@@ -331,11 +333,40 @@ describe("computeEstimate", () => {
     const large = computeEstimate(solar("too-large"), loc("30001"), config);
     expect(large).toMatchObject({ needsFallback: true, reason: "out_of_range" });
     expect(large.measurements?.squares).toBe(69);
-    const confirmed = ok(computeEstimate({ ...solar("too-large"), confirmedOutOfRange: true }, loc("30001"), config));
+    const confirmed = ok(computeEstimate({ ...solar("too-large"), confirmedBuilding: true }, loc("30001"), config));
     expect(confirmed.drivers).toMatchObject({ squares: 69, fallbacks: ["size_confirmed"], confidence: "medium" });
     // Bounds are exclusive: exactly 8 and 60 squares are fine.
     expect(computeEstimate(solarOf([seg(800)]), loc("30001"), config).needsFallback).toBe(false);
     expect(computeEstimate(solarOf([seg(6000)]), loc("30001"), config).needsFallback).toBe(false);
+  });
+
+  it("treats a building more than 40 m from the address as the wrong building unless confirmed", () => {
+    const m = solar("simple"); // building center 10, -30
+    const near = { latitude: 10.0002, longitude: -30 }; // ~22 m
+    const far = { latitude: 10.0005, longitude: -30 }; // ~56 m
+    expect(computeEstimate(m, loc("30001"), config, { addressLocation: near }).needsFallback).toBe(false);
+    const r = computeEstimate(m, loc("30001"), config, { addressLocation: far });
+    expect(r).toMatchObject({ needsFallback: true, reason: "far_building" });
+    expect(r.measurements?.squares).toBeGreaterThan(0);
+    const confirmed = ok(computeEstimate({ ...m, confirmedBuilding: true }, loc("30001"), config, { addressLocation: far }));
+    expect(confirmed.drivers).toMatchObject({ fallbacks: ["building_confirmed"], confidence: "medium" });
+    // No address point: no distance check.
+    expect(computeEstimate(m, loc("30001"), config).needsFallback).toBe(false);
+  });
+
+  it("lowers confidence one level for imagery 5+ years old, without widening", () => {
+    const fresh = ok(computeEstimate(solar("simple"), loc("30001"), config, { asOf: "2026-10-03" }));
+    const m = { ...solar("simple"), imageryDate: "2013-06-01" };
+    const old = ok(computeEstimate(m, loc("30001"), config, { asOf: "2026-10-03" }));
+    expect(fresh.drivers.confidence).toBe("high");
+    expect(old.drivers).toMatchObject({ fallbacks: ["imagery_old"], confidence: "medium" });
+    expect(old.options).toEqual(fresh.options);
+    // Exactly 5 years counts as old; one day short doesn't.
+    expect(imageryAgeYears("2021-10-03", "2026-10-03")).toBe(5);
+    expect(imageryAgeYears("2021-10-04", "2026-10-03")).toBe(4);
+    expect(imageryAgeYears("2021-10", "2026-10-03")).toBe(5);
+    // Without asOf the age check is skipped.
+    expect(ok(computeEstimate(m, loc("30001"), config)).drivers.fallbacks).toEqual([]);
   });
 
   it("follows the current roof for options and shares", () => {

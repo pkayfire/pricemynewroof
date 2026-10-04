@@ -99,7 +99,7 @@ export interface EstimateResponse {
   needsFallback: boolean;
   /** Why the home-size questions are needed (only when needsFallback). */
   fallbackReason: FallbackReason | null;
-  /** For out_of_range, the measured roof so the user can confirm it; null for no_building. */
+  /** For out_of_range and far_building, the measured roof so the user can confirm it; null for no_building. */
   measurements: MeasurementsOut | null;
   options: OptionOut[];
   drivers: Drivers | null;

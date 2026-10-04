@@ -21,8 +21,8 @@ export interface RawSegment {
 export const ROOF_SHAPES = ["simple", "average", "complex"] as const;
 export type RoofShape = (typeof ROOF_SHAPES)[number];
 
-export const CURRENT_ROOFS = ["shingle", "tile", "metal", "flat", "other", "not_sure"] as const;
-/** DECISION: the spec doesn't list the "What's on the roof now" choices; only "tile" changes the options. */
+export const CURRENT_ROOFS = ["shingle", "tile", "metal", "not_sure"] as const;
+/** "What's on the roof now" choices (owner decision, matches the mockup); only "tile" changes the options. */
 export type CurrentRoof = (typeof CURRENT_ROOFS)[number];
 
 export interface HomeSizeInput {
@@ -35,7 +35,8 @@ export interface HomeSizeInput {
 export type FallbackReason =
   | "no_building" // Solar API 404 / no building / no roof segments
   | "solar_error" // Solar API failed for another reason
-  | "out_of_range"; // squares outside the sanity bounds (likely the wrong building)
+  | "out_of_range" // squares outside the sanity bounds (likely the wrong building)
+  | "far_building"; // measured building is far from the address point (likely the wrong building)
 
 export type RoofMeasurements =
   | {
@@ -45,11 +46,11 @@ export type RoofMeasurements =
       /** YYYY-MM-DD (or YYYY-MM) of the imagery, when the API reports it. */
       imageryDate: string | null;
       buildingCenter: LatLng | null;
-      /** The user confirmed a measurement outside the sanity bounds. */
-      confirmedOutOfRange?: boolean;
+      /** The user confirmed the measured building (outside the size bounds or far from the address). */
+      confirmedBuilding?: boolean;
     }
   | { source: "home_size"; homeSize: HomeSizeInput }
-  | { source: "unavailable"; reason: Exclude<FallbackReason, "out_of_range"> };
+  | { source: "unavailable"; reason: Exclude<FallbackReason, "out_of_range" | "far_building"> };
 
 export type WageSource = "metro" | "state" | "national";
 
@@ -70,6 +71,10 @@ export interface LocationFactors {
 
 export interface EngineInputs {
   currentRoof?: CurrentRoof;
+  /** The address point from Places; used to catch a measured building that is too far away. */
+  addressLocation?: LatLng;
+  /** Date the estimate is made (YYYY-MM-DD); used to judge imagery age. Omit to skip the age check. */
+  asOf?: string;
 }
 
 export const FALLBACKS = [
@@ -77,6 +82,8 @@ export const FALLBACKS = [
   "imagery_medium",
   "imagery_low",
   "size_confirmed",
+  "building_confirmed",
+  "imagery_old",
   "wage_state",
   "wage_national",
 ] as const;
@@ -152,7 +159,7 @@ export interface EstimateResult {
 export interface NeedsFallbackResult {
   needsFallback: true;
   reason: FallbackReason;
-  /** Present for out_of_range so the UI can show what was measured and ask to confirm. */
+  /** Present for out_of_range and far_building so the UI can show what was measured and ask to confirm. */
   measurements: MeasurementsOut | null;
   configVersion: number;
 }

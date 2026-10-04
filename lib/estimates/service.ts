@@ -100,12 +100,16 @@ export async function handleEstimate(raw: unknown, deps: EstimateDeps): Promise<
   let input: RoofMeasurements;
   if (req.fallback) input = { source: "home_size", homeSize: req.fallback };
   else if (solarError || solar === null) input = { source: "unavailable", reason: "solar_error" };
-  else if (solar.source === "solar") input = { ...solar, confirmedOutOfRange: req.confirmMeasurements === true };
+  else if (solar.source === "solar") input = { ...solar, confirmedBuilding: req.confirmMeasurements === true };
   else input = solar;
 
   // 3–4. Location factors and the pure engine.
   const location = resolveLocationFactors(place.zip, place.state, deps.config);
-  const result = computeEstimate(input, location, deps.config, { currentRoof: req.currentRoof });
+  const result = computeEstimate(input, location, deps.config, {
+    currentRoof: req.currentRoof,
+    addressLocation: place.location,
+    asOf: now.toISOString().slice(0, 10),
+  });
   const coverage = await deps.coverage.forZip(place.zip);
 
   const id = deps.newId();

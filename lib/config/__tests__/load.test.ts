@@ -3,9 +3,10 @@ import { checkConfig, ConfigError, configVersionFromEnv, loadConfig } from "@/li
 import { testConfig } from "@/test/fixtures/config";
 
 describe("config loader", () => {
-  it("loads the pinned config-v1 and it is production ready", () => {
-    const c = loadConfig(1);
-    expect(c.version).toBe(1);
+  it("loads the pinned config-v2 (TX not a tile state) and it is production ready", () => {
+    const c = loadConfig(2);
+    expect(c.version).toBe(2);
+    expect(c.tileStates).not.toContain("TX");
     expect(c.productionReady).toBe(true);
     expect(Object.keys(c.options).sort()).toEqual(["architectural_shingle", "concrete_tile", "lift_and_relay"]);
   });
@@ -22,8 +23,8 @@ describe("config loader", () => {
     expect(() => checkConfig({ version: 1 }, "development")).toThrow(/invalid config/);
   });
 
-  it("reads CONFIG_VERSION, defaulting to 1", () => {
-    expect(configVersionFromEnv(undefined)).toBe(1);
+  it("reads CONFIG_VERSION, defaulting to 2", () => {
+    expect(configVersionFromEnv(undefined)).toBe(2);
     expect(configVersionFromEnv("3")).toBe(3);
     expect(() => configVersionFromEnv("x")).toThrow(ConfigError);
     expect(() => loadConfig(999)).toThrow(/not found/);

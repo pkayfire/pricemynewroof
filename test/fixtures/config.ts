@@ -54,7 +54,7 @@ export function testConfig(over: Partial<BuiltConfig> = {}): BuiltConfig {
     },
     steepAdder: { low: 75, high: 125 },
     permit: { percentOfJob: 0.02, min: 250, max: 1500, label: "varies by city" },
-    tileStates: ["AZ", "CA", "FL", "HI", "NM", "NV", "TX"],
+    tileStates: ["AZ", "CA", "FL", "HI", "NM", "NV"],
     ppi: {
       asphalt: {
         seriesId: "WPU1361",

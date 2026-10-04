@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { builtConfigSchema, type BuiltConfig } from "@/config/lib/schema";
 
-export const DEFAULT_CONFIG_VERSION = 1;
+export const DEFAULT_CONFIG_VERSION = 2;
 
 export class ConfigError extends Error {}
 
