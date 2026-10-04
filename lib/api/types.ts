@@ -34,3 +34,8 @@ export interface ExplanationResponse {
   text: string;
   source: "llm" | "template";
 }
+
+// Lead, coverage, email, events, do-not-sell and attribution contracts (Milestone 4), and the
+// versioned consent text, so the UI imports every API type from this one module.
+export * from "./contracts";
+export * from "./consent";

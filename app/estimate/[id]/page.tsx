@@ -12,6 +12,7 @@ import { CurrentRoofSelect } from "@/components/estimate/CurrentRoofSelect";
 import { EstimateSheet } from "@/components/estimate/EstimateSheet";
 import { FallbackForm } from "@/components/estimate/FallbackForm";
 import { MeasureAgainButton } from "@/components/estimate/MeasureAgainButton";
+import { TrackOnMount } from "@/components/analytics/TrackOnMount";
 
 // Contains a home address: never indexed, never in the sitemap (docs/SPEC.md Routes).
 export const metadata: Metadata = {
@@ -115,6 +116,7 @@ function ConfirmState({ estimate, m }: { estimate: EstimateView; m: Measurements
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title="Is this your house?" estimate={estimate} />
+      <TrackOnMount events={["measured"]} props={{ confirm: estimate.reason }} />
       <div className="estimate-grid">
         <div className="estimate-left">
           <MeasuredRoof m={m} mapsKey={process.env.GOOGLE_MAPS_API_KEY || null} />
@@ -136,6 +138,7 @@ function FallbackState({ estimate }: { estimate: EstimateView }) {
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title="Tell us about your home" estimate={estimate} />
+      <TrackOnMount events={["fallback_shown"]} props={{ reason: estimate.reason }} />
       <section className="panel state-panel" aria-label="Home size questions">
         <p>{intro}</p>
         <p className="hint">
@@ -168,6 +171,10 @@ export default async function EstimatePage({ params }: { params: Promise<{ id: s
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title={solar ? "Your roof, measured" : "Your roof, estimated"} estimate={estimate} />
+      <TrackOnMount
+        events={solar ? ["measured", "estimate_shown"] : ["estimate_shown"]}
+        props={{ covered: estimate.coverage?.covered === true, confidence: drivers.confidence, source: m.source }}
+      />
       <div className="estimate-grid">
         <div className="estimate-left">
           {solar ? (

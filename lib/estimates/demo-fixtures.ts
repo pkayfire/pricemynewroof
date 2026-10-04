@@ -89,7 +89,7 @@ const SMALL_ROOF: SegSpec[] = [
   [300, 5, 180, 0, -2],
 ];
 
-const COVERED: Coverage = { covered: true, leadTypes: ["roof_replacement"] };
+const COVERED: Coverage = { covered: true, leadTypes: ["form"] };
 const NOT_COVERED: Coverage = { covered: false, leadTypes: [] };
 
 interface DemoSpec {

@@ -36,7 +36,7 @@ describe("robots and sitemap", () => {
   });
 });
 
-describe("POST /api/do-not-sell (stub)", () => {
+describe("POST /api/do-not-sell", () => {
   it("accepts an email or phone and rejects requests with neither", async () => {
     expect((await doNotSell(post({ email: "a@example.com" }))).status).toBe(200);
     expect((await doNotSell(post({ phone: "(555) 555-0100" }))).status).toBe(200);
@@ -46,7 +46,7 @@ describe("POST /api/do-not-sell (stub)", () => {
   });
 });
 
-describe("POST /api/email-estimate (stub)", () => {
+describe("POST /api/email-estimate", () => {
   it("validates the body and the estimate", async () => {
     const ok = await emailEstimate(post({ estimateId: "demo-no-coverage", email: "a@example.com", notifyWhenCovered: true }));
     expect(await ok.json()).toEqual({ ok: true });

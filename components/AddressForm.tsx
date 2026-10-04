@@ -7,6 +7,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loadPlacesLibrary } from "@/lib/google/maps-loader";
 import { postEstimate, estimateErrorMessage } from "@/lib/api/client";
+import { track } from "@/lib/analytics/client";
 
 type LibState = "idle" | "loading" | "ready" | "error";
 interface Suggestion {
@@ -128,6 +129,7 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
     }
     setSubmitting(true);
     setError(null);
+    track("address_entered");
     const result = await postEstimate({ placeId: selected.placeId });
     if (result.ok) {
       router.push(`/estimate/${encodeURIComponent(result.data.estimateId)}`);

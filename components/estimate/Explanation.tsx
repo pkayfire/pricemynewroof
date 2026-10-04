@@ -3,6 +3,7 @@
 // "Why this price" text, fetched after the estimate has rendered (docs/SPEC.md Explanation service).
 import { useEffect, useState } from "react";
 import type { ExplanationResponse } from "@/lib/api/types";
+import { track } from "@/lib/analytics/client";
 
 type State = { kind: "loading" } | { kind: "done"; text: string } | { kind: "error" };
 
@@ -16,6 +17,7 @@ export function Explanation({ estimateId }: { estimateId: string }) {
         if (!res.ok) throw new Error(String(res.status));
         const body = (await res.json()) as ExplanationResponse;
         setState({ kind: "done", text: body.text });
+        track("explanation_shown", { source: body.source });
       })
       .catch((err: unknown) => {
         if (!controller.signal.aborted) setState({ kind: "error" });

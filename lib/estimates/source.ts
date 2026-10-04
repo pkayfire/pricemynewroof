@@ -3,7 +3,8 @@
 //
 // Demo estimates (synthetic, for local screenshots) are served only when NODE_ENV is not
 // "production" and DEMO_ESTIMATES=1; they are never reachable in production.
-import { stubCoverage, type CoverageProvider } from "./coverage";
+import { buyerConfigFromEnv } from "@/lib/buyer/config";
+import { coverageProviderFor, type CoverageProvider } from "@/lib/coverage";
 import { getEstimateStore } from "./deps";
 import type { EstimateStore } from "./store";
 import { toEstimateView, type EstimateView } from "./view";
@@ -18,14 +19,13 @@ export function demoEstimatesEnabled(env: NodeJS.ProcessEnv = process.env): bool
 
 export interface EstimateSourceDeps {
   store: () => EstimateStore;
-  // MERGE NOTE (Milestone 4): swap the stub for the launch-allowlist coverage provider.
   coverage: CoverageProvider;
   demos: () => Promise<Map<string, EstimateView>> | null;
 }
 
 const defaultDeps: EstimateSourceDeps = {
   store: () => getEstimateStore(),
-  coverage: stubCoverage,
+  coverage: coverageProviderFor(buyerConfigFromEnv()),
   demos: () => (demoEstimatesEnabled() ? import("./demo-fixtures").then((m) => m.demoEstimateViews()) : null),
 };
 

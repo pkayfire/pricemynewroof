@@ -2,14 +2,19 @@
 
 export const SITE_NAME = "Price My New Roof";
 export const SITE_DOMAIN = "pricemynewroof.com";
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE_DOMAIN}`).replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || `https://${SITE_DOMAIN}`).replace(/\/$/, "");
 
-export type BuyerMode = "none" | "manual" | "service_direct";
+import { BUYER_CONFIG } from "@/lib/buyer/config";
+import type { BuyerMode } from "@/lib/api/contracts";
 
-// DECISION: the spec puts buyerMode in config (Coverage, leads and calls). Milestone 4 moves it
-// there; until then the frontend reads this constant. v1 ships with "manual".
-export const BUYER_MODE: BuyerMode = "manual";
+export type { BuyerMode };
+
+/** The buyer mode from lib/buyer/config.ts (v1: "manual"), for copy. */
+export const BUYER_MODE: BuyerMode = BUYER_CONFIG.buyerMode;
 
 // DECISION: false until a paying buyer is confirmed; referral copy mentions payment only then
 // (Build decisions, Leads).
 export const PAYING_BUYER_CONFIRMED = false;
+
+/** Times on the admin pages (the owner's zone; the daily report uses the same zone in SQL). */
+export const ADMIN_TIME_ZONE = "America/Los_Angeles";
