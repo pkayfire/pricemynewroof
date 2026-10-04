@@ -1,5 +1,5 @@
 // Browser calls to the app's own API routes.
-import type { EstimateRequest, EstimateResponse } from "./types";
+import type { EstimateRequestBody, EstimateResponse } from "./types";
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number };
 
@@ -17,7 +17,7 @@ export async function postJson<T>(url: string, body: unknown): Promise<ApiResult
   }
 }
 
-export const postEstimate = (req: EstimateRequest) => postJson<EstimateResponse>("/api/estimate", req);
+export const postEstimate = (req: EstimateRequestBody) => postJson<EstimateResponse>("/api/estimate", req);
 
 /** User-facing message for a failed POST /api/estimate. */
 export function estimateErrorMessage(status: number): string {

@@ -3,7 +3,7 @@
 // nothing is stored or sent, so this must not ship to production as is.
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getStoredEstimate } from "@/lib/estimates/source";
+import { getEstimateView } from "@/lib/estimates/source";
 
 const bodySchema = z.object({
   estimateId: z.string().min(1).max(200),
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   }
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ ok: false, error: "invalid_request" }, { status: 400 });
-  if (!(await getStoredEstimate(parsed.data.estimateId))) {
+  if (!(await getEstimateView(parsed.data.estimateId))) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
   return NextResponse.json({ ok: true });

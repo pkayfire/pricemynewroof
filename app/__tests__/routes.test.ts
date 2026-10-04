@@ -1,9 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import robots from "../robots";
 import sitemap from "../sitemap";
 import { POST as doNotSell } from "../api/do-not-sell/route";
 import { POST as emailEstimate } from "../api/email-estimate/route";
 import { GET as explanation } from "../api/explanation/[id]/route";
+
+// Demo estimates stand in for stored ones (served outside production with DEMO_ESTIMATES=1).
+beforeAll(() => {
+  vi.stubEnv("DEMO_ESTIMATES", "1");
+});
 
 const post = (body: unknown) =>
   new Request("http://localhost/api", {

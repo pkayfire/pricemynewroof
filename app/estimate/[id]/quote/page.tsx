@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getStoredEstimate } from "@/lib/estimates/source";
+import { getEstimateView } from "@/lib/estimates/source";
 
 export const metadata: Metadata = {
   title: "Request quotes",
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function QuotePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const estimate = await getStoredEstimate(id);
+  const estimate = await getEstimateView(id);
   if (!estimate) notFound();
   return (
     <main id="main" className="container estimate-main">

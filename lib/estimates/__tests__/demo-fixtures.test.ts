@@ -1,57 +1,76 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_ESTIMATES } from "../demo-fixtures";
-import { createMockEstimate, getStoredEstimate, isExpired } from "../source";
+import { demoEstimateRecords, demoEstimateViews } from "../demo-fixtures";
+import { demoEstimatesEnabled, getEstimateView, type EstimateSourceDeps } from "../source";
+import { MemoryEstimateStore } from "../store";
+import { displayMeasurements, isExpired, toEstimateView } from "../view";
 
-describe("demo fixtures", () => {
-  const priced = DEMO_ESTIMATES.filter((e) => e.measurements && e.drivers);
+const NOW = new Date("2026-10-03T18:00:00Z");
 
-  it.each(priced.map((e) => [e.estimateId, e] as const))("%s is internally consistent", (_id, e) => {
-    const m = e.measurements!;
-    const d = e.drivers!;
-    // Letters A, B, C… strictly largest first.
-    m.segments.forEach((s, i) => {
-      expect(s.letter).toBe(String.fromCharCode(65 + i));
-      if (i > 0) expect(s.areaSqft).toBeLessThanOrEqual(m.segments[i - 1].areaSqft);
-      expect(s.areaSqft).toBeGreaterThanOrEqual(50);
-    });
-    const sum = m.segments.reduce((a, s) => a + s.areaSqft, 0) + (m.other?.areaSqft ?? 0);
-    if (m.source === "solar") {
-      expect(sum).toBe(m.totalAreaSqft);
-      expect(d.sections).toBe(m.segments.length);
-      expect(m.segmentCount).toBe(m.segments.length + (m.other?.count ?? 0));
-    }
-    expect(m.squares).toBeCloseTo(m.totalAreaSqft / 100, 5);
-    expect(d.squares).toBe(m.squares);
-    expect(d.shares.labor + d.shares.materials + d.shares.other).toBeCloseTo(1, 9);
-    expect(e.options[0].id).toBe(d.sharesOption);
-    for (const o of e.options) {
-      expect(o.low % 500).toBe(0);
-      expect(o.high % 500).toBe(0);
-      expect(o.low).toBeLessThan(o.high);
+describe("demo estimates (engine-computed)", () => {
+  const records = demoEstimateRecords(NOW);
+  const byId = new Map(records.map((r) => [r.id, r]));
+
+  it("cover every page state", () => {
+    expect(byId.get("demo-covered")).toMatchObject({ needsFallback: false, drivers: { confidence: "high", fallbacks: [] } });
+    expect(byId.get("demo-no-coverage")?.options?.[0].id).toBe("lift_and_relay");
+    expect(byId.get("demo-medium-imagery")?.drivers?.fallbacks).toEqual(["imagery_medium"]);
+    expect(byId.get("demo-low-confidence")?.drivers).toMatchObject({ wageSource: "state", areaName: "Montana", confidence: "low" });
+    expect(byId.get("demo-old-imagery")?.drivers?.fallbacks).toEqual(["imagery_old"]);
+    expect(byId.get("demo-out-of-range")).toMatchObject({ needsFallback: true, fallbackReason: "out_of_range" });
+    expect(byId.get("demo-far-building")).toMatchObject({ needsFallback: true, fallbackReason: "far_building" });
+    expect(byId.get("demo-building-confirmed")?.drivers?.fallbacks).toContain("building_confirmed");
+    expect(byId.get("demo-home-size")?.drivers?.fallbacks).toContain("home_size");
+    expect(byId.get("demo-needs-fallback")).toMatchObject({ needsFallback: true, fallbackReason: "no_building" });
+    expect(byId.get("demo-expired")?.measurements).toBeNull();
+  });
+
+  it("letter planes strictly largest first and keep only synthetic addresses", () => {
+    for (const r of records) {
+      const m = displayMeasurements(r.measurements);
+      m?.segments.forEach((s, i) => {
+        expect(s.letter).toBe(String.fromCharCode(65 + i));
+        if (i > 0) expect(s.areaSqft).toBeLessThanOrEqual(m.segments[i - 1].areaSqft);
+      });
+      if (r.formattedAddress) expect(r.formattedAddress).toMatch(/Sample|Example|Placeholder|Demo|Illustration/);
     }
   });
 
-  it("has no real-looking address details beyond synthetic placeholders", () => {
-    for (const e of DEMO_ESTIMATES) {
-      if (e.formattedAddress) expect(e.formattedAddress).toMatch(/Sample|Example|Placeholder|Demo|Illustration/);
-    }
+  it("shows the measured roof for wrong-building checks and expires purged estimates", async () => {
+    const views = await demoEstimateViews(NOW);
+    expect(views.get("demo-far-building")?.measurements?.segments.length).toBe(6);
+    expect(isExpired(views.get("demo-far-building")!, NOW)).toBe(false);
+    expect(isExpired(views.get("demo-expired")!, NOW)).toBe(true);
+    expect(isExpired(views.get("demo-needs-fallback")!, NOW)).toBe(false);
+    expect(isExpired(views.get("demo-covered")!, NOW)).toBe(false);
   });
 });
 
-describe("mock estimate store", () => {
-  it("serves demo estimates and reports expiry", async () => {
-    expect(isExpired((await getStoredEstimate("demo-expired"))!)).toBe(true);
-    expect(isExpired((await getStoredEstimate("demo-covered"))!, new Date("2026-10-04T00:00:00Z"))).toBe(false);
-    expect(isExpired((await getStoredEstimate("demo-needs-fallback"))!)).toBe(false);
+describe("getEstimateView", () => {
+  const deps = (store: MemoryEstimateStore, demos = false): EstimateSourceDeps => ({
+    store: () => store,
+    coverage: { forZip: async () => ({ covered: true, leadTypes: [] }) },
+    demos: () => (demos ? demoEstimateViews(NOW) : null),
   });
 
-  it("creates a new estimate per request, keeping the place and current roof", async () => {
-    const a = await createMockEstimate({ placeId: "demo-place-covered", currentRoof: "tile" });
-    expect(a?.estimateId).toMatch(/^mock-/);
-    expect(a?.currentRoof).toBe("tile");
-    expect(await getStoredEstimate(a!.estimateId)).toEqual(a);
-    const f = await createMockEstimate({ placeId: "x", fallback: { homeSqft: 2000, stories: 2, shape: "simple" } });
-    expect(f?.measurements?.homeSize).toEqual({ homeSqft: 2000, stories: 2, shape: "simple" });
-    expect(await createMockEstimate({ placeId: "demo-not-found" })).toBeNull();
+  it("reads Milestone 2's store and adds coverage", async () => {
+    const store = new MemoryEstimateStore();
+    const rec = { ...demoEstimateRecords(NOW)[0], id: "6f1c1c1e-1d6b-4c3e-9b8a-2b1d3c4e5f60" };
+    await store.insert(rec);
+    const view = await getEstimateView(rec.id, deps(store));
+    expect(view).toEqual(toEstimateView(rec, { covered: true, leadTypes: [] }));
+  });
+
+  it("never queries the store with a non-UUID id", async () => {
+    const store = new MemoryEstimateStore();
+    expect(await getEstimateView("not-a-uuid", deps(store))).toBeNull();
+  });
+
+  it("serves demos only when enabled, and never in production", async () => {
+    const store = new MemoryEstimateStore();
+    expect(await getEstimateView("demo-covered", deps(store, false))).toBeNull();
+    expect((await getEstimateView("demo-covered", deps(store, true)))?.estimateId).toBe("demo-covered");
+    expect(demoEstimatesEnabled({ NODE_ENV: "production", DEMO_ESTIMATES: "1" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(demoEstimatesEnabled({ NODE_ENV: "development", DEMO_ESTIMATES: "1" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(demoEstimatesEnabled({ NODE_ENV: "development" } as NodeJS.ProcessEnv)).toBe(false);
   });
 });

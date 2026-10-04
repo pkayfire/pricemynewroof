@@ -1,7 +1,7 @@
 // GET /api/explanation/:estimateId → { text, source } (docs/SPEC.md "Explanation service").
 import { NextResponse } from "next/server";
 import type { ExplanationResponse } from "@/lib/api/types";
-import { getStoredEstimate, isExpired } from "@/lib/estimates/source";
+import { getEstimateView, isExpired } from "@/lib/estimates/source";
 import { getExplanation } from "@/lib/explanation/service";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const estimate = await getStoredEstimate(id);
+  const estimate = await getEstimateView(id);
   if (!estimate || !estimate.drivers || isExpired(estimate)) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
