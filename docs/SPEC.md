@@ -63,7 +63,7 @@ A build job merges government data and hand-researched base costs into one versi
 | Roofer wage by area | BLS OEWS annual bulk file (all areas) | Yearly (May data) | Occupation 47-2181, median hourly wage. Fallback: metro → state → national. Suppressed values are marked in the file |
 | Material price trend | BLS Public Data API v2, PPI series for asphalt roofing products and concrete products | Monthly | Free key (500 queries/day, 50 series/query); renew yearly. Look up series IDs in BLS Data Finder |
 | National base per square | Hand-researched cost guides (see Estimate engine) | When re-researched | Low/high per option, each with source URL and date |
-| Tile-common states | Static list: CA, AZ, FL, NV, TX, NM, HI | Rarely | Controls default options |
+| Tile-common states | Static list: CA, AZ, FL, NV, NM, HI | Rarely | Controls default options |
 | Permit estimate | Static: percent of job value with min/max | Yearly review | Labeled "varies by city" in UI |
 | Buyer coverage | Service Direct covered ZIPs (list or API) | Weekly | Drives call/form vs no-coverage UI. Stored in the database, not the config file |
 
@@ -561,6 +561,20 @@ Answers to pre-build questions. These override anything above that they contradi
 - `sections` counts only planes of 50 sq ft or more (matches the measurement table). Waste still counts every segment.
 - `laborVsNational` is reported after the [0.75, 1.6] clamp.
 - Area wording: metro → "For the {areaName} area."; state → "For homes in {stateName}."; national → "Based on national averages."
+
+- Complexity label: ≤ 4 segments "simple", 5–10 "average", > 10 "complex" (same thresholds as waste).
+- Solar API is called with `requiredQuality=LOW`; MEDIUM widens ±10%, LOW ±20%.
+- Google spend: $20/day cap during the build.
+- Test data: engine and Solar unit tests use synthetic fixtures (real Solar response shape, invented coordinates, no addresses). The 20-home manual review calls the APIs live and stays local in a gitignored folder, deleted within 30 days; only a summary (ZIP, squares, ranges, plausible or not) goes in the PR.
+- Database: one Supabase project (https://lrduykitcgfwrlzbhzcb.supabase.co) serves development and production for now; this deviates from Environments above and will be split before ads run. Schema changes are SQL migrations in `supabase/migrations/`.
+
+- Tile-common states: TX removed (most Texas homes have shingle roofs), so the list is CA, AZ, FL, NV, NM, HI; config v2.
+- "What's on the roof now" choices: shingle, tile, metal, not sure. Only tile changes the options.
+- Wrong-building checks: squares < 8 or > 60, or a building center more than 40 m from the address point, ask the user to confirm the building (`confirmMeasurements`) or answer the home-size questions. A confirmed building widens ±10%.
+- Imagery 5 or more years old lowers confidence one level (counted as a fallback) without widening the range.
+- Wage fallbacks (state or national) widen ±10%; widenings add up. Unknown imagery quality is treated as LOW.
+- Estimate requests also accept optional `confirmMeasurements` and `sessionId`. Home size accepts 400–15,000 sq ft and 1–4 stories.
+- A stored measurement for a place is reused by any request for that place until it expires (never past 30 days). Production requires Supabase; the in-memory store is local only.
 
 **Frontend and explanation (Milestone 3)**
 

@@ -15,3 +15,9 @@ npm-debug.log*
 
 # Raw config downloads (HUD, BLS); only config/sources, config/manual and config/dist are committed
 config/.cache/
+
+# Manual 20-home review: address-level Google data, local only, delete within 30 days
+review/
+
+# Agent worktrees
+.claude/worktrees/

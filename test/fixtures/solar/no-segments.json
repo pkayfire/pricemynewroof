@@ -1,0 +1,74 @@
+{
+  "name": "buildings/SYNTHETIC_FIXTURE_9",
+  "center": {
+    "latitude": 10,
+    "longitude": -30
+  },
+  "imageryDate": {
+    "year": 2025,
+    "month": 4,
+    "day": 12
+  },
+  "regionCode": "US",
+  "solarPotential": {
+    "maxArrayPanelsCount": 30,
+    "maxArrayAreaMeters2": 58.5,
+    "maxSunshineHoursPerYear": 1700,
+    "carbonOffsetFactorKgPerMwh": 400,
+    "wholeRoofStats": {
+      "areaMeters2": 0,
+      "sunshineQuantiles": [
+        400,
+        900,
+        1100,
+        1300,
+        1400,
+        1450,
+        1500,
+        1550,
+        1600,
+        1650,
+        1700
+      ],
+      "groundAreaMeters2": 0
+    },
+    "solarPanelConfigs": [],
+    "panelCapacityWatts": 400,
+    "panelHeightMeters": 1.879,
+    "panelWidthMeters": 1.045,
+    "panelLifetimeYears": 20,
+    "buildingStats": {
+      "areaMeters2": 0,
+      "sunshineQuantiles": [
+        400,
+        900,
+        1100,
+        1300,
+        1400,
+        1450,
+        1500,
+        1550,
+        1600,
+        1650,
+        1700
+      ],
+      "groundAreaMeters2": 0
+    }
+  },
+  "boundingBox": {
+    "sw": {
+      "latitude": 9.9998,
+      "longitude": -30.0002
+    },
+    "ne": {
+      "latitude": 10.0002,
+      "longitude": -29.9998
+    }
+  },
+  "imageryQuality": "HIGH",
+  "imageryProcessedDate": {
+    "year": 2025,
+    "month": 8,
+    "day": 1
+  }
+}
