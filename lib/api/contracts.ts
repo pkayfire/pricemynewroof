@@ -40,7 +40,7 @@ export const leadRequestSchema = z
     estimateId: z.string().uuid(),
     name: z.string().trim().min(2, "enter your name").max(100),
     /** Any common US format; normalized to E.164 (+1XXXXXXXXXX) on the server. */
-    phone: z.string().trim().min(10).max(32),
+    phone: z.string().trim().min(1).max(32),
     email: z.string().trim().max(254).email("enter a valid email"),
     timing: z.enum(TIMING_IDS),
     /** The version id of the consent text shown next to the checkbox (see CONSENT_TEXTS). */
