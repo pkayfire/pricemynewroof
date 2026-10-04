@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The estimate route reads the pinned config file from disk at runtime.
+  outputFileTracingIncludes: {
+    "/api/estimate": ["./config/dist/**"],
+  },
 };
 
 export default nextConfig;

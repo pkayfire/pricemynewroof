@@ -1,0 +1,12 @@
+{
+  "id": "SYNTHETIC_PLACE_ID_3",
+  "types": ["premise"],
+  "formattedAddress": "1 Sample Road, Exampleton, Testshire, ZZ1 1ZZ",
+  "addressComponents": [
+    { "longText": "1", "shortText": "1", "types": ["street_number"], "languageCode": "en" },
+    { "longText": "Sample Road", "shortText": "Sample Rd", "types": ["route"], "languageCode": "en" },
+    { "longText": "Testland", "shortText": "ZZ", "types": ["country", "political"], "languageCode": "en" },
+    { "longText": "ZZ1 1ZZ", "shortText": "ZZ1 1ZZ", "types": ["postal_code"], "languageCode": "en" }
+  ],
+  "location": { "latitude": 11.0, "longitude": -31.0 }
+}
