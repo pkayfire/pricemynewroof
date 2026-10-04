@@ -1,6 +1,7 @@
 // POST /api/admin/leads/[id]/forwarded: Peter forwarded the lead by hand (manual mode). Sets
 // forward_status and forwarded_at, records a lead_forwarded event and, unless the person opted
-// out, sends lead_created to the OpenAI Conversions API.
+// out, sends a custom lead_forwarded event to the OpenAI Conversions API (lead_created was sent
+// when the request was submitted).
 import type { ConversionOutcome, ConversionsClient } from "@/lib/openai-ads/capi";
 import type { DoNotSellStore, EventStore, LeadRecord, LeadStore } from "@/lib/server/stores";
 
@@ -49,7 +50,7 @@ export async function markLeadForwarded(id: string, buyerRef: string | null, dep
   }
   const conversion = await deps.conversions.send({
     kind: "lead_forwarded",
-    id: `lead_${lead.id}`,
+    id: `lead_forwarded_${lead.id}`,
     at: now,
     sourceUrl: lead.pageUrl || `${deps.siteUrl.replace(/\/+$/, "")}/estimate/${lead.estimateId}/quote`,
     email: lead.email,

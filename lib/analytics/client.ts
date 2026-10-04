@@ -55,8 +55,10 @@ function pixel(name: ClientEvent, props: Props): void {
   const map = PIXEL_EVENTS[name];
   const oaiq = (window as unknown as { oaiq?: Oaiq }).oaiq;
   if (!map || !oaiq || browserOptedOut()) return;
+  // A duplicate quote request is the same lead again: don't count a second conversion.
+  if (name === "form_submit" && props.duplicate === true) return;
   try {
-    const data = map.name === "custom" ? { type: "custom" } : { type: "contents" };
+    const data = map.data ?? (map.name === "custom" ? { type: "custom" } : { type: "contents" });
     oaiq("measure", map.name, data, { ...(map.custom ? { custom_event_name: map.custom } : {}), ...(props.event_id ? { event_id: props.event_id } : {}) });
   } catch {
     // ignore

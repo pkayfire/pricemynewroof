@@ -594,6 +594,7 @@ Answers to pre-build questions. These override anything above that they contradi
 - New-lead alert: one email per lead with a link to `/admin/leads`. Lead alerts, admin login and system alerts all go to peterkim45366@gmail.com for now.
 - Consent text: placeholder wording that describes what actually happens in manual mode (a person forwards the request to a local roofer); versioned and hashed; legal review before ads run.
 - OpenAI Pixel and Conversions API: built behind a switch that stays off until `OPENAI_PIXEL_ID` and `OPENAI_CAPI_TOKEN` are set.
+- The conversion is the quote request, not the forwarded lead (owner decision, to feed bidding as much data as possible): on a new (non-duplicate) request the pixel and the Conversions API both send `lead_created` (`data.type: "customer_action"`) with the same event ID `lead_<leadId>`, so OpenAI counts it once. Marking a lead forwarded sends a custom `lead_forwarded` event; a qualified call sends a custom `call_qualified` event.
 - Extra tables beyond the data model: `rate_limits` and `do_not_sell_requests`.
 
 ## Phase 2: agent access (MCP)

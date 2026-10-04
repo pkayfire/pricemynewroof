@@ -116,8 +116,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>OpenAI advertising measurement</strong>: we use the OpenAI Pixel on our pages to report page views and
-          estimate steps, and OpenAI&apos;s Conversions API from our servers to report when a quote request is passed to
-          a roofer, so OpenAI can measure and improve our ads. A Conversions API report contains your email address and
+          estimate steps and when you request quotes, and OpenAI&apos;s Conversions API from our servers to report when
+          you request quotes and when your request is passed to a roofer, so OpenAI can measure and improve our ads. A Conversions API report contains your email address and
           phone number in hashed (scrambled) form plus the ad click identifiers from OpenAI&apos;s link and pixel. We
           don&apos;t send your name, address, IP address or browser details, and we send nothing to OpenAI if you opt out
           or your browser sends a Global Privacy Control signal.

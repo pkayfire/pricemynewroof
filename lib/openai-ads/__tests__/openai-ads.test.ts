@@ -11,7 +11,7 @@ const env = (o: Record<string, string>) => o as unknown as NodeJS.ProcessEnv;
 const ON = env({ OPENAI_PIXEL_ID: "oai-px-TEST", OPENAI_CAPI_TOKEN: "tok-secret" });
 
 const event = (over: Partial<ConversionEvent> = {}): ConversionEvent => ({
-  kind: "lead_forwarded",
+  kind: "lead_submitted",
   id: "lead_abc",
   at: T0,
   sourceUrl: "https://example.test/estimate/e/quote",
@@ -67,6 +67,15 @@ describe("OpenAI Conversions API", () => {
           },
         },
       ],
+    });
+  });
+
+  it("sends lead_forwarded as a custom event (lead_created was sent at submit)", () => {
+    expect(buildCapiEvent(event({ kind: "lead_forwarded", id: "lead_forwarded_abc" }))).toMatchObject({
+      id: "lead_forwarded_abc",
+      type: "custom",
+      custom_event_name: "lead_forwarded",
+      data: { type: "custom" },
     });
   });
 

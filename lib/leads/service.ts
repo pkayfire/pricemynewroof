@@ -10,6 +10,8 @@ import type { EstimateView } from "@/lib/estimates/view";
 import { invalidRequest } from "@/lib/http/request";
 import { sha256Hex } from "@/lib/server/hash";
 import type { DoNotSellStore, LeadRecord, LeadStore } from "@/lib/server/stores";
+import type { ConversionsClient } from "@/lib/openai-ads/capi";
+import { leadEventId } from "@/lib/openai-ads/event-id";
 import { initialForwardStatus, type LeadForwarder } from "./forwarder";
 import { toE164US } from "./phone";
 
@@ -31,6 +33,10 @@ export interface LeadDeps {
   siteUrl: string;
   /** Recipient of new-lead alerts. */
   adminEmail: string;
+  /** OpenAI Conversions API: a new quote request is the lead_created conversion. */
+  conversions: ConversionsClient;
+  /** Runs work after the response is sent (Next.js after()); tests omit it and await instead. */
+  defer?: (work: () => Promise<unknown>) => void;
   /** Consent text for a buyer mode (default: consentFor). */
   consentFor?: (mode: LeadDeps["buyer"]["buyerMode"]) => ConsentText | null;
 }
@@ -122,6 +128,22 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
       // The lead is saved; a failed alert must not fail the request.
       console.error("[lead] alert email failed:", (e as Error).message);
     }
+    // Same event ID as the pixel's lead_created, so OpenAI counts the lead once. Duplicates and
+    // opted-out people are never sent (send() suppresses opt-outs).
+    const conversion = () =>
+      deps.conversions.send({
+        kind: "lead_submitted",
+        id: leadEventId(lead.id),
+        at: now,
+        sourceUrl: lead.pageUrl || `${deps.siteUrl.replace(/\/+$/, "")}/estimate/${lead.estimateId}/quote`,
+        email: lead.email,
+        phone: lead.phone,
+        oppref: lead.attribution.oppref ?? null,
+        obref: lead.attribution.obref ?? null,
+        optedOut: lead.optOut,
+      });
+    if (deps.defer) deps.defer(conversion);
+    else await conversion();
   }
   return { status: 200, body: { ok: true, leadId: lead.id, duplicate: prior !== null } };
 }
