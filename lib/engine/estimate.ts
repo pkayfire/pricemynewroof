@@ -179,7 +179,7 @@ export function computeEstimate(
       imageryDate: measurements.imageryDate,
       buildingCenter: measurements.buildingCenter,
     };
-    // Bounds apply to the displayed squares (one decimal), so the check matches what the user sees.
+    // DECISION: bounds apply to the displayed squares (one decimal), so the check matches what the user sees.
     if (outOfBounds(solar.out.squares)) {
       if (!measurements.confirmedOutOfRange) {
         return { needsFallback: true, reason: "out_of_range", measurements: out, configVersion };

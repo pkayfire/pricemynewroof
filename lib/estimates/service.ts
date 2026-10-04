@@ -53,7 +53,9 @@ export async function handleEstimate(raw: unknown, deps: EstimateDeps): Promise<
   const now = deps.now();
 
   // 1. Reuse a stored Google measurement for this place (e.g. the user changed the current roof),
-  //    so neither Places nor Solar is called again. Reused data keeps its original expiry.
+  //    so neither Places nor Solar is called again.
+  // DECISION: reuse is keyed by placeId (any earlier estimate for the place within 30 days, not
+  //    only the caller's), and reused data keeps its original expiry so it is never held > 30 days.
   const reusable = await deps.store.findReusable(req.placeId, now);
   let place: StoredPlace;
   let solar: StoredSolar | null = null;
