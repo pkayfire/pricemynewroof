@@ -1,9 +1,27 @@
-/** Roof line in asphalt with a small chalk-blue pitch triangle (docs/SPEC.md Components). */
-export function BrandMark({ width = 34, height = 24 }: { width?: number; height?: number }) {
+/**
+ * Brand mark: a white house with a round window on a chalk-blue square (docs/SPEC.md Components).
+ * Plain SVG so it also renders in next/og images (favicon, home-screen icon, social preview).
+ */
+export function BrandMark({ size = 30, title }: { size?: number; title?: string }) {
   return (
-    <svg width={width} height={height} viewBox="0 0 34 24" aria-hidden="true" focusable="false">
-      <path d="M2 22 L17 4 L32 22" fill="none" stroke="#22262A" strokeWidth="2.5" strokeLinejoin="round" />
-      <path d="M21 22 H29 V14" fill="none" stroke="#2F6FD0" strokeWidth="1.5" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 512 512"
+      role={title ? "img" : undefined}
+      aria-hidden={title ? undefined : true}
+      aria-label={title}
+      focusable="false"
+    >
+      <rect width="512" height="512" fill="#2F6FD0" />
+      <path
+        d="M256 90 L410 219 V422 H102 V219 Z"
+        fill="#FFFFFF"
+        stroke="#FFFFFF"
+        strokeWidth="12"
+        strokeLinejoin="round"
+      />
+      <circle cx="256" cy="232" r="36" fill="#2F6FD0" />
     </svg>
   );
 }

@@ -1,0 +1,140 @@
+{
+  "_note": "DRAFT ONLY. Nothing here has been sent to the OpenAI Ads API. Each campaign holds one ad group so the $100/day budget splits evenly (budgets are per campaign). Everything is created paused. Image: docs/ads/creative-roof-256.png (upload via POST /upload to get file_id).",
+  "account": {
+    "name": "Price My New Roof",
+    "timezone": "America/Los_Angeles",
+    "currency": "USD",
+    "review": "in_review"
+  },
+  "campaigns": [
+    {
+      "campaign": {
+        "name": "Price My New Roof - Cost research",
+        "description": "Roof replacement estimate, cost research intent. Clicks, $3 max CPC.",
+        "status": "paused",
+        "bidding_type": "clicks",
+        "budget": {
+          "daily_spend_limit_micros": 33330000
+        },
+        "targeting": {
+          "locations": {
+            "include": [
+              {
+                "id": "1000232",
+                "_name": "United States"
+              }
+            ]
+          }
+        }
+      },
+      "ad_group": {
+        "name": "Cost research",
+        "status": "paused",
+        "context_hints": [
+          "Homeowners asking how much a new roof or roof replacement costs, what a fair price is for replacing a roof, how roofing quotes are calculated, cost per square or per square foot for asphalt shingle or tile roofs, or how to budget for a roof replacement on their house."
+        ],
+        "bidding_config": {
+          "billing_event_type": "click",
+          "max_bid_micros": 3000000
+        }
+      },
+      "ad": {
+        "name": "Cost research - chat card v1",
+        "status": "paused",
+        "creative": {
+          "type": "chat_card",
+          "title": "What should a new roof cost for your house?",
+          "body": "Enter your address. We measure your roof from satellite data and estimate the price. Free.",
+          "target_url": "https://pricemynewroof.com/?utm_source=chatgpt&utm_medium=cpc&utm_campaign=cost-research&ad_group_id=cost-research",
+          "file_id": "<from POST /upload of docs/ads/creative-roof-256.png>"
+        }
+      }
+    },
+    {
+      "campaign": {
+        "name": "Price My New Roof - Tile roofs",
+        "description": "Roof replacement estimate, tile roofs intent. Clicks, $3 max CPC.",
+        "status": "paused",
+        "bidding_type": "clicks",
+        "budget": {
+          "daily_spend_limit_micros": 33330000
+        },
+        "targeting": {
+          "locations": {
+            "include": [
+              {
+                "id": "1000232",
+                "_name": "United States"
+              }
+            ]
+          }
+        }
+      },
+      "ad_group": {
+        "name": "Tile roofs",
+        "status": "paused",
+        "context_hints": [
+          "Homeowners with concrete or clay tile roofs asking about replacing tile roof underlayment, tile lift and relay, whether to keep their tiles or replace the whole roof, how long tile roof underlayment lasts, or the cost of replacing a tile roof."
+        ],
+        "bidding_config": {
+          "billing_event_type": "click",
+          "max_bid_micros": 3000000
+        }
+      },
+      "ad": {
+        "name": "Tile roofs - chat card v1",
+        "status": "paused",
+        "creative": {
+          "type": "chat_card",
+          "title": "Keep your tiles or replace the whole roof?",
+          "body": "See estimates for tile lift and relay, new tile and shingle, priced for your roof's size.",
+          "target_url": "https://pricemynewroof.com/?utm_source=chatgpt&utm_medium=cpc&utm_campaign=tile-roofs&ad_group_id=tile-roofs",
+          "file_id": "<from POST /upload of docs/ads/creative-roof-256.png>"
+        }
+      }
+    },
+    {
+      "campaign": {
+        "name": "Price My New Roof - Repair or replace",
+        "description": "Roof replacement estimate, repair or replace intent. Clicks, $3 max CPC.",
+        "status": "paused",
+        "bidding_type": "clicks",
+        "budget": {
+          "daily_spend_limit_micros": 33330000
+        },
+        "targeting": {
+          "locations": {
+            "include": [
+              {
+                "id": "1000232",
+                "_name": "United States"
+              }
+            ]
+          }
+        }
+      },
+      "ad_group": {
+        "name": "Repair or replace",
+        "status": "paused",
+        "context_hints": [
+          "Homeowners with an old, aging, or leaking roof deciding whether to repair it or replace it, asking how to tell if a roof needs replacing, how long a roof lasts, or what to expect when getting a roof replaced."
+        ],
+        "bidding_config": {
+          "billing_event_type": "click",
+          "max_bid_micros": 3000000
+        }
+      },
+      "ad": {
+        "name": "Repair or replace - chat card v1",
+        "status": "paused",
+        "creative": {
+          "type": "chat_card",
+          "title": "See what replacing your roof would cost",
+          "body": "Before you decide to repair or replace, get a free estimate based on your roof's measurements.",
+          "target_url": "https://pricemynewroof.com/?utm_source=chatgpt&utm_medium=cpc&utm_campaign=repair-or-replace&ad_group_id=repair-or-replace",
+          "file_id": "<from POST /upload of docs/ads/creative-roof-256.png>"
+        }
+      }
+    }
+  ]
+}

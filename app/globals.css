@@ -9,7 +9,7 @@
   --galvanized: #8c969d; /* input borders, "other" bar segment */
   --rule: #cdd3d6; /* borders */
   --rule-light: #e1e5e7; /* row dividers */
-  --chalk: #2f6fd0; /* measurements only: pitch, marker outlines, brand pitch triangle, materials */
+  --chalk: #2f6fd0; /* measurements only: pitch, marker outlines, materials; plus the brand mark square */
   --map-bg: #3b4247; /* map placeholder while tiles load */
   --footer-text: #e3e7e9;
 
@@ -221,8 +221,8 @@ body > main {
     font-size: 19px;
   }
   .brand svg {
-    width: 28px;
-    height: 20px;
+    width: 26px;
+    height: 26px;
   }
 }
 
