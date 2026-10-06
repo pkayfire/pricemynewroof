@@ -2,6 +2,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
+import { BrandMark } from "@/components/BrandMark";
 
 export const alt = "Price My New Roof: what should a new roof cost for your house?";
 export const size = { width: 1200, height: 630 };
@@ -25,10 +26,7 @@ export default async function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          <svg width="136" height="96" viewBox="0 0 34 24">
-            <path d="M2 22 L17 4 L32 22" fill="none" stroke="#22262A" strokeWidth="2.5" strokeLinejoin="round" />
-            <path d="M21 22 H29 V14" fill="none" stroke="#2F6FD0" strokeWidth="1.5" />
-          </svg>
+          <BrandMark size={104} />
           <div style={{ fontSize: 76, fontWeight: 700, letterSpacing: "-0.01em" }}>Price My New Roof</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

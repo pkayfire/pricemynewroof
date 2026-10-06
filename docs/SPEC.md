@@ -300,7 +300,7 @@ The look comes from the roofing trade, not a generic web template. One signature
 | Slate | `#4A5259` | Secondary text |
 | Galvanized | `#8C969D` | Input borders, "other" segment in the breakdown bar |
 | Rule | `#CDD3D6` / `#E1E5E7` | Borders / row dividers |
-| Chalk blue | `#2F6FD0` | Measurements only: pitch values, marker outlines, the brand mark's pitch triangle, materials segment. Never buttons or decoration |
+| Chalk blue | `#2F6FD0` | Measurements only: pitch values, marker outlines, materials segment; plus the brand mark's square. Never buttons or decoration |
 
 **Type**
 
@@ -318,7 +318,7 @@ The look comes from the roofing trade, not a generic web template. One signature
 
 **Components**
 
-- **Brand mark:** a roof line with a small chalk-blue pitch triangle, plus "Price My New Roof" in Barlow Semi Condensed 700.
+- **Brand mark:** a white house with a round window on a chalk-blue square (owner's logo, Oct 2026; source in `docs/brand/`), plus "Price My New Roof" in Barlow Semi Condensed 700.
 - **Plane markers:** white pill (about 96×30px), 1.5px chalk-blue outline; plane letter in Barlow Semi Condensed 700, pitch in chalk blue, and an arrow pointing downhill, rotated by the segment's azimuth. Placed at each segment's center on the Google satellite map. Segments under 50 sq ft get no marker and are grouped as "Other" in the table. Letters A, B, C… ordered by area, largest first.
 - **Measurement table:** columns Plane, Pitch, Slopes toward (nearest of 8 compass directions from azimuth), Area; an "Other" row; total row with a 2px asphalt top rule; caption with the imagery date and what the markers mean.
 - **Estimate sheet:** 2px asphalt border; heading plus "For the {areaName} area. A general estimate, not a quote."; options as line items with the range right-aligned; "Why this price" with the breakdown bar for the first option shown, labeled "Cost breakdown for {option name}" (labor asphalt, materials chalk blue, other galvanized, legend text "Tear-off, overhead, steep-roof work and permit") and a text legend; the quote CTA and the referral sentence.
