@@ -260,6 +260,9 @@ body > main {
   color: var(--footer-text);
   max-width: 760px;
 }
+.footer-note a {
+  color: #ffffff;
+}
 
 /* ---------- Buttons and inputs ---------- */
 .btn {
@@ -1152,12 +1155,10 @@ body > main {
 .table-scroll {
   overflow-x: auto;
 }
-.draft-banner {
-  border: 2px solid var(--asphalt);
-  border-radius: var(--radius);
-  background: var(--surface);
-  padding: 10px 14px;
-  font-weight: 600;
+.business-contact {
+  font-style: normal;
+  line-height: 1.6;
+  margin: 0 0 1em;
 }
 .formula {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

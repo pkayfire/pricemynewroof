@@ -1,6 +1,7 @@
 // LEGAL DRAFT pending legal review.
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BusinessContact } from "@/components/BusinessContact";
 import { CONTACT_EMAIL, GOVERNING_STATE, LEGAL_ENTITY, LegalPage } from "@/components/legal/LegalPage";
 
 export const metadata: Metadata = {
@@ -123,9 +124,7 @@ export default function TermsPage() {
       </p>
 
       <h2>Contact</h2>
-      <p>
-        {LEGAL_ENTITY}, {CONTACT_EMAIL}
-      </p>
+      <BusinessContact />
     </LegalPage>
   );
 }

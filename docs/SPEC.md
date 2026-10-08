@@ -597,6 +597,12 @@ Answers to pre-build questions. These override anything above that they contradi
 - The conversion is the quote request, not the forwarded lead (owner decision, to feed bidding as much data as possible): on a new (non-duplicate) request the pixel and the Conversions API both send `lead_created` (`data.type: "customer_action"`) with the same event ID `lead_<leadId>`, so OpenAI counts it once. Marking a lead forwarded sends a custom `lead_forwarded` event; a qualified call sends a custom `call_qualified` event.
 - Extra tables beyond the data model: `rate_limits` and `do_not_sell_requests`.
 
+**Business identity (Oct 7, 2026, after the OpenAI advertiser account was not approved)**
+
+- Operator: PriceMyNewRoof, LLC. One source, `lib/site/business.ts`, feeds the footer, `/about`, `/contact` and the legal pages; the ad account's business name and billing details must match it exactly.
+- Contact email on the domain: hello@pricemynewroof.com (ImprovMX forwarding; MX and SPF records in Vercel DNS). A business mailing address (virtual mailbox, not a home) and an optional phone number are shown once set.
+- The "Draft: pending legal review" banners are removed; legal review is still required before scaling spend.
+
 ## Phase 2: agent access (MCP)
 
 Not built in v1, but v1 must not block it. Goal: let AI assistants (ChatGPT plugins, Claude connectors, other MCP clients) call the estimate engine directly.
