@@ -3,6 +3,7 @@
 // The OpenAI paragraph matches lib/openai-ads/capi.ts: hashed email and phone plus click IDs only.
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BusinessContact } from "@/components/BusinessContact";
 import { CONTACT_EMAIL, LEGAL_ENTITY, LegalPage } from "@/components/legal/LegalPage";
 
 export const metadata: Metadata = {
@@ -252,9 +253,7 @@ export default function PrivacyPage() {
       <p>We&apos;ll post any changes here and update the date above. Significant changes will be highlighted on the site.</p>
 
       <h2>Contact</h2>
-      <p>
-        {LEGAL_ENTITY}, {CONTACT_EMAIL}
-      </p>
+      <BusinessContact />
     </LegalPage>
   );
 }

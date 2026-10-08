@@ -31,7 +31,7 @@ describe("robots and sitemap", () => {
 
   it("lists public pages only", () => {
     const urls = sitemap().map((e) => new URL(e.url).pathname);
-    expect(urls).toEqual(["/", "/how-we-estimate", "/privacy", "/terms", "/do-not-sell"]);
+    expect(urls).toEqual(["/", "/about", "/contact", "/how-we-estimate", "/privacy", "/terms", "/do-not-sell"]);
     expect(urls.some((u) => u.startsWith("/estimate"))).toBe(false);
   });
 });
