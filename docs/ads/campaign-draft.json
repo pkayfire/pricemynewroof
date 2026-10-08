@@ -1,6 +1,7 @@
 {
   "_note": "DRAFT ONLY. Nothing here has been sent to the OpenAI Ads API. Each campaign holds one ad group so the $100/day budget splits evenly (budgets are per campaign). Everything is created paused. Image: docs/ads/creative-roof-256.png (upload via POST /upload to get file_id).",
   "account": {
+    "id": "adacct_6ac1c06bdf6c819d990946fd0c7049a3",
     "name": "Price My New Roof",
     "timezone": "America/Los_Angeles",
     "currency": "USD",
