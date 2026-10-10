@@ -1,0 +1,41 @@
+{
+  "ad_account_id": "adacct_6ac99c90a668819db0ae080aea317054",
+  "ad_account_name": "PriceMyNewRoof, LLC",
+  "note": "Live structure (Oct 9, 2026): one campaign with three ad groups sharing a $100/day budget. Built in the new ad account; the earlier account (adacct_6ac1c06bdf6c819d990946fd0c7049a3) and its three paused campaigns are no longer used.",
+  "campaign": {
+    "id": "cmpn_6ac99e49840c819badbde4e02052080c",
+    "name": "US - CPC",
+    "status": "active",
+    "bidding_type": "clicks",
+    "daily_budget_usd": 100,
+    "locations": [
+      "United States"
+    ],
+    "start": "2026-10-10T00:00:00-07:00"
+  },
+  "image_file_id": "file_000000006b1481f5ad4da253c94fbff8",
+  "ad_groups": [
+    {
+      "name": "Repair or replace",
+      "id": "adgrp_6ac99e4c6028819bbac6710c9967dc5a",
+      "max_cpc_usd": 3,
+      "ad_id": "ad_6ac99e4e63c4819dba02a1f371af112e",
+      "tracking": "repair-or-replace"
+    },
+    {
+      "name": "Cost research",
+      "id": "adgrp_e4be559a9328819b970e85f5ddc28aff",
+      "max_cpc_usd": 3,
+      "ad_id": "ad_a53b3db84018819ba0bd78c02a72e698",
+      "tracking": "cost-research"
+    },
+    {
+      "name": "Tile roofs",
+      "id": "adgrp_755e163de358819b992db7480a8ab3e9",
+      "max_cpc_usd": 3,
+      "ad_id": "ad_78a8ddb3cf2081a29e5f73a6bc3e9e10",
+      "tracking": "tile-roofs"
+    }
+  ],
+  "copy_and_hints": "docs/ads/campaign-draft.json (ad_group context_hints and ad creative per group)"
+}
