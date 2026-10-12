@@ -292,6 +292,30 @@ body > main {
   background: var(--slate);
   cursor: progress;
 }
+/* Working (submitted): stay blue so it reads as in progress, not unavailable. */
+.btn-primary[aria-busy="true"] {
+  background: var(--chalk-dark);
+  gap: 10px;
+}
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  flex: none;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+}
 .btn-secondary {
   background: var(--surface);
   color: var(--asphalt);
