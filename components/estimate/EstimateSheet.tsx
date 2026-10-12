@@ -12,6 +12,7 @@ import {
 import { referralSentence } from "@/lib/site/copy";
 import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
+import { QuoteLink } from "./QuoteLink";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
 
@@ -81,12 +82,7 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
   const tracking = estimate.coverage?.trackingNumber;
   return (
     <>
-      <Link
-        href={`/estimate/${encodeURIComponent(estimate.estimateId)}/quote`}
-        className="btn btn-primary btn-block"
-      >
-        Request quotes from local roofers
-      </Link>
+      <QuoteLink estimateId={estimate.estimateId} position="sheet" className="btn btn-primary btn-block" />
       {tracking && (
         <a href={`tel:${tracking}`} className="btn btn-secondary btn-block">
           Call for exact quotes
@@ -141,6 +137,22 @@ export function EstimateSheet({
           {sourcesSentence(drivers, measurements)} <Link href="/how-we-estimate">How we estimate</Link>
         </p>
       </div>
+    </section>
+  );
+}
+
+/** Quote CTA at the top of the estimate page, so it's visible without scrolling (covered areas only). */
+export function TopQuoteBar({ estimate }: { estimate: EstimateView }) {
+  const first = estimate.options?.[0];
+  if (estimate.coverage?.covered !== true || !first) return null;
+  return (
+    <section className="top-quote" aria-label="Request quotes">
+      <div className="top-quote-price">
+        <div className="top-quote-label">{first.name}</div>
+        <div className="top-quote-range">{formatRange(first.low, first.high)}</div>
+        <div className="top-quote-note">A general estimate, not a quote.</div>
+      </div>
+      <QuoteLink estimateId={estimate.estimateId} position="top" className="btn btn-primary top-quote-btn" />
     </section>
   );
 }

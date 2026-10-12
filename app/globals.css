@@ -9,7 +9,8 @@
   --galvanized: #8c969d; /* input borders, "other" bar segment */
   --rule: #cdd3d6; /* borders */
   --rule-light: #e1e5e7; /* row dividers */
-  --chalk: #2f6fd0; /* measurements only: pitch, marker outlines, materials; plus the brand mark square */
+  --chalk: #2f6fd0; /* measurements, the brand mark square and primary (CTA) buttons */
+  --chalk-dark: #2659a8; /* primary button hover */
   --map-bg: #3b4247; /* map placeholder while tiles load */
   --footer-text: #e3e7e9;
 
@@ -280,8 +281,11 @@ body > main {
   border: 0;
 }
 .btn-primary {
-  background: var(--asphalt);
+  background: var(--chalk);
   color: #ffffff;
+}
+.btn-primary:hover {
+  background: var(--chalk-dark);
 }
 .btn-primary[aria-disabled="true"],
 .btn-primary:disabled {
@@ -630,6 +634,39 @@ body > main {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+}
+.top-quote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  background: var(--surface);
+  border: 2px solid var(--asphalt);
+  border-radius: 2px;
+  padding: 14px 18px;
+}
+.top-quote-label {
+  font-weight: 600;
+}
+.top-quote-range {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.45rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.top-quote-note {
+  font-size: 14px;
+  color: var(--slate);
+}
+.top-quote-btn {
+  flex: 0 1 auto;
+}
+@media (max-width: 600px) {
+  .top-quote-btn {
+    width: 100%;
+  }
 }
 .estimate-grid {
   display: flex;

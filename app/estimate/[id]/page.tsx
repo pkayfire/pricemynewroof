@@ -9,7 +9,7 @@ import { ConfirmBuilding } from "@/components/estimate/ConfirmBuilding";
 import { RoofMap } from "@/components/estimate/RoofMap";
 import { MeasurementTable, PlanesSummary, measurementCaption } from "@/components/estimate/MeasurementTable";
 import { CurrentRoofSelect } from "@/components/estimate/CurrentRoofSelect";
-import { EstimateSheet } from "@/components/estimate/EstimateSheet";
+import { EstimateSheet, TopQuoteBar } from "@/components/estimate/EstimateSheet";
 import { FallbackForm } from "@/components/estimate/FallbackForm";
 import { MeasureAgainButton } from "@/components/estimate/MeasureAgainButton";
 import { TrackOnMount } from "@/components/analytics/TrackOnMount";
@@ -171,6 +171,7 @@ export default async function EstimatePage({ params }: { params: Promise<{ id: s
   return (
     <main id="main" className="container estimate-main">
       <TitleRow title={solar ? "Your roof, measured" : "Your roof, estimated"} estimate={estimate} />
+      <TopQuoteBar estimate={estimate} />
       <TrackOnMount
         events={solar ? ["measured", "estimate_shown"] : ["estimate_shown"]}
         props={{ covered: estimate.coverage?.covered === true, confidence: drivers.confidence, source: m.source }}

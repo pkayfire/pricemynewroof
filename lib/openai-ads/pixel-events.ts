@@ -14,5 +14,6 @@ export const PIXEL_EVENTS: Partial<Record<ClientEvent, PixelEvent>> = {
   page_view: { name: "page_viewed" },
   estimate_shown: { name: "custom", custom: "estimate_shown" },
   form_submit: { name: "lead_created", data: { type: "customer_action" } },
+  quote_click: { name: "custom", custom: "quote_click" },
   call_click: { name: "custom", custom: "call_click" },
 };
