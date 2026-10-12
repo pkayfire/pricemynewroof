@@ -266,7 +266,7 @@ price = squares × (1 + waste) × cost per square
           version {f.version}, built {f.builtAt.slice(0, 10)}.
         </p>
         <p>
-          <Link href="/">Measure my roof</Link>
+          <Link href="/">See my price</Link>
         </p>
       </article>
     </main>
