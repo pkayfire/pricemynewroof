@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { loadPlacesLibrary } from "@/lib/google/maps-loader";
 import { postEstimate, estimateErrorMessage } from "@/lib/api/client";
 import { track } from "@/lib/analytics/client";
+import { LANDING_CTA, LANDING_CTA_SUBMITTING, LANDING_HINT, LANDING_HINT_SUBMITTING } from "@/lib/site/landing-copy";
 
 type LibState = "idle" | "loading" | "ready" | "error";
 interface Suggestion {
@@ -155,10 +156,10 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
     }
   }
 
-  let hint = "Free. You don't need to give us any contact details to see your estimate.";
+  let hint = LANDING_HINT;
   if (focused && lib === "loading") hint = "Loading address suggestions…";
   if (lib === "error") hint = "Address suggestions couldn't load. Refresh the page to try again.";
-  if (submitting) hint = "This usually takes a few seconds.";
+  if (submitting) hint = LANDING_HINT_SUBMITTING;
 
   return (
     <form className="address-form" aria-label="Find your roof" onSubmit={onSubmit} noValidate>
@@ -227,10 +228,10 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
           {submitting ? (
             <>
               <span className="spinner" aria-hidden="true" />
-              Measuring your roof…
+              {LANDING_CTA_SUBMITTING}
             </>
           ) : (
-            "Measure my roof"
+            LANDING_CTA
           )}
         </button>
       </div>

@@ -329,7 +329,7 @@ The look comes from the roofing trade, not a generic web template. One signature
 
 **Landing hero visual:** a static sample satellite image with the same plane markers and a caption saying it's a sample. It's an illustration, not Solar data.
 
-**Copy for key actions:** "Measure my roof", "Request quotes from local roofers", "Not your house? Change the address", "How we estimate".
+**Copy for key actions:** "See my price" (landing CTA), "Request quotes from local roofers", "Not your house? Change the address", "How we estimate".
 
 **Screens not yet mocked in v2** (fallback, no coverage, quote form, thank-you, admin) use the same tokens and components. Keep the v2 mockup HTML in `docs/design/` for reference.
 
@@ -584,6 +584,7 @@ Answers to pre-build questions. These override anything above that they contradi
 - Changing "What's on the roof now" calls `POST /api/estimate` again with the same place, reusing the stored measurements instead of calling the Solar API again.
 - The explanation validator treats spelled-out numbers ("six") as numbers; they must match a drivers value.
 - Mockup fixes carried into the build: plane letters strictly largest first; phone layout gets the footer and "Not your house? Change the address".
+- Landing headline by ad group (Oct 11, 2026): the server-rendered page reads the `ad_group_id` query param and shows a matching headline; only exact slugs match. `cost-research` and anything else or missing: "See what a new roof should cost for your house". `repair-or-replace`: "Thinking about replacing your roof? See what it would cost first." `tile-roofs`: "Keep your tiles or replace them? Compare the costs for your roof." Copy lives in `lib/site/landing-copy.ts`.
 
 **Leads (Milestone 4)**
 

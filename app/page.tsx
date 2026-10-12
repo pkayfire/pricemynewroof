@@ -2,12 +2,17 @@ import type { Metadata } from "next";
 import { AddressForm } from "@/components/AddressForm";
 import { SampleRoofIllustration } from "@/components/SampleRoofIllustration";
 import { referralDisclosure } from "@/lib/site/copy";
+import { LANDING_LEDE, landingHeadline } from "@/lib/site/landing-copy";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Reading searchParams makes this page dynamically rendered. That is intended: the headline matches the
+// ad group in the server HTML, so crawlers such as OAI-AdsBot see it without running JavaScript.
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const { ad_group_id: adGroupParam } = await searchParams;
+  const headline = landingHeadline(typeof adGroupParam === "string" ? adGroupParam : undefined);
   // Browser key, referrer-restricted to our domains; it is meant to be public.
   const mapsKey = process.env.GOOGLE_MAPS_API_KEY || null;
 
@@ -15,11 +20,8 @@ export default function Home() {
     <main id="main">
       <section className="container hero">
         <div className="hero-copy">
-          <h1 className="h1-landing">What should a new roof cost for your house?</h1>
-          <p className="lede">
-            Enter your address. We measure every plane of your roof from satellite data and price it with local labor
-            rates, so you know the range before any roofer visits.
-          </p>
+          <h1 className="h1-landing">{headline}</h1>
+          <p className="lede">{LANDING_LEDE}</p>
           <AddressForm apiKey={mapsKey} />
         </div>
 
