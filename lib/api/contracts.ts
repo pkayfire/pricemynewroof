@@ -112,6 +112,7 @@ export const FUNNEL_EVENTS = [
   "fallback_shown",
   "estimate_shown",
   "explanation_shown",
+  "quote_click",
   "call_click",
   "form_submit",
   "email_estimate",

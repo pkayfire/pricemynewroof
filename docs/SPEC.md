@@ -300,7 +300,7 @@ The look comes from the roofing trade, not a generic web template. One signature
 | Slate | `#4A5259` | Secondary text |
 | Galvanized | `#8C969D` | Input borders, "other" segment in the breakdown bar |
 | Rule | `#CDD3D6` / `#E1E5E7` | Borders / row dividers |
-| Chalk blue | `#2F6FD0` | Measurements only: pitch values, marker outlines, materials segment; plus the brand mark's square. Never buttons or decoration |
+| Chalk blue | `#2F6FD0` | Measurements (pitch values, marker outlines, materials segment), the brand mark's square, and primary (CTA) buttons. Never decoration |
 
 **Type**
 
@@ -323,7 +323,8 @@ The look comes from the roofing trade, not a generic web template. One signature
 - **Measurement table:** columns Plane, Pitch, Slopes toward (nearest of 8 compass directions from azimuth), Area; an "Other" row; total row with a 2px asphalt top rule; caption with the imagery date and what the markers mean.
 - **Estimate sheet:** 2px asphalt border; heading plus "For the {areaName} area. A general estimate, not a quote."; options as line items with the range right-aligned; "Why this price" with the breakdown bar for the first option shown, labeled "Cost breakdown for {option name}" (labor asphalt, materials chalk blue, other galvanized, legend text "Tear-off, overhead, steep-roof work and permit") and a text legend; the quote CTA and the referral sentence.
 - **Title block (landing):** "What your estimate is built from" as a definition list with a 2px asphalt border and a 180px term column, including a row for what the estimate can't see.
-- **Buttons:** primary is asphalt with white text, 54–56px tall. Links are underlined asphalt.
+- **Buttons:** primary (CTA) is chalk blue `#2F6FD0` with white text (hover `#2659A8`), 54–56px tall. Links are underlined asphalt.
+- **Top quote bar (estimate page, covered areas):** right under the title, the first option's range plus "Request quotes from local roofers", so the CTA is visible without scrolling; the sheet keeps its own CTA. A `quote_click` event records which placement (`top` or `sheet`) was clicked.
 - **Inputs:** the landing address field has a 2px asphalt border and 56px height; other inputs have a 1px galvanized border.
 
 **Landing hero visual:** a static sample satellite image with the same plane markers and a caption saying it's a sample. It's an illustration, not Solar data.
