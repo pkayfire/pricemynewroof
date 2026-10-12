@@ -158,7 +158,7 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
   let hint = "Free. You don't need to give us any contact details to see your estimate.";
   if (focused && lib === "loading") hint = "Loading address suggestions…";
   if (lib === "error") hint = "Address suggestions couldn't load. Refresh the page to try again.";
-  if (submitting) hint = "Measuring your roof…";
+  if (submitting) hint = "This usually takes a few seconds.";
 
   return (
     <form className="address-form" aria-label="Find your roof" onSubmit={onSubmit} noValidate>
@@ -182,6 +182,7 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
             aria-describedby={error ? `${errorId} ${hintId}` : hintId}
             aria-invalid={error ? true : undefined}
             value={query}
+            readOnly={submitting}
             onChange={(e) => {
               setQuery(e.target.value);
               setError(null);
@@ -222,8 +223,15 @@ export function AddressForm({ apiKey }: { apiKey: string | null }) {
             </ul>
           )}
         </div>
-        <button type="submit" className="btn btn-primary" aria-disabled={submitting || undefined}>
-          Measure my roof
+        <button type="submit" className="btn btn-primary" disabled={submitting} aria-busy={submitting || undefined}>
+          {submitting ? (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              Measuring your roof…
+            </>
+          ) : (
+            "Measure my roof"
+          )}
         </button>
       </div>
       {error && (

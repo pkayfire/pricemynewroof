@@ -201,8 +201,15 @@ export function QuoteForm({ estimateId, defaultAddress, consentVersion, consentT
         </p>
       )}
       <div>
-        <button type="submit" className="btn btn-primary" aria-disabled={busy || undefined}>
-          {busy ? "Sending…" : "Request quotes"}
+        <button type="submit" className="btn btn-primary" disabled={busy} aria-busy={busy || undefined}>
+          {busy ? (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              Sending…
+            </>
+          ) : (
+            "Request quotes"
+          )}
         </button>
       </div>
     </form>
