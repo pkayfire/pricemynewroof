@@ -83,6 +83,7 @@ export function leadDeps(env: NodeJS.ProcessEnv = process.env): LeadDeps & Commo
     ...common(env),
     getEstimate: (id) => getEstimateView(id),
     leads: getLeadStore(env),
+    events: getEventStore(env),
     doNotSell: getDoNotSellStore(env),
     coverage: coverageProviderFor(buyer),
     buyer,

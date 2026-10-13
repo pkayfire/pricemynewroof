@@ -79,6 +79,7 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   const leadDeps: LeadDeps & { limiter: MemoryRateLimiter } = {
     getEstimate,
     leads,
+    events,
     doNotSell,
     coverage,
     buyer: buyerConfig,

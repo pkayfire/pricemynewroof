@@ -193,6 +193,33 @@ describe("lead_created conversion on submit", () => {
   });
 });
 
+describe("lead_created funnel event", () => {
+  it("records lead_created with attribution for a new lead, and nothing for a duplicate", async () => {
+    const s = await seeded();
+    const r = await handleLead(valid(), ctx(), s.leadDeps);
+    const leadId = (r.body as { leadId: string }).leadId;
+    await handleLead(valid(), ctx(), s.leadDeps); // duplicate phone
+    expect(s.events.events).toEqual([
+      {
+        sessionId: "sess-1",
+        name: "lead_created",
+        ts: T0.toISOString(),
+        source: "server",
+        attribution: expect.objectContaining({ oppref: "opp-abc", ad_group_id: "ag-7" }),
+        props: { lead_id: leadId, zip: "85032" },
+      },
+    ]);
+  });
+
+  it("a failing event write doesn't fail the lead", async () => {
+    const s = await seeded();
+    s.leadDeps.events = { append: async () => Promise.reject(new Error("db down")) } as unknown as typeof s.leadDeps.events;
+    const r = await handleLead(valid(), ctx(), s.leadDeps);
+    expect(r.status).toBe(200);
+    expect(s.conversionsSent).toHaveLength(1);
+  });
+});
+
 describe("dedupe", () => {
   it("accepts the same phone within 30 days but doesn't forward or alert again", async () => {
     const s = await seeded();
