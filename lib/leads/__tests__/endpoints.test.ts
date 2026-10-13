@@ -9,12 +9,13 @@ function eventsSetup() {
 }
 
 describe("POST /api/events", () => {
-  it("has the spec's funnel events in order; lead_forwarded and call_qualified are server-only", () => {
+  it("has the spec's funnel events in order; lead_created, lead_forwarded and call_qualified are server-only", () => {
     expect(FUNNEL_EVENTS).toEqual([
       "page_view", "address_entered", "measured", "fallback_shown", "estimate_shown", "explanation_shown", "quote_click",
-      "call_click", "form_submit", "email_estimate", "lead_forwarded", "call_qualified",
+      "call_click", "form_submit", "email_estimate", "lead_created", "lead_forwarded", "call_qualified",
     ]);
-    expect(SERVER_ONLY_EVENTS).toEqual(["lead_forwarded", "call_qualified"]);
+    expect(SERVER_ONLY_EVENTS).toEqual(["lead_created", "lead_forwarded", "call_qualified"]);
+    expect(CLIENT_EVENTS).not.toContain("lead_created");
     expect(CLIENT_EVENTS).not.toContain("lead_forwarded");
   });
 

@@ -9,7 +9,7 @@ import { leadAlertEmail } from "@/lib/email/templates";
 import type { EstimateView } from "@/lib/estimates/view";
 import { invalidRequest } from "@/lib/http/request";
 import { sha256Hex } from "@/lib/server/hash";
-import type { DoNotSellStore, LeadRecord, LeadStore } from "@/lib/server/stores";
+import type { DoNotSellStore, EventStore, LeadRecord, LeadStore } from "@/lib/server/stores";
 import type { ConversionsClient } from "@/lib/openai-ads/capi";
 import { leadEventId } from "@/lib/openai-ads/event-id";
 import { initialForwardStatus, type LeadForwarder } from "./forwarder";
@@ -22,6 +22,8 @@ export interface LeadDeps {
   /** The estimate as the page shows it (lib/estimates/source.ts getEstimateView). */
   getEstimate(id: string): Promise<EstimateView | null>;
   leads: LeadStore;
+  /** The funnel log: a new (non-duplicate) lead records lead_created. */
+  events: EventStore;
   doNotSell: DoNotSellStore;
   coverage: CoverageProvider;
   buyer: BuyerConfig;
@@ -120,6 +122,19 @@ export async function handleLead(raw: unknown, ctx: RequestContext, deps: LeadDe
 
   // DECISION: duplicates get no alert (they are not new leads and are never re-forwarded).
   if (!prior) {
+    try {
+      await deps.events.append({
+        sessionId: lead.sessionId,
+        name: "lead_created",
+        ts: now.toISOString(),
+        source: "server",
+        attribution: lead.attribution,
+        props: { lead_id: lead.id, zip: lead.zip },
+      });
+    } catch (e) {
+      // The lead is saved; a failed funnel event must not fail the request.
+      console.error("[lead] lead_created event failed:", (e as Error).message);
+    }
     try {
       await deps.email.send(
         leadAlertEmail({ to: deps.adminEmail, leadId: lead.id, zip: lead.zip, timing: lead.timing, status: lead.forwardStatus, siteUrl: deps.siteUrl }),

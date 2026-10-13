@@ -116,13 +116,14 @@ export const FUNNEL_EVENTS = [
   "call_click",
   "form_submit",
   "email_estimate",
+  "lead_created",
   "lead_forwarded",
   "call_qualified",
 ] as const;
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
 
-/** Events only the server records (admin forwarding, call webhook); POST /api/events rejects them. */
-export const SERVER_ONLY_EVENTS = ["lead_forwarded", "call_qualified"] as const satisfies readonly FunnelEvent[];
+/** Events only the server records (new lead, admin forwarding, call webhook); POST /api/events rejects them. */
+export const SERVER_ONLY_EVENTS = ["lead_created", "lead_forwarded", "call_qualified"] as const satisfies readonly FunnelEvent[];
 export const CLIENT_EVENTS = FUNNEL_EVENTS.filter(
   (e) => !(SERVER_ONLY_EVENTS as readonly string[]).includes(e),
 ) as Exclude<FunnelEvent, (typeof SERVER_ONLY_EVENTS)[number]>[];

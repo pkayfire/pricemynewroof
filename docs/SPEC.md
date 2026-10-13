@@ -427,9 +427,11 @@ The test only succeeds if every qualified call or lead traces back to an ad grou
 3. `measured` or `fallback_shown`
 4. `estimate_shown`
 5. `explanation_shown`
-6. `call_click` or `form_submit` (or `email_estimate` where not covered)
-7. `lead_forwarded`
-8. `call_qualified` (from the webhook)
+6. `quote_click` (the quote CTA, with its placement), then a `page_view` of the quote form
+7. `call_click` or `form_submit` (or `email_estimate` where not covered)
+8. `lead_created` (server, a new non-duplicate lead)
+9. `lead_forwarded`
+10. `call_qualified` (from the webhook)
 
 **OpenAI measurement:** OpenAI Pixel on the page for page and step events; Conversions API from the server for `lead_forwarded` and `call_qualified`, so ad bidding optimizes toward real leads.
 
@@ -597,6 +599,7 @@ Answers to pre-build questions. These override anything above that they contradi
 - Consent text: placeholder wording that describes what actually happens in manual mode (a person forwards the request to a local roofer); versioned and hashed; legal review before ads run.
 - OpenAI Pixel and Conversions API: built behind a switch that stays off until `OPENAI_PIXEL_ID` and `OPENAI_CAPI_TOKEN` are set.
 - The conversion is the quote request, not the forwarded lead (owner decision, to feed bidding as much data as possible): on a new (non-duplicate) request the pixel and the Conversions API both send `lead_created` (`data.type: "customer_action"`) with the same event ID `lead_<leadId>`, so OpenAI counts it once. Marking a lead forwarded sends a custom `lead_forwarded` event; a qualified call sends a custom `call_qualified` event.
+- Funnel events (Oct 12): `quote_click` is stored in `events` (it was sent but rejected by the name check), and the server records `lead_created` for each new non-duplicate lead. `daily_report` adds `quote_clicks`, `quote_form_views`, `leads_created`, `rate_quote_form` (estimate → form) and `rate_lead` (form → lead). A test keeps the code's event list and the database check in sync.
 - Extra tables beyond the data model: `rate_limits` and `do_not_sell_requests`.
 
 **Business identity (Oct 7, 2026, after the OpenAI advertiser account was not approved)**
