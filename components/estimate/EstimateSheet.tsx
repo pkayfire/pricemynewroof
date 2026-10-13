@@ -3,7 +3,6 @@ import type { Drivers, EstimateOption, EstimateView, Measurements, OptionId } fr
 import {
   formatRange,
   formatShare,
-  lowConfidenceNote,
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
@@ -56,8 +55,9 @@ export function BreakdownBar({ drivers, options }: { drivers: Drivers; options: 
 function Notes({ drivers, imageryDate }: { drivers: Drivers; imageryDate: string | null }) {
   const wider = wideningNote(drivers.fallbacks);
   const old = oldImageryNote(drivers.fallbacks, imageryDate);
-  const low = lowConfidenceNote(drivers);
-  if (!wider && !old && !low) return null;
+  // DECISION (owner, Oct 12): no generic "Low confidence" banner; the specific notes below say why a
+  // range is wider or the imagery older. Confidence stays in the data and the API.
+  if (!wider && !old) return null;
   return (
     <div className="sheet-notes">
       {wider && (
@@ -68,11 +68,6 @@ function Notes({ drivers, imageryDate }: { drivers: Drivers; imageryDate: string
       {old && (
         <p className="note">
           <strong>Older imagery.</strong> {old}
-        </p>
-      )}
-      {low && (
-        <p className="note">
-          <strong>Low confidence.</strong> {low}
         </p>
       )}
     </div>

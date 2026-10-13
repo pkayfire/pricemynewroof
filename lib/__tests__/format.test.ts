@@ -6,7 +6,6 @@ import {
   CURRENT_ROOF_LABELS,
   compassName,
   locationText,
-  lowConfidenceNote,
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
@@ -63,13 +62,6 @@ describe("format helpers", () => {
       "Satellite imagery for this home is from 2019; recent changes may not show.",
     );
     expect(oldImageryNote([], "2019-05-10")).toBeNull();
-  });
-
-  it("adds a low-confidence note only for low confidence", () => {
-    expect(lowConfidenceNote({ confidence: "medium", fallbacks: ["imagery_medium"], sharesOption: "architectural_shingle" })).toBeNull();
-    expect(lowConfidenceNote({ confidence: "low", fallbacks: [], sharesOption: "lift_and_relay" })).toBe(
-      "Treat these ranges as a rough guide until a roofer sees the roof.",
-    );
   });
 
   it("labels the current-roof choices and compass points", () => {
