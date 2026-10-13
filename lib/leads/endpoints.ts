@@ -15,6 +15,8 @@ import { clientIp, invalidRequest, json, readJson } from "@/lib/http/request";
 import { OPT_OUT_MAX_AGE_S } from "@/lib/privacy/opt-out";
 import { enforceLimit, LIMITS, type RateLimiter } from "@/lib/ratelimit";
 import { sha256Hex } from "@/lib/server/hash";
+import type { ConversionOutcome, ConversionsClient } from "@/lib/openai-ads/capi";
+import { isCallEventId } from "@/lib/openai-ads/event-id";
 import type { DoNotSellStore, EmailSignupStore, EventStore } from "@/lib/server/stores";
 import { toE164US } from "./phone";
 import { handleLead, type LeadDeps } from "./service";
@@ -102,6 +104,33 @@ export async function handleEmailEstimatePost(request: Request, deps: () => Emai
 
 export interface EventsDeps extends Common {
   events: EventStore;
+  /** Call test: a call click is the lead_created conversion, sent here too (same event ID as the pixel). */
+  conversions?: ConversionsClient;
+  doNotSell?: DoNotSellStore;
+  siteUrl?: string;
+  /** Runs work after the response is sent (Next.js after()); tests omit it and await instead. */
+  defer?: (work: () => Promise<unknown>) => void;
+}
+
+/** Sends lead_created for a call click, unless the person opted out (cookie, GPC or do-not-sell). */
+async function sendCallConversion(eventId: string, ctx: RequestContext, d: EventsDeps): Promise<ConversionOutcome> {
+  let optedOut = ctx.optedOut;
+  if (!optedOut && d.doNotSell) {
+    try {
+      optedOut = await d.doNotSell.isOptedOut({ email: null, phone: null, sessionId: ctx.sessionId });
+    } catch {
+      optedOut = true; // when unsure, don't send
+    }
+  }
+  return d.conversions!.send({
+    kind: "lead_submitted",
+    id: eventId,
+    at: d.now(),
+    sourceUrl: ctx.referer || `${(d.siteUrl ?? "").replace(/\/+$/, "")}/`,
+    oppref: ctx.attribution.oppref ?? null,
+    obref: ctx.obref,
+    optedOut,
+  });
 }
 
 /** Validates and appends one funnel event; 204 on success. Size-limited to 4 KB and rate-limited per IP. */
@@ -120,6 +149,12 @@ export async function handleEventsPost(request: Request, deps: () => EventsDeps)
       attribution: start.ctx.attribution,
       props: parsed.data.props,
     });
+    const eventId = parsed.data.props.event_id;
+    if (parsed.data.name === "call_click" && d.conversions?.enabled && typeof eventId === "string" && isCallEventId(eventId)) {
+      const work = () => sendCallConversion(eventId, start.ctx, d);
+      if (d.defer) d.defer(work);
+      else await work();
+    }
     return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
   } catch (e) {
     return failed("events", e);

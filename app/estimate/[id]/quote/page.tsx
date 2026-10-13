@@ -43,6 +43,12 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <p>This estimate isn&apos;t complete or has expired, so we can&apos;t send a quote request from it. Nothing has been sent to any roofer.</p>
       </Unavailable>
     );
+  if (estimate.coverage?.covered && !estimate.coverage.leadTypes.includes("form"))
+    return (
+      <Unavailable estimateId={estimate.estimateId}>
+        <p>We&apos;re not taking quote requests by form right now. Nothing has been sent to any roofer.</p>
+      </Unavailable>
+    );
   if (!estimate.coverage?.covered || !consent)
     return (
       <Unavailable estimateId={estimate.estimateId}>

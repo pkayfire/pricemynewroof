@@ -1,12 +1,48 @@
 import { describe, expect, it } from "vitest";
 import { CLIENT_EVENTS, FUNNEL_EVENTS, SERVER_ONLY_EVENTS } from "@/lib/api/contracts";
 import { handleDoNotSellPost, handleEmailEstimatePost, handleEventsPost } from "@/lib/leads/endpoints";
-import { ESTIMATE_ID, estimateRecord, m4Setup, postJson, T0 } from "@/test/m4";
+import { dnsRecord, ESTIMATE_ID, estimateRecord, m4Setup, postJson, T0 } from "@/test/m4";
 
 function eventsSetup() {
   const s = m4Setup();
   return { s, deps: () => ({ events: s.events, limiter: s.limiter, now: s.now }) };
 }
+
+describe("POST /api/events: call test conversion", () => {
+  const CALL_ID = "call_00000000-0000-4000-8000-000000000001";
+  function callSetup() {
+    const s = m4Setup();
+    const deps = () => ({ events: s.events, limiter: s.limiter, now: s.now, conversions: s.leadDeps.conversions, doNotSell: s.doNotSell, siteUrl: "https://example.test" });
+    const attr = encodeURIComponent(JSON.stringify({ oppref: "o1", ad_group_id: "cost-research" }));
+    const post = (props: Record<string, unknown>, cookie = `pmnr_attr=${attr}; pmnr_sid=sess-call-1; __obref=ob-9`, headers: Record<string, string> = {}) =>
+      handleEventsPost(postJson("/api/events", { sessionId: "sess-call-1", name: "call_click", props }, { cookie, referer: "https://example.test/estimate/e", ...headers }), deps);
+    return { s, post };
+  }
+
+  it("records call_click and sends lead_created with the pixel's event ID, oppref and obref", async () => {
+    const { s, post } = callSetup();
+    expect((await post({ position: "top", event_id: CALL_ID, has_number: false })).status).toBe(204);
+    expect(s.events.events.map((e) => e.name)).toEqual(["call_click"]);
+    expect(s.conversionsSent).toEqual([
+      { kind: "lead_submitted", id: CALL_ID, at: T0, sourceUrl: "https://example.test/estimate/e", oppref: "o1", obref: "ob-9", optedOut: false },
+    ]);
+  });
+
+  it("sends nothing without a valid call event ID, or for opted-out people", async () => {
+    const a = callSetup();
+    await a.post({ position: "top" });
+    await a.post({ position: "top", event_id: "lead_abc" });
+    expect(a.s.events.events).toHaveLength(2);
+    expect(a.s.conversionsSent).toHaveLength(0);
+
+    const gpc = callSetup();
+    await gpc.post({ event_id: CALL_ID }, undefined, { "sec-gpc": "1" });
+    const dns = callSetup();
+    await dns.s.doNotSell.insert(dnsRecord({ sessionId: "sess-call-1" }));
+    await dns.post({ event_id: CALL_ID });
+    expect([...gpc.s.conversionsSent, ...dns.s.conversionsSent]).toHaveLength(0);
+  });
+});
 
 describe("POST /api/events", () => {
   it("has the spec's funnel events in order; lead_created, lead_forwarded and call_qualified are server-only", () => {

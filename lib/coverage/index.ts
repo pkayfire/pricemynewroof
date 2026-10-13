@@ -11,10 +11,14 @@ const NOT_COVERED: CoverageResponse = { covered: false, leadTypes: [] };
 
 export const isZip = (zip: string) => /^\d{5}$/.test(zip);
 
-/** Lead types offered where covered, primary CTA first; "call" only when a tracking number exists. */
+/**
+ * Lead types offered where covered, primary CTA first. primaryCta "call" without a tracking number is
+ * the call test (Build decisions, Oct 12): only the call button, which records the click and says
+ * calls aren't open yet; the quote form is off. With a number, call leads and the form is secondary.
+ */
 export function leadTypesFor(config: Pick<BuyerConfig, "primaryCta">, trackingNumber: string | null): LeadType[] {
-  const types: LeadType[] = trackingNumber ? ["form", "call"] : ["form"];
-  return config.primaryCta === "call" && trackingNumber ? ["call", "form"] : types;
+  if (config.primaryCta === "call") return trackingNumber ? ["call", "form"] : ["call"];
+  return trackingNumber ? ["form", "call"] : ["form"];
 }
 
 /** none/manual modes: coverage from the launch rule in config. */

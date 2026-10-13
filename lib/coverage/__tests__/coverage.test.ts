@@ -7,12 +7,13 @@ const env = (o: Record<string, string>) => o as unknown as NodeJS.ProcessEnv;
 const cfg = (over: Partial<BuyerConfig> = {}): BuyerConfig => ({ ...BUYER_CONFIG, ...over });
 
 describe("coverage", () => {
-  it("v1 default: manual mode, form CTA, every US ZIP covered with no tracking number", async () => {
-    expect(BUYER_CONFIG).toMatchObject({ buyerMode: "manual", primaryCta: "form", coverage: { kind: "all_us" }, trackingNumber: null });
+  it("default (call test): manual mode, call CTA only, every US ZIP covered with no tracking number", async () => {
+    expect(BUYER_CONFIG).toMatchObject({ buyerMode: "manual", primaryCta: "call", coverage: { kind: "all_us" }, trackingNumber: null });
     const p = coverageProviderFor(BUYER_CONFIG);
     for (const zip of ["85032", "02108", "99501", "00601"]) {
-      expect(await p.forZip(zip)).toEqual({ covered: true, leadTypes: ["form"] });
+      expect(await p.forZip(zip)).toEqual({ covered: true, leadTypes: ["call"] });
     }
+    expect(await coverageProviderFor(cfg({ primaryCta: "form" })).forZip("85032")).toEqual({ covered: true, leadTypes: ["form"] });
     expect(await p.forZip("8503")).toEqual({ covered: false, leadTypes: [] });
   });
 
@@ -23,11 +24,12 @@ describe("coverage", () => {
     expect(await p.forZip("10001")).toEqual({ covered: false, leadTypes: [] });
   });
 
-  it("offers a call only when a tracking number exists, primary CTA first", async () => {
-    const withNumber = configCoverage(cfg({ trackingNumber: "+15555550100" }));
+  it("primary CTA first; the form offers a call only with a tracking number; call without one is the call test", async () => {
+    const withNumber = configCoverage(cfg({ primaryCta: "form", trackingNumber: "+15555550100" }));
     expect(await withNumber.forZip("85032")).toEqual({ covered: true, trackingNumber: "+15555550100", leadTypes: ["form", "call"] });
     expect(leadTypesFor({ primaryCta: "call" }, "+15555550100")).toEqual(["call", "form"]);
-    expect(leadTypesFor({ primaryCta: "call" }, null)).toEqual(["form"]);
+    expect(leadTypesFor({ primaryCta: "call" }, null)).toEqual(["call"]);
+    expect(leadTypesFor({ primaryCta: "form" }, null)).toEqual(["form"]);
   });
 
   it("none mode uses the same config rule; service_direct is a stub with no coverage", async () => {
@@ -45,7 +47,7 @@ describe("coverage", () => {
     const p = coverageProviderFor(BUYER_CONFIG);
     const ok = await handleCoverageGet(new Request("https://x.test/api/coverage?zip=85032"), p);
     expect(ok.status).toBe(200);
-    expect(await ok.json()).toEqual({ covered: true, leadTypes: ["form"] });
+    expect(await ok.json()).toEqual({ covered: true, leadTypes: ["call"] });
     const bad = await handleCoverageGet(new Request("https://x.test/api/coverage?zip=abc"), p);
     expect(bad.status).toBe(400);
   });

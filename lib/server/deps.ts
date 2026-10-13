@@ -109,7 +109,14 @@ export function emailEstimateDeps(env: NodeJS.ProcessEnv = process.env): EmailEs
 }
 
 export function eventsDeps(env: NodeJS.ProcessEnv = process.env): EventsDeps {
-  return { ...common(env), events: getEventStore(env) };
+  return {
+    ...common(env),
+    events: getEventStore(env),
+    conversions: conversionsFromEnv(env),
+    doNotSell: getDoNotSellStore(env),
+    siteUrl: siteUrl(env),
+    defer: (work) => after(work),
+  };
 }
 
 export function doNotSellDeps(env: NodeJS.ProcessEnv = process.env): DoNotSellDeps {
