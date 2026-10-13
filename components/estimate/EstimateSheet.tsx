@@ -3,7 +3,6 @@ import type { Drivers, EstimateOption, EstimateView, Measurements, OptionId } fr
 import {
   formatRange,
   formatShare,
-  lowConfidenceNote,
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
@@ -12,6 +11,7 @@ import {
 import { referralSentence } from "@/lib/site/copy";
 import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
+import { CallCta } from "./CallCta";
 import { QuoteLink } from "./QuoteLink";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
@@ -55,8 +55,9 @@ export function BreakdownBar({ drivers, options }: { drivers: Drivers; options: 
 function Notes({ drivers, imageryDate }: { drivers: Drivers; imageryDate: string | null }) {
   const wider = wideningNote(drivers.fallbacks);
   const old = oldImageryNote(drivers.fallbacks, imageryDate);
-  const low = lowConfidenceNote(drivers);
-  if (!wider && !old && !low) return null;
+  // DECISION (owner, Oct 12): no generic "Low confidence" banner; the specific notes below say why a
+  // range is wider or the imagery older. Confidence stays in the data and the API.
+  if (!wider && !old) return null;
   return (
     <div className="sheet-notes">
       {wider && (
@@ -69,27 +70,30 @@ function Notes({ drivers, imageryDate }: { drivers: Drivers; imageryDate: string
           <strong>Older imagery.</strong> {old}
         </p>
       )}
-      {low && (
-        <p className="note">
-          <strong>Low confidence.</strong> {low}
-        </p>
-      )}
     </div>
   );
 }
 
+/** The primary CTA for a covered estimate: the call button when calls lead (call test), else the quote form. */
+function PrimaryCta({ estimate, position, className }: { estimate: EstimateView; position: "top" | "sheet"; className: string }) {
+  const tracking = estimate.coverage?.trackingNumber ?? null;
+  if (estimate.coverage?.leadTypes[0] === "call")
+    return <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position={position} className={className} />;
+  return <QuoteLink estimateId={estimate.estimateId} position={position} className={className} />;
+}
+
 function QuoteCta({ estimate }: { estimate: EstimateView }) {
-  const tracking = estimate.coverage?.trackingNumber;
+  const types = estimate.coverage?.leadTypes ?? [];
+  const tracking = estimate.coverage?.trackingNumber ?? null;
   return (
     <>
-      <QuoteLink estimateId={estimate.estimateId} position="sheet" className="btn btn-primary btn-block" />
-      {tracking && (
-        <a href={`tel:${tracking}`} className="btn btn-secondary btn-block">
-          Call for exact quotes
-        </a>
+      <PrimaryCta estimate={estimate} position="sheet" className="btn btn-primary btn-block" />
+      {types[0] !== "call" && types.includes("call") && tracking && (
+        <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position="sheet" className="btn btn-secondary btn-block" />
       )}
       <p className="referral">
-        {referralSentence()} Price My New Roof is a referral service, not a roofing contractor.
+        {/* The call test forwards nothing, so the forwarding sentence applies only to the form. */}
+        {types.includes("form") && `${referralSentence()} `}Price My New Roof is a referral service, not a roofing contractor.
       </p>
     </>
   );
@@ -146,13 +150,13 @@ export function TopQuoteBar({ estimate }: { estimate: EstimateView }) {
   const first = estimate.options?.[0];
   if (estimate.coverage?.covered !== true || !first) return null;
   return (
-    <section className="top-quote" aria-label="Request quotes">
+    <section className="top-quote" aria-label="Get exact quotes">
       <div className="top-quote-price">
         <div className="top-quote-label">{first.name}</div>
         <div className="top-quote-range">{formatRange(first.low, first.high)}</div>
         <div className="top-quote-note">A general estimate, not a quote.</div>
       </div>
-      <QuoteLink estimateId={estimate.estimateId} position="top" className="btn btn-primary top-quote-btn" />
+      <PrimaryCta estimate={estimate} position="top" className="btn btn-primary top-quote-btn" />
     </section>
   );
 }

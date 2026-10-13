@@ -139,11 +139,3 @@ export function oldImageryNote(fallbacks: Fallback[], imageryDate: string | null
 export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
-
-export function lowConfidenceNote(drivers: Pick<Drivers, "confidence" | "fallbacks" | "sharesOption">): string | null {
-  if (drivers.confidence !== "low") return null;
-  // The reasons are already on the page: the widening and old-imagery notes, and the engine's
-  // lift-and-relay option note ("Few published prices exist…").
-  void drivers.sharesOption;
-  return "Treat these ranges as a rough guide until a roofer sees the roof.";
-}

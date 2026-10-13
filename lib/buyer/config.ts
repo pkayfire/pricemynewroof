@@ -17,10 +17,13 @@ export interface BuyerConfig {
   trackingNumber: string | null;
 }
 
-/** v1 (Build decisions, Leads): manual forwarding, quote form first, open coverage, no call number. */
+/**
+ * v1 (Build decisions, Leads): manual forwarding, open coverage, no call number. Since Oct 12 the call
+ * test: the call button leads and the quote form is off (primaryCta "call" with no tracking number).
+ */
 export const BUYER_CONFIG: BuyerConfig = {
   buyerMode: "manual",
-  primaryCta: "form",
+  primaryCta: "call",
   coverage: { kind: "all_us" },
   trackingNumber: null,
 };

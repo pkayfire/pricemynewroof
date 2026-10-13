@@ -1,7 +1,8 @@
 // Funnel events the OpenAI Pixel reports, as OpenAI event name (+ custom_event_name). Client-safe.
-// page_view → page_viewed; form_submit (a quote request) → lead_created (owner decision: feed the
-// conversion as early as possible). The server sends the same lead_created through the Conversions
-// API with the same event_id, so OpenAI counts it once. Other funnel steps are custom events.
+// page_view → page_viewed; call_click (the call test, Oct 12) and form_submit (a quote request) →
+// lead_created (owner decision: feed the conversion as early as possible). The server sends the same
+// lead_created through the Conversions API with the same event_id, so OpenAI counts it once. A call
+// click also sends a custom call_click. Other funnel steps are custom events.
 import type { ClientEvent } from "@/lib/api/contracts";
 
 export interface PixelEvent {
@@ -10,10 +11,13 @@ export interface PixelEvent {
   data?: Record<string, string>;
 }
 
-export const PIXEL_EVENTS: Partial<Record<ClientEvent, PixelEvent>> = {
+export const PIXEL_EVENTS: Partial<Record<ClientEvent, PixelEvent | PixelEvent[]>> = {
   page_view: { name: "page_viewed" },
   estimate_shown: { name: "custom", custom: "estimate_shown" },
   form_submit: { name: "lead_created", data: { type: "customer_action" } },
   quote_click: { name: "custom", custom: "quote_click" },
-  call_click: { name: "custom", custom: "call_click" },
+  call_click: [
+    { name: "lead_created", data: { type: "customer_action" } },
+    { name: "custom", custom: "call_click" },
+  ],
 };

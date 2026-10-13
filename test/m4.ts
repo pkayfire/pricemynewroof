@@ -63,7 +63,8 @@ export function m4Setup(buyer: Partial<BuyerConfig> = {}) {
   const doNotSell = new MemoryDoNotSellStore();
   const email = new MemoryEmailSender();
   const limiter = new MemoryRateLimiter(now);
-  const buyerConfig: BuyerConfig = { ...BUYER_CONFIG, ...buyer };
+  // The quote form flow stays tested while the call test turns it off in BUYER_CONFIG.
+  const buyerConfig: BuyerConfig = { ...BUYER_CONFIG, primaryCta: "form", ...buyer };
   const newId = () => `10000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
   const coverage = coverageProviderFor(buyerConfig);
   const getEstimate = (id: string) => getEstimateView(id, { store: () => estimates, coverage, demos: () => null });

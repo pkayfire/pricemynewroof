@@ -1310,3 +1310,25 @@ body > main {
   gap: 6px;
   min-width: 190px;
 }
+
+/* Call test: shown after the call button is clicked while no call line exists. */
+.call-pending {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+.call-pending-title {
+  font-weight: 600;
+  margin: 0;
+}
+.call-pending form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn svg {
+  flex: none;
+  margin-right: 8px;
+}
