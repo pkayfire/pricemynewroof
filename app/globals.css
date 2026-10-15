@@ -683,10 +683,6 @@ body > main {
   font-variant-numeric: tabular-nums;
   line-height: 1.15;
 }
-.top-quote-note {
-  font-size: 14px;
-  color: var(--slate);
-}
 .top-quote-btn {
   flex: 0 1 auto;
 }
