@@ -1,5 +1,6 @@
 import type { Drivers, EstimateOption, EstimateView, Measurements, OptionId } from "@/lib/api/types";
 import {
+  callPitchHeading,
   formatRange,
   formatShare,
   oldImageryNote,
@@ -10,7 +11,7 @@ import { referralSentence } from "@/lib/site/copy";
 import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
-import { CallCta } from "./CallCta";
+import { CallCta, StickyCallBar } from "./CallCta";
 import { QuoteLink } from "./QuoteLink";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
@@ -88,10 +89,10 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
     <>
       {types[0] === "call" && (
         <div className="call-pitch">
-          <h3 className="h3">Want an exact price?</h3>
+          <h3 className="h3">{callPitchHeading(estimate.options[0])}</h3>
           <p>
-            This estimate can&apos;t see your decking, underlayment or flashing. A local roofer can check those and give
-            you a firm quote.
+            This estimate can&apos;t see your decking, underlayment or flashing. On the call, a local roofer asks a few
+            questions about your roof and, if you want, sets up a visit to check those and give you a firm quote.
           </p>
         </div>
       )}
@@ -165,5 +166,19 @@ export function TopQuoteBar({ estimate }: { estimate: EstimateView }) {
       </div>
       <PrimaryCta estimate={estimate} position="top" className="btn btn-primary top-quote-btn" />
     </section>
+  );
+}
+
+/** Phone-width call bar for the call test (covered areas whose first lead type is call). */
+export function StickyCall({ estimate }: { estimate: EstimateView }) {
+  const first = estimate.options?.[0];
+  if (estimate.coverage?.covered !== true || estimate.coverage.leadTypes[0] !== "call" || !first) return null;
+  return (
+    <StickyCallBar
+      estimateId={estimate.estimateId}
+      trackingNumber={estimate.coverage.trackingNumber ?? null}
+      label={first.name}
+      range={formatRange(first.low, first.high)}
+    />
   );
 }

@@ -1357,3 +1357,43 @@ body > main {
     width: 100%;
   }
 }
+
+/* Phone-width sticky call bar (Oct 14). Hidden on wider screens, where the top bar stays close. */
+.sticky-call {
+  display: none;
+}
+@media (max-width: 600px) {
+  .sticky-call:not([hidden]) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 2px solid var(--asphalt);
+  }
+  .sticky-call-price {
+    min-width: 0;
+  }
+  .sticky-call-label {
+    font-size: 14px;
+    color: var(--slate);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sticky-call-range {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .sticky-call .btn {
+    flex: none;
+  }
+}

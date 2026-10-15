@@ -1,5 +1,5 @@
 // Pure display helpers for estimate data. Location text is always generated from data.
-import type { CurrentRoof, Drivers, Fallback, WageSource } from "@/lib/api/types";
+import type { CurrentRoof, Drivers, EstimateOption, Fallback, WageSource } from "@/lib/api/types";
 import { WIDENING } from "@/lib/engine/estimate";
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -117,4 +117,9 @@ export function oldImageryNote(fallbacks: Fallback[], imageryDate: string | null
 
 export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** "Narrow $25,000-$41,500 to one price" from the first option; the v2 heading if there's no option. */
+export function callPitchHeading(first: Pick<EstimateOption, "low" | "high"> | undefined): string {
+  return first ? `Narrow ${formatRange(first.low, first.high)} to one price` : "Want an exact price?";
 }

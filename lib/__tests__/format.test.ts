@@ -9,6 +9,7 @@ import {
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
+  callPitchHeading,
 } from "../format";
 import { referralDisclosure, referralSentence } from "../site/copy";
 
@@ -69,5 +70,10 @@ describe("referral copy", () => {
     expect(referralSentence("manual", true)).toContain("They pay us for the referral.");
     expect(referralDisclosure("manual", false)).not.toMatch(/pay/);
     expect(referralDisclosure("manual", false)).toContain("not a roofing contractor");
+  });
+
+  it("puts the first option's range in the call pitch heading", () => {
+    expect(callPitchHeading({ low: 25000, high: 41500 })).toBe(`Narrow ${formatRange(25000, 41500)} to one price`);
+    expect(callPitchHeading(undefined)).toBe("Want an exact price?");
   });
 });
