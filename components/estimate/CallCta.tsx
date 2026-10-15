@@ -10,6 +10,10 @@ import { callEventId } from "@/lib/openai-ads/event-id";
 import { EmailEstimateForm } from "./EmailEstimateForm";
 
 export const CALL_CTA = "Call for exact quotes";
+/** Shown under the button. Both are true of a call whether or not a roofer is booked. */
+export const CALL_NOTE = "Free call. No obligation.";
+/** Recorded on call_click so results can be split by CTA copy (v1: Oct 12, v2: Oct 14 value copy). */
+export const CALL_CTA_VERSION = "v2";
 
 function PhoneIcon() {
   return (
@@ -31,14 +35,18 @@ export function CallCta({
   className: string;
 }) {
   const [clicked, setClicked] = useState(false);
-  const record = () => track("call_click", { position, event_id: callEventId(estimateId), has_number: trackingNumber !== null });
+  const record = () =>
+    track("call_click", { position, event_id: callEventId(estimateId), has_number: trackingNumber !== null, cta_version: CALL_CTA_VERSION });
 
   if (trackingNumber)
     return (
-      <a href={`tel:${trackingNumber}`} className={className} onClick={record}>
-        <PhoneIcon />
-        {CALL_CTA}
-      </a>
+      <div className="call-cta-wrap">
+        <a href={`tel:${trackingNumber}`} className={className} onClick={record}>
+          <PhoneIcon />
+          {CALL_CTA}
+        </a>
+        <p className="call-note">{CALL_NOTE}</p>
+      </div>
     );
 
   if (clicked)
@@ -54,16 +62,19 @@ export function CallCta({
     );
 
   return (
-    <button
-      type="button"
-      className={className}
-      onClick={() => {
-        record();
-        setClicked(true);
-      }}
-    >
-      <PhoneIcon />
-      {CALL_CTA}
-    </button>
+    <div className="call-cta-wrap">
+      <button
+        type="button"
+        className={className}
+        onClick={() => {
+          record();
+          setClicked(true);
+        }}
+      >
+        <PhoneIcon />
+        {CALL_CTA}
+      </button>
+      <p className="call-note">{CALL_NOTE}</p>
+    </div>
   );
 }

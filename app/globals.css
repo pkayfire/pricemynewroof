@@ -1332,3 +1332,32 @@ body > main {
   flex: none;
   margin-right: 8px;
 }
+
+/* Call CTA v2 (Oct 14): a short pitch above the sheet button and a note under each call button. */
+.call-cta-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.top-quote .call-cta-wrap {
+  align-items: center;
+}
+.call-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--slate);
+  text-align: center;
+}
+.call-pitch {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.call-pitch p {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .top-quote .call-cta-wrap {
+    width: 100%;
+  }
+}

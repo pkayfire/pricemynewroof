@@ -87,6 +87,15 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
   const tracking = estimate.coverage?.trackingNumber ?? null;
   return (
     <>
+      {types[0] === "call" && (
+        <div className="call-pitch">
+          <h3 className="h3">Want an exact price?</h3>
+          <p>
+            This estimate can&apos;t see your decking, underlayment or flashing. A local roofer can check those and give
+            you a firm quote.
+          </p>
+        </div>
+      )}
       <PrimaryCta estimate={estimate} position="sheet" className="btn btn-primary btn-block" />
       {types[0] !== "call" && types.includes("call") && tracking && (
         <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position="sheet" className="btn btn-secondary btn-block" />

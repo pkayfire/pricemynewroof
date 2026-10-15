@@ -20,7 +20,9 @@
       "id": "adgrp_6ac99e4c6028819bbac6710c9967dc5a",
       "max_cpc_usd": 3,
       "ad_id": "ad_6ac99e4e63c4819dba02a1f371af112e",
-      "tracking": "repair-or-replace"
+      "tracking": "repair-or-replace",
+      "status": "paused",
+      "paused_note": "Paused Oct 14, 2026: 1 address from 31 ad visits (Oct 10-14) vs Cost research 14 of 53; its budget share goes to Cost research."
     },
     {
       "name": "Cost research",
