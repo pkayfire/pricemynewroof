@@ -100,10 +100,8 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
       {types[0] !== "call" && types.includes("call") && tracking && (
         <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position="sheet" className="btn btn-secondary btn-block" />
       )}
-      <p className="referral">
-        {/* The call test forwards nothing, so the forwarding sentence applies only to the form. */}
-        {types.includes("form") && `${referralSentence()} `}Price My New Roof is a referral service, not a roofing contractor.
-      </p>
+      {/* DECISION (Oct 14): the referral disclosure lives in the site footer; the form keeps its forwarding sentence. */}
+      {types.includes("form") && <p className="referral">{referralSentence()}</p>}
     </>
   );
 }
@@ -163,7 +161,6 @@ export function TopQuoteBar({ estimate }: { estimate: EstimateView }) {
       <div className="top-quote-price">
         <div className="top-quote-label">{first.name}</div>
         <div className="top-quote-range">{formatRange(first.low, first.high)}</div>
-        <div className="top-quote-note">A general estimate, not a quote.</div>
       </div>
       <PrimaryCta estimate={estimate} position="top" className="btn btn-primary top-quote-btn" />
     </section>
