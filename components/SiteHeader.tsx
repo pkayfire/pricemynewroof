@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "./analytics/TrackedLink";
 import { BrandMark } from "./BrandMark";
 import { SITE_NAME } from "@/lib/site/config";
 
@@ -10,9 +11,9 @@ export function SiteHeader() {
           <BrandMark />
           <span className="brand-name">{SITE_NAME}</span>
         </Link>
-        <Link href="/how-we-estimate" className="header-link">
+        <TrackedLink href="/how-we-estimate" className="header-link" target="how_we_estimate" position="header">
           How we estimate
-        </Link>
+        </TrackedLink>
       </div>
     </header>
   );

@@ -1,5 +1,5 @@
 // Pure display helpers for estimate data. Location text is always generated from data.
-import type { CurrentRoof, Drivers, Fallback, Measurements, WageSource } from "@/lib/api/types";
+import type { CurrentRoof, Drivers, Fallback, WageSource } from "@/lib/api/types";
 import { WIDENING } from "@/lib/engine/estimate";
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -59,30 +59,9 @@ export function locationText(areaName: string, wageSource: WageSource): string {
   }
 }
 
-/** The line under the sheet heading. */
+/** The line under the sheet heading. The "not a quote" disclosure is in the site footer (Oct 14). */
 export function sheetSubtitle(drivers: Pick<Drivers, "areaName" | "wageSource">): string {
-  return `${locationText(drivers.areaName, drivers.wageSource)} A general estimate, not a quote.`;
-}
-
-/** Wage phrase for the sources line. */
-export function wagePhrase(wageSource: WageSource): string {
-  switch (wageSource) {
-    case "metro":
-      return "BLS wage data for your area";
-    case "state":
-      return "BLS wage data for your state";
-    case "national":
-      return "national BLS wage data";
-  }
-}
-
-export function sourcesSentence(drivers: Pick<Drivers, "wageSource">, measurements: Pick<Measurements, "source"> | null): string {
-  const base = `Based on national installed costs, ${wagePhrase(drivers.wageSource)} and the BLS producer price index.`;
-  const limit =
-    measurements?.source === "home_size"
-      ? "We estimated the roof from your home's size, and we can't see underlayment or damaged decking."
-      : "Satellite data can't show underlayment or damaged decking.";
-  return `${base} ${limit}`;
+  return locationText(drivers.areaName, drivers.wageSource);
 }
 
 export const CURRENT_ROOF_LABELS: Record<CurrentRoof, string> = {
