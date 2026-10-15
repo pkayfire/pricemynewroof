@@ -114,6 +114,7 @@ export const FUNNEL_EVENTS = [
   "explanation_shown",
   "scroll_depth",
   "cta_seen",
+  "link_click",
   "page_time",
   "quote_click",
   "call_click",

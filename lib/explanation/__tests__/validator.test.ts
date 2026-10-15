@@ -63,7 +63,7 @@ describe("validateExplanation", () => {
     expect(ok("Your roof is about 20 squares. Labor adds thousands of dollars.").failures).toContain("mentions money");
   });
 
-  it.each(["guaranteed", "exact", "exactly", "promise", "best price", "cheapest"])("rejects the banned term %s", (term) => {
+  it.each(["guaranteed", "exact", "exactly", "promise", "best price", "cheapest", "uncertain", "uncertainty"])("rejects the banned term %s", (term) => {
     const r = ok(`Your roof is about 20 squares. This is the ${term} figure for the Phoenix area.`);
     expect(r.ok).toBe(false);
     expect(r.failures.some((f) => f.startsWith("banned term"))).toBe(true);

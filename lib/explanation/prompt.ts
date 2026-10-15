@@ -19,7 +19,8 @@ What the fields mean:
 - laborVsNational: local roofer wages compared with the national average (-0.08 means 8% below, 0.06 means 6% above).
 - materialTrendSinceBase: change in roofing material prices since the base date (0.03 means 3% higher).
 - shares: how the first option's cost splits between labor, materials and other costs (tear-off, overhead, steep-roof work and permit).
-- confidence and fallbacks: how sure the estimate is and what had to be approximated.
+- fallbacks: what had to be approximated.
+- confidence: ignore it. Don't comment on how sure or uncertain the estimate is.
 
 Area naming:
 - wageSource "metro": call it "the {areaName} area".
@@ -31,7 +32,7 @@ Strict rules:
 - Write numbers as digits, never as words. Don't write "one of"; don't count things that aren't in the JSON.
 - The only pitch you may mention is maxPitch.
 - Never mention dollar amounts, prices or costs in money.
-- Never use the words guaranteed, exact, exactly, promise, best price or cheapest. Make no promises.
+- Never use the words guaranteed, exact, exactly, promise, best price, cheapest, uncertain or uncertainty. Make no promises.
 - Output only the sentences: no heading, no list, no quotation marks.`;
 
 export function userMessage(drivers: Drivers): string {

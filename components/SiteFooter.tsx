@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BUSINESS, businessLine } from "@/lib/site/business";
+import { TrackedLink } from "./analytics/TrackedLink";
 import { referralDisclosure } from "@/lib/site/copy";
 
 export function SiteFooter() {
@@ -15,7 +16,9 @@ export function SiteFooter() {
               <Link href="/contact">Contact</Link>
             </li>
             <li>
-              <Link href="/how-we-estimate">How we estimate</Link>
+              <TrackedLink href="/how-we-estimate" target="how_we_estimate" position="footer">
+                How we estimate
+              </TrackedLink>
             </li>
             <li>
               <Link href="/privacy">Privacy</Link>

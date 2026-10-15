@@ -9,7 +9,6 @@ import {
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
-  sourcesSentence,
 } from "../format";
 import { referralDisclosure, referralSentence } from "../site/copy";
 
@@ -35,15 +34,8 @@ describe("format helpers", () => {
     expect(locationText("Montana", "state")).toBe("For homes in Montana.");
     expect(locationText("U.S.", "national")).toBe("Based on national averages.");
     expect(sheetSubtitle({ areaName: "Eastern Montana", wageSource: "metro" })).toBe(
-      "For the Eastern Montana area. A general estimate, not a quote.",
+      "For the Eastern Montana area.",
     );
-  });
-
-  it("always includes the satellite limitation in the sources line", () => {
-    expect(sourcesSentence({ wageSource: "metro" }, { source: "solar" })).toContain(
-      "Satellite data can't show underlayment or damaged decking.",
-    );
-    expect(sourcesSentence({ wageSource: "state" }, { source: "home_size" })).toContain("BLS wage data for your state");
   });
 
   it("explains widened ranges from the engine's widening table", () => {

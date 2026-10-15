@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Drivers, EstimateOption, EstimateView, Measurements, OptionId } from "@/lib/api/types";
 import {
   formatRange,
@@ -6,11 +5,11 @@ import {
   oldImageryNote,
   wideningNote,
   sheetSubtitle,
-  sourcesSentence,
 } from "@/lib/format";
 import { referralSentence } from "@/lib/site/copy";
 import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { CallCta } from "./CallCta";
 import { QuoteLink } from "./QuoteLink";
 
@@ -145,7 +144,9 @@ export function EstimateSheet({
       <div className="sheet-foot">
         {covered ? <QuoteCta estimate={estimate} /> : <NoCoveragePanel estimateId={estimate.estimateId} />}
         <p className="sources">
-          {sourcesSentence(drivers, measurements)} <Link href="/how-we-estimate">How we estimate</Link>
+          <TrackedLink href="/how-we-estimate" target="how_we_estimate" position="sheet" estimateId={estimate.estimateId}>
+            How we estimate
+          </TrackedLink>
         </p>
       </div>
     </section>

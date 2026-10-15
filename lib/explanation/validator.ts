@@ -14,6 +14,8 @@ export const BANNED_TERMS: ReadonlyArray<{ term: string; re: RegExp }> = [
   { term: "promise", re: /\bpromis/i },
   { term: "best price", re: /\bbest\s+price/i },
   { term: "cheapest", re: /\bcheapest\b/i },
+  // Owner decision (Oct 14): no hedging about how sure the estimate is.
+  { term: "uncertain", re: /\buncertain/i },
 ];
 
 export interface ValidationResult {
