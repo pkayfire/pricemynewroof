@@ -23,8 +23,8 @@ describe("config loader", () => {
     expect(() => checkConfig({ version: 1 }, "development")).toThrow(/invalid config/);
   });
 
-  it("reads CONFIG_VERSION, defaulting to 2", () => {
-    expect(configVersionFromEnv(undefined)).toBe(2);
+  it("reads CONFIG_VERSION, defaulting to 3", () => {
+    expect(configVersionFromEnv(undefined)).toBe(3);
     expect(configVersionFromEnv("3")).toBe(3);
     expect(() => configVersionFromEnv("x")).toThrow(ConfigError);
     expect(() => loadConfig(999)).toThrow(/not found/);

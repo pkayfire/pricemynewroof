@@ -151,7 +151,9 @@ describe("location factors", () => {
 
 describe("options shown", () => {
   it("shows lift and relay, new tile, shingle in a tile state", () => {
-    expect(optionsShown("AZ", undefined, config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
+    expect(optionsShown("AZ", undefined, config)).toEqual(["architectural_shingle", "concrete_tile", "lift_and_relay"]);
+    expect(optionsShown("CA", "not_sure", config)).toEqual(["architectural_shingle", "concrete_tile", "lift_and_relay"]);
+    expect(optionsShown("CA", "tile", config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
     expect(optionsShown("TX", "shingle", config)).toEqual(["architectural_shingle", "concrete_tile"]);
     expect(optionsShown("TX", "tile", config)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
   });
@@ -213,8 +215,9 @@ describe("computeEstimate", () => {
   });
 
   it("reproduces the spec's worked shares example (0.59 / 0.20 / 0.21)", () => {
-    // 20.4 squares, 9 planes (12% waste), 30% steep at 8/12, Arizona metro wage 0.92 of national, PPI +3%.
-    const r = ok(computeEstimate(solar("worked-example"), loc("85032"), config));
+    // 20.4 squares, 9 planes (12% waste), 30% steep at 8/12, Arizona metro wage 0.92 of national, PPI +3%,
+    // current roof tile (so lift and relay leads).
+    const r = ok(computeEstimate(solar("worked-example"), loc("85032"), config, { currentRoof: "tile" }));
     expect(r.drivers).toMatchObject({
       squares: 20.4,
       sections: 9,

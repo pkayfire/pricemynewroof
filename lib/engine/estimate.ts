@@ -93,11 +93,13 @@ export function materialRatioOf(option: OptionId, config: BuiltConfig): number {
   return ppi.latestValue / ppi.baseValue;
 }
 
-/** Options shown, in order. */
+/**
+ * Options shown, in order. Tile leads only when the homeowner says the roof is tile; in tile-common
+ * states shingle leads and the tile options follow (owner decision, Oct 14: most homes there are shingle).
+ */
 export function optionsShown(state: string, currentRoof: CurrentRoof | undefined, config: BuiltConfig): OptionId[] {
-  if (currentRoof === "tile" || config.tileStates.includes(state)) {
-    return ["lift_and_relay", "concrete_tile", "architectural_shingle"];
-  }
+  if (currentRoof === "tile") return ["lift_and_relay", "concrete_tile", "architectural_shingle"];
+  if (config.tileStates.includes(state)) return ["architectural_shingle", "concrete_tile", "lift_and_relay"];
   return ["architectural_shingle", "concrete_tile"];
 }
 

@@ -61,7 +61,8 @@ describe("POST /api/estimate service", () => {
       methodUrl: "https://example.test/how-we-estimate",
       detailsUrl: "https://example.test/estimate/00000000-0000-4000-8000-000000000001",
     });
-    expect(r.options.map((o) => o.id)).toEqual(["lift_and_relay", "concrete_tile", "architectural_shingle"]);
+    // Arizona is a tile state; without "tile" as the current roof, shingle leads (Oct 14).
+    expect(r.options.map((o) => o.id)).toEqual(["architectural_shingle", "concrete_tile", "lift_and_relay"]);
     for (const o of r.options) {
       expect(Object.keys(o).sort()).toEqual(["high", "id", "low", "name", "note"]);
       expect(Number.isInteger(o.low) && Number.isInteger(o.high)).toBe(true);
@@ -69,7 +70,7 @@ describe("POST /api/estimate service", () => {
     expect(Object.keys(r.measurements!.segments[0]).sort()).toEqual(
       ["areaSqft", "azimuth", "center", "compass", "letter", "pitch", "pitchDegrees"].sort(),
     );
-    expect(r.drivers?.confidence).toBe("low");
+    expect(r.drivers?.confidence).toBe("high");
     expect(calls).toEqual({ places: 1, solar: 1 });
 
     const rec = await store.get(r.estimateId);

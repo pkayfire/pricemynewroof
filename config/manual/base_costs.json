@@ -5,7 +5,7 @@
   "unit": "USD per roofing square (100 sq ft), installed, all-in including tear-off, national",
   "options": {
     "architectural_shingle": {
-      "name": "Architectural shingle",
+      "name": "Asphalt shingle",
       "low": 550,
       "high": 900,
       "shares": { "labor": 0.55, "material": 0.3, "other": 0.15 },

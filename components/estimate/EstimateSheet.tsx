@@ -18,7 +18,7 @@ export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
 
 /** Shown when the engine gives an option no note of its own (accepted option-note copy). */
 const DEFAULT_NOTES: Record<OptionId, string | null> = {
-  architectural_shingle: "Full tear-off, new underlayment and architectural shingles.",
+  architectural_shingle: "Full tear-off, new underlayment and architectural (dimensional) asphalt shingles.",
   concrete_tile: "Full tear-off, new tile and underlayment.",
   lift_and_relay: null,
 };

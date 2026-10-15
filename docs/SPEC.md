@@ -164,8 +164,11 @@ Notes: RoofCost Florida is an independent pricing guide, not a roofer; no South 
 
 **Options shown**
 
-- Current roof is tile, or state is in the tile list: lift and relay, new concrete tile, architectural shingle.
-- Otherwise: architectural shingle first, concrete tile as an option.
+- Current roof is tile: lift and relay, new concrete tile, asphalt shingle.
+- State is in the tile list (current roof not tile): asphalt shingle, new concrete tile, lift and relay.
+- Otherwise: asphalt shingle first, concrete tile as an option.
+
+The shingle option (id `architectural_shingle`) is labeled "Asphalt shingle"; its note says "architectural (dimensional) asphalt shingles".
 
 **Drivers object (returned with every estimate)**
 
@@ -183,7 +186,7 @@ Notes: RoofCost Florida is an independent pricing guide, not a roofer; no South 
 
 The same object drives the cost-breakdown bar and the explanation, so they can never disagree. `sharesOption` is the id of the first option shown; the UI labels the bar with that option's name.
 
-Worked example for the shares above (Arizona is a tile state, so lift and relay is shown first). It uses the midpoint steep adder ($100 per square) and a 2% permit (see Build decisions). 20.4 squares × 1.12 waste = 22.85; midpoint base $725; 30% of squares steep = 6.12.
+Worked example for the shares above (an Arizona roof the homeowner says is tile, so lift and relay is shown first). It uses the midpoint steep adder ($100 per square) and a 2% permit (see Build decisions). 20.4 squares × 1.12 waste = 22.85; midpoint base $725; 30% of squares steep = 6.12.
 
 | Part | Calculation | Dollars |
 | --- | --- | --- |
@@ -608,6 +611,7 @@ Answers to pre-build questions. These override anything above that they contradi
 - Fewer disclaimers on the estimate (Oct 14, owner decision): the top price bar drops "A general estimate, not a quote." and the call CTA drops "Price My New Roof is a referral service, not a roofing contractor." The sheet subtitle still says "A general estimate, not a quote.", and the site footer still carries the referral disclosure. The quote form, when on, keeps its forwarding sentence.
 - Leaner estimate sheet (Oct 14, owner decision): the sheet subtitle is the location line only; "A general estimate, not a quote." now appears on the estimate page only in the site footer. The sources sentence under the sheet is replaced by a "How we estimate" link alone. The "Why this price" note no longer comments on how sure the estimate is: the prompt says to ignore `confidence`, and the validator bans "uncertain"/"uncertainty", which also retires cached notes that used them.
 - `link_click` (Oct 14): client event with `target`, `position` (`sheet`, `header`, `footer`) and `estimate_id` on the sheet. Tracks the How we estimate links to see whether estimate viewers leave through them. Before this, 1 of 27 estimate sessions (0 of 15 from ads) later viewed How we estimate.
+- Shingle first (Oct 14, owner decision): in tile-list states, tile options lead only when the homeowner picks Tile; otherwise asphalt shingle leads and the tile options follow, so the top bar, call pitch and sticky bar show a price that fits most homes. The shingle option is renamed "Asphalt shingle" (config v3; only the name changed from v2). Estimates saved before this keep their stored order and name until they expire.
 - Call CTA v3 (Oct 14): the sheet pitch heading uses the first option's range ("Narrow $25,000–$41,500 to one price"), and the body says what happens on the call ("a local roofer asks a few questions about your roof and, if you want, sets up a visit to check those and give you a firm quote"; confirm against Service Direct's call flow before buying calls). Phones (600px and under) get a call bar fixed to the bottom of the screen with the first option and range, shown only while neither the top price bar nor the sheet's call button is on screen. Without a tracking number it records `call_click` (`position: "sticky"`) and scrolls to the sheet, where the pending note opens; `cta_seen` with `position: "sticky"` fires the first time it shows. `cta_version` is `v3`.
 - Extra tables beyond the data model: `rate_limits` and `do_not_sell_requests`.
 
