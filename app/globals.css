@@ -1319,7 +1319,8 @@ body > main {
   font-weight: 600;
   margin: 0;
 }
-.call-pending form {
+.call-pending form,
+.measurements-offer form {
   display: flex;
   flex-direction: column;
   gap: 10px;
