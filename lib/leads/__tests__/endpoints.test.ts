@@ -1,3 +1,4 @@
+import { estimateEmail } from "@/lib/email/templates";
 import { describe, expect, it } from "vitest";
 import { CLIENT_EVENTS, FUNNEL_EVENTS, SERVER_ONLY_EVENTS } from "@/lib/api/contracts";
 import { handleDoNotSellPost, handleEmailEstimatePost, handleEventsPost } from "@/lib/leads/endpoints";
@@ -48,7 +49,7 @@ describe("POST /api/events", () => {
   it("has the spec's funnel events in order; lead_created, lead_forwarded and call_qualified are server-only", () => {
     expect(FUNNEL_EVENTS).toEqual([
       "page_view", "address_entered", "measured", "fallback_shown", "estimate_shown", "explanation_shown", "scroll_depth", "cta_seen", "link_click", "page_time", "quote_click",
-      "call_click", "form_submit", "email_estimate", "lead_created", "lead_forwarded", "call_qualified",
+      "call_click", "measurements_click", "form_submit", "email_estimate", "lead_created", "lead_forwarded", "call_qualified",
     ]);
     expect(SERVER_ONLY_EVENTS).toEqual(["lead_created", "lead_forwarded", "call_qualified"]);
     expect(CLIENT_EVENTS).not.toContain("lead_created");
@@ -111,6 +112,20 @@ describe("POST /api/events", () => {
     for (let i = 0; i < 600; i++) await d.limiter.hit("events", (await import("@/lib/ratelimit")).limitKey("ip", "203.0.113.7"), 600, 3600);
     const res = await handleEventsPost(postJson("/api/events", { sessionId: "s", name: "page_view" }), deps);
     expect(res.status).toBe(429);
+  });
+});
+
+describe("estimate email", () => {
+  it("links to the measured roof on the map, never listing Solar measurements, and says when they expire", async () => {
+    const s = m4Setup();
+    await s.estimates.insert(estimateRecord());
+    const view = (await s.getEstimate(ESTIMATE_ID))!;
+    const measured = { ...view, measurements: { source: "solar", squares: 20.4, totalAreaSqft: 2040, maxPitch: "8/12" } } as unknown as typeof view;
+    const text = estimateEmail({ to: "a@example.org", signupId: "s1", estimate: measured, notifyWhenCovered: false, siteUrl: "https://example.test/" }).text;
+    expect(text).toContain("Your measured roof (area, pitch and every roof plane on the satellite map)");
+    expect(text).toContain(`https://example.test/estimate/${ESTIMATE_ID}`);
+    expect(text).toContain("available until November 2, 2026");
+    for (const raw of ["2040", "2,040", "20.4", "8/12"]) expect(text).not.toContain(raw);
   });
 });
 

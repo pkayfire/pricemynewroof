@@ -9,7 +9,21 @@ import { track } from "@/lib/analytics/client";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** "Email me this estimate", with an opt-in to hear when roofers are available (notify_when_covered). */
-export function EmailEstimateForm({ estimateId, notifyLabel, source }: { estimateId: string; notifyLabel: string; source?: string }) {
+export function EmailEstimateForm({
+  estimateId,
+  notifyLabel,
+  source,
+  label = "Email me this estimate",
+  submitLabel = "Email my estimate",
+  sentLabel = "this estimate",
+}: {
+  estimateId: string;
+  notifyLabel: string;
+  source?: string;
+  label?: string;
+  submitLabel?: string;
+  sentLabel?: string;
+}) {
   const id = useId();
   const [email, setEmail] = useState("");
   const [notify, setNotify] = useState(false);
@@ -45,14 +59,14 @@ export function EmailEstimateForm({ estimateId, notifyLabel, source }: { estimat
     <>
       {state === "sent" ? (
         <p className="note" role="status">
-          <strong>Thanks.</strong> We&apos;ll email this estimate to {email.trim()}
+          <strong>Thanks.</strong> We&apos;ll email {sentLabel} to {email.trim()}
           {notify ? ", and let you know when roofers are available." : "."}
         </p>
       ) : (
         <form onSubmit={onSubmit} noValidate>
           <div className="field">
             <label htmlFor={`${id}-email`} className="label">
-              Email me this estimate
+              {label}
             </label>
             <input
               id={`${id}-email`}
@@ -76,7 +90,7 @@ export function EmailEstimateForm({ estimateId, notifyLabel, source }: { estimat
             </p>
           )}
           <button type="submit" className="btn btn-primary btn-block" aria-disabled={state === "sending" || undefined}>
-            {state === "sending" ? "Sending…" : "Email my estimate"}
+            {state === "sending" ? "Sending…" : submitLabel}
           </button>
           <p className="fine muted">
             We use your email only to send this estimate and, if you tick the box, one message when roofers are
