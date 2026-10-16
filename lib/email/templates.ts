@@ -1,4 +1,5 @@
 // Email bodies. Plain text for now; restyle with the provider.
+import { formatImageryDate } from "@/lib/format";
 import { TIMING_OPTIONS, type Timing } from "@/lib/api/contracts";
 import type { EstimateView } from "@/lib/estimates/view";
 import type { EmailMessage } from "./index";
@@ -43,7 +44,16 @@ export function estimateEmail(args: { to: string; signupId: string; estimate: Es
   lines.push(
     ``,
     `A general estimate, not a quote. Actual prices depend on an on-site inspection.`,
-    `See it again: ${site(args.siteUrl)}/estimate/${e.estimateId}`,
+    ``,
+    // DECISION (Oct 15): measurements are Google Solar data, which may be shown only on a Google map
+    // and kept 30 days, so the email links to the map page instead of listing area or pitch.
+    ...(e.measurements
+      ? [
+          `Your measured roof (area, pitch and every roof plane on the satellite map), to share with roofers for a quick ballpark:`,
+          `${site(args.siteUrl)}/estimate/${e.estimateId}`,
+          `The measurements are available until ${formatImageryDate(e.expiresAt.slice(0, 10))}.`,
+        ]
+      : [`See it again: ${site(args.siteUrl)}/estimate/${e.estimateId}`]),
     `How we estimate: ${site(args.siteUrl)}/how-we-estimate`,
     ``,
   );

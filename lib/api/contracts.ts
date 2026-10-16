@@ -118,6 +118,7 @@ export const FUNNEL_EVENTS = [
   "page_time",
   "quote_click",
   "call_click",
+  "measurements_click",
   "form_submit",
   "email_estimate",
   "lead_created",

@@ -12,6 +12,7 @@ import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { CallCta, StickyCallBar } from "./CallCta";
+import { MeasurementsOffer } from "./MeasurementsOffer";
 import { QuoteLink } from "./QuoteLink";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
@@ -97,6 +98,7 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
         </div>
       )}
       <PrimaryCta estimate={estimate} position="sheet" className="btn btn-primary btn-block" />
+      {types[0] === "call" && <MeasurementsOffer estimateId={estimate.estimateId} />}
       {types[0] !== "call" && types.includes("call") && tracking && (
         <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position="sheet" className="btn btn-secondary btn-block" />
       )}

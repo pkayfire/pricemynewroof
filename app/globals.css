@@ -1397,3 +1397,8 @@ body > main {
     flex: none;
   }
 }
+
+/* After a call tap, the pending note carries its own email form; don't show a second one. */
+.call-pending ~ .measurements-offer {
+  display: none;
+}
