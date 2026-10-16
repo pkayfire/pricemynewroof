@@ -35,7 +35,8 @@ function markerElement(seg: Segment): HTMLDivElement {
     path.setAttribute("d", "M0 6 V-6 M-4 -2 L0 -6 L4 -2");
     path.setAttribute("transform", `rotate(${seg.azimuth})`);
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "#22262A");
+    path.setAttribute("stroke", "#22262A"); // fallback; the style below follows the marker token
+    path.style.stroke = "var(--marker-ink)";
     path.setAttribute("stroke-width", "1.9");
     path.setAttribute("stroke-linecap", "round");
     path.setAttribute("stroke-linejoin", "round");

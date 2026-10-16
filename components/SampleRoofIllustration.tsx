@@ -1,6 +1,8 @@
 // Landing hero: a drawn sample roof with plane markers. It's an illustration, never real
 // satellite imagery and never Solar API data (docs/SPEC.md "Landing hero visual").
 // Letters run strictly largest plane first (Build decisions, mockup fixes).
+// Like the satellite map, the drawing and its markers look the same in light and dark mode;
+// marker colors come from the --marker-* tokens in app/globals.css.
 
 interface SampleMarker {
   x: number;
@@ -25,25 +27,25 @@ function Marker({ m }: { m: SampleMarker }) {
   const ay = m.y + 15;
   return (
     <g>
-      <rect x={m.x} y={m.y} width="96" height="30" rx="15" fill="#FFFFFF" stroke="#2F6FD0" strokeWidth="1.5" />
+      <rect x={m.x} y={m.y} width="96" height="30" rx="15" strokeWidth="1.5" style={{ fill: "var(--marker-bg)", stroke: "var(--marker-accent)" }} />
       <text
         x={m.x + 10}
         y={m.y + 20}
         fontFamily="var(--font-barlow-sc), Barlow Semi Condensed, sans-serif"
         fontWeight="700"
         fontSize="17"
-        fill="#22262A"
+        style={{ fill: "var(--marker-ink)" }}
       >
         {m.letter}
       </text>
-      <text x={m.x + 28} y={m.y + 20} fontFamily="var(--font-barlow), Barlow, sans-serif" fontSize="14" fill="#2F6FD0">
+      <text x={m.x + 28} y={m.y + 20} fontFamily="var(--font-barlow), Barlow, sans-serif" fontSize="14" style={{ fill: "var(--marker-accent)" }}>
         {m.pitch}
       </text>
       <path
         transform={`translate(${ax} ${ay}) rotate(${m.azimuth})`}
         d="M0 6 V-6 M-4 -2 L0 -6 L4 -2"
         fill="none"
-        stroke="#22262A"
+        style={{ stroke: "var(--marker-ink)" }}
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
