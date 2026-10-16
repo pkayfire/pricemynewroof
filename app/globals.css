@@ -628,14 +628,6 @@ body > main {
     padding-top: 4px;
   }
 }
-.referral-note {
-  padding-top: 40px;
-  padding-bottom: 56px;
-}
-.referral-note p {
-  max-width: 720px;
-  color: var(--slate);
-}
 
 /* ---------- Estimate page ---------- */
 .estimate-main {

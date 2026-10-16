@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AddressForm } from "@/components/AddressForm";
 import { SampleRoofIllustration } from "@/components/SampleRoofIllustration";
-import { referralDisclosure } from "@/lib/site/copy";
 import { LANDING_LEDE, landingHeadline } from "@/lib/site/landing-copy";
 
 export const metadata: Metadata = {
@@ -67,10 +66,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
             </div>
           </dl>
         </div>
-      </section>
-
-      <section className="container referral-note" aria-label="About this service">
-        <p>{referralDisclosure()}</p>
       </section>
     </main>
   );
