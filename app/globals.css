@@ -2,17 +2,30 @@
    Tokens, type scale and components. No shadows, no gradients, left-aligned. */
 
 :root {
+  color-scheme: light;
   --concrete: #eff1f0; /* page background */
   --surface: #ffffff; /* panels, sheet, table, header */
-  --asphalt: #22262a; /* text, primary buttons, heavy rules, footer */
+  --asphalt: #22262a; /* text, links, focus rings */
   --slate: #4a5259; /* secondary text */
   --galvanized: #8c969d; /* input borders, "other" bar segment */
   --rule: #cdd3d6; /* borders */
   --rule-light: #e1e5e7; /* row dividers */
-  --chalk: #2f6fd0; /* measurements, the brand mark square and primary (CTA) buttons */
+  --rule-heavy: #22262a; /* heavy rules: sheet, title block, address field, total rows */
+  --chalk: #2f6fd0; /* the brand mark square, primary (CTA) buttons, materials segment */
   --chalk-dark: #2659a8; /* primary button hover */
+  --chalk-text: #2f6fd0; /* measurements set as text (pitch values) */
+  --on-chalk: #ffffff; /* text on primary buttons */
+  --btn-disabled: #4a5259; /* disabled primary button (white text) */
+  --seg-labor: #22262a; /* labor segment in the breakdown bar */
   --map-bg: #3b4247; /* map placeholder while tiles load */
+  --footer-bg: #22262a;
+  --footer-border: #22262a;
   --footer-text: #e3e7e9;
+  --footer-link: #ffffff;
+  /* Plane markers sit on satellite imagery, so they keep the same colors in both modes. */
+  --marker-bg: #ffffff;
+  --marker-ink: #22262a;
+  --marker-accent: #2f6fd0;
 
   --font-body: var(--font-barlow), "Helvetica Neue", Arial, sans-serif;
   --font-head: var(--font-barlow-sc), var(--font-barlow), "Helvetica Neue", Arial, sans-serif;
@@ -21,6 +34,55 @@
   --radius-sheet: 2px;
   --gutter: 28px;
   --max: 1180px;
+}
+
+/* Dark mode follows the OS setting; data-theme="light" or "dark" on <html> forces either mode.
+   Keep the two dark blocks identical. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --concrete: #15181b;
+    --surface: #1e2226;
+    --asphalt: #e4e8ea;
+    --slate: #a8b1b7;
+    --galvanized: #7b858c;
+    --rule: #394046;
+    --rule-light: #2b3136;
+    --rule-heavy: #a3acb2;
+    --chalk: #2f6fd0;
+    --chalk-dark: #2659a8;
+    --chalk-text: #7eb0f7;
+    --on-chalk: #ffffff;
+    --btn-disabled: #4a5259;
+    --seg-labor: #dfe3e6;
+    --map-bg: #2a3034;
+    --footer-bg: #0d0f11;
+    --footer-border: #2b3136;
+    --footer-text: #c3cacf;
+    --footer-link: #ffffff;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --concrete: #15181b;
+  --surface: #1e2226;
+  --asphalt: #e4e8ea;
+  --slate: #a8b1b7;
+  --galvanized: #7b858c;
+  --rule: #394046;
+  --rule-light: #2b3136;
+  --rule-heavy: #a3acb2;
+  --chalk: #2f6fd0;
+  --chalk-dark: #2659a8;
+  --chalk-text: #7eb0f7;
+  --on-chalk: #ffffff;
+  --btn-disabled: #4a5259;
+  --seg-labor: #dfe3e6;
+  --map-bg: #2a3034;
+  --footer-bg: #0d0f11;
+  --footer-border: #2b3136;
+  --footer-text: #c3cacf;
+  --footer-link: #ffffff;
 }
 
 @media (max-width: 600px) {
@@ -98,7 +160,7 @@ p {
   top: -60px;
   background: var(--surface);
   padding: 10px 14px;
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
   border-radius: var(--radius);
   z-index: 10;
 }
@@ -230,7 +292,8 @@ body > main {
 }
 
 .site-footer {
-  background: var(--asphalt);
+  background: var(--footer-bg);
+  border-top: 1px solid var(--footer-border);
   color: var(--footer-text);
 }
 .site-footer .container {
@@ -250,13 +313,13 @@ body > main {
   list-style: none;
 }
 .footer-links a {
-  color: #ffffff;
+  color: var(--footer-link);
   min-height: 44px;
   display: inline-flex;
   align-items: center;
 }
 .site-footer :focus-visible {
-  outline-color: #ffffff;
+  outline-color: var(--footer-link);
 }
 .footer-note {
   font-size: 13px;
@@ -264,7 +327,7 @@ body > main {
   max-width: 760px;
 }
 .footer-note a {
-  color: #ffffff;
+  color: var(--footer-link);
 }
 
 /* ---------- Buttons and inputs ---------- */
@@ -284,14 +347,14 @@ body > main {
 }
 .btn-primary {
   background: var(--chalk);
-  color: #ffffff;
+  color: var(--on-chalk);
 }
 .btn-primary:hover {
   background: var(--chalk-dark);
 }
 .btn-primary[aria-disabled="true"],
 .btn-primary:disabled {
-  background: var(--slate);
+  background: var(--btn-disabled);
   cursor: progress;
 }
 /* Working (submitted): stay blue so it reads as in progress, not unavailable. */
@@ -303,7 +366,7 @@ body > main {
   width: 18px;
   height: 18px;
   border: 2.5px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #ffffff;
+  border-top-color: var(--on-chalk);
   border-radius: 50%;
   flex: none;
   animation: spin 0.8s linear infinite;
@@ -321,7 +384,7 @@ body > main {
 .btn-secondary {
   background: var(--surface);
   color: var(--asphalt);
-  border: 1px solid var(--asphalt);
+  border: 1px solid var(--rule-heavy);
   min-height: 48px;
 }
 .btn-block {
@@ -358,7 +421,7 @@ body > main {
   min-height: 56px;
   padding: 0 16px;
   font-size: 18px;
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
 }
 .field {
   display: flex;
@@ -369,7 +432,7 @@ body > main {
 .error {
   font-weight: 600;
   color: var(--asphalt);
-  border-left: 3px solid var(--asphalt);
+  border-left: 3px solid var(--rule-heavy);
   padding-left: 10px;
   font-size: 15px;
 }
@@ -440,12 +503,12 @@ body > main {
 }
 .sheet {
   background: var(--surface);
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
   border-radius: var(--radius-sheet);
 }
 .note {
   border: 1px solid var(--rule);
-  border-left: 3px solid var(--asphalt);
+  border-left: 3px solid var(--rule-heavy);
   border-radius: var(--radius);
   padding: 10px 14px;
   font-size: 15px;
@@ -506,7 +569,7 @@ body > main {
   padding: 4px 0 0;
   list-style: none;
   background: var(--surface);
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
   border-radius: var(--radius);
 }
 .suggestion {
@@ -583,13 +646,13 @@ body > main {
   flex: 2 1 520px;
   min-width: 0;
   margin: 0;
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
   border-radius: var(--radius-sheet);
 }
 .title-block > div {
   display: flex;
   flex-wrap: wrap;
-  border-top: 1px solid var(--asphalt);
+  border-top: 1px solid var(--rule-heavy);
 }
 .title-block > div:first-child {
   border-top: 0;
@@ -661,7 +724,7 @@ body > main {
   justify-content: space-between;
   gap: 12px 24px;
   background: var(--surface);
-  border: 2px solid var(--asphalt);
+  border: 2px solid var(--rule-heavy);
   border-radius: 2px;
   padding: 14px 18px;
 }
@@ -748,8 +811,8 @@ body > main {
   width: 96px;
   height: 30px;
   border-radius: 15px;
-  background: #ffffff;
-  border: 1.5px solid var(--chalk);
+  background: var(--marker-bg);
+  border: 1.5px solid var(--marker-accent);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -762,12 +825,12 @@ body > main {
   font-family: var(--font-head);
   font-weight: 700;
   font-size: 17px;
-  color: var(--asphalt);
+  color: var(--marker-ink);
   line-height: 1;
 }
 .plane-marker-pitch {
   font-size: 14px;
-  color: var(--chalk);
+  color: var(--marker-accent);
   line-height: 1;
   flex: 1 1 auto;
 }
@@ -831,7 +894,7 @@ body > main {
   font-weight: 700;
 }
 .measure-table .pitch {
-  color: var(--chalk);
+  color: var(--chalk-text);
 }
 .measure-table .dir,
 .measure-table .other-label {
@@ -844,7 +907,7 @@ body > main {
   text-align: right;
 }
 .measure-table tfoot tr {
-  border-top: 2px solid var(--asphalt);
+  border-top: 2px solid var(--rule-heavy);
 }
 .measure-table tfoot th,
 .measure-table tfoot td {
@@ -899,7 +962,7 @@ body > main {
   margin: 4px 0 12px;
 }
 .pitch-inline {
-  color: var(--chalk);
+  color: var(--chalk-text);
 }
 
 .current-roof {
@@ -989,7 +1052,7 @@ body > main {
   overflow: hidden;
 }
 .seg-labor {
-  background: var(--asphalt);
+  background: var(--seg-labor);
 }
 .seg-materials {
   background: var(--chalk);
@@ -1149,7 +1212,7 @@ body > main {
   text-align: right;
 }
 .home-size-table tfoot tr {
-  border-top: 2px solid var(--asphalt);
+  border-top: 2px solid var(--rule-heavy);
 }
 
 /* ---------- Content pages (how we estimate, legal) ---------- */
@@ -1289,7 +1352,7 @@ body > main {
 }
 .admin-table thead th {
   border-top: 0;
-  border-bottom: 2px solid var(--asphalt);
+  border-bottom: 2px solid var(--rule-heavy);
   font-weight: 600;
 }
 .admin-forward {
@@ -1368,7 +1431,7 @@ body > main {
     gap: 12px;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
     background: var(--surface);
-    border-top: 2px solid var(--asphalt);
+    border-top: 2px solid var(--rule-heavy);
   }
   .sticky-call-price {
     min-width: 0;
