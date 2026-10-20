@@ -1,7 +1,7 @@
 {
   "input": "ppi_asphalt",
   "sourceUrl": "https://data.bls.gov/timeseries/WPU1361",
-  "retrievedAt": "2026-10-03",
+  "retrievedAt": "2026-10-20",
   "sample": false,
   "family": "asphalt",
   "seriesId": "WPU1361",
@@ -9,13 +9,13 @@
   "baseDate": "2026-08",
   "base": {
     "period": "2026-08",
-    "value": 374.098,
+    "value": 373.881,
     "preliminary": true
   },
   "latest": {
-    "period": "2026-08",
-    "value": 374.098,
+    "period": "2026-09",
+    "value": 366.372,
     "preliminary": true
   },
-  "value": 374.098
+  "value": 366.372
 }

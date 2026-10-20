@@ -1,7 +1,7 @@
 {
   "input": "hud_zip_cbsa",
   "sourceUrl": "https://www.huduser.gov/hudapi/public/usps?type=3&query=All",
-  "retrievedAt": "2026-10-03",
+  "retrievedAt": "2026-10-20",
   "sample": false,
   "year": "2026",
   "quarter": "2",
