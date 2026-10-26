@@ -40,7 +40,7 @@ export function EstimateEngagement({ estimateId }: { estimateId: string }) {
     };
 
     let observer: IntersectionObserver | null = null;
-    const cta = document.querySelector(".sheet-foot .btn-primary, .sheet-foot .call-pending");
+    const cta = document.querySelector(".sheet-foot .timeline, .sheet-foot .btn-primary, .sheet-foot .call-pending");
     if (cta && "IntersectionObserver" in window) {
       observer = new IntersectionObserver(
         (entries) => {

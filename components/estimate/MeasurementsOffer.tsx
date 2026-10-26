@@ -10,7 +10,7 @@ import { EmailEstimateForm } from "./EmailEstimateForm";
 export const MEASUREMENTS_CTA = "Email me my roof measurements";
 export const MEASUREMENTS_NOTE = "Roof area, pitch and number of planes, ready to share with roofers for a quick ballpark.";
 
-export function MeasurementsOffer({ estimateId }: { estimateId: string }) {
+export function MeasurementsOffer({ estimateId, primary = false }: { estimateId: string; primary?: boolean }) {
   const [open, setOpen] = useState(false);
   if (open)
     return (
@@ -29,7 +29,7 @@ export function MeasurementsOffer({ estimateId }: { estimateId: string }) {
     <div className="call-cta-wrap measurements-offer">
       <button
         type="button"
-        className="btn btn-secondary btn-block"
+        className={primary ? "btn btn-primary btn-block" : "btn btn-secondary btn-block"}
         onClick={() => {
           track("measurements_click", { estimate_id: estimateId });
           setOpen(true);

@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics/client";
 import { callEventId } from "@/lib/openai-ads/event-id";
+import { callFirst, isTimelineAnswer, TIMELINE_EVENT } from "@/lib/site/timeline";
 import { EmailEstimateForm } from "./EmailEstimateForm";
 
 export const CALL_CTA = "Call for exact quotes";
@@ -92,7 +93,7 @@ export function CallCta({
 /**
  * Phone-width call bar pinned to the bottom of the screen while neither the top price bar nor the
  * sheet's call button is on screen. Without a tracking number it records call_click and scrolls to
- * the sheet, where the pending note opens.
+ * the sheet, where the pending note opens. Hidden after a "This year" or "Just researching" answer.
  */
 export function StickyCallBar({
   estimateId,
@@ -107,6 +108,17 @@ export function StickyCallBar({
 }) {
   const [visible, setVisible] = useState(false);
   const [done, setDone] = useState(false);
+  // Steps aside when the visitor says they're replacing later than 3 months out.
+  const [later, setLater] = useState(false);
+
+  useEffect(() => {
+    const onAnswer = (e: Event) => {
+      const answer = (e as CustomEvent<unknown>).detail;
+      if (isTimelineAnswer(answer)) setLater(!callFirst(answer));
+    };
+    window.addEventListener(TIMELINE_EVENT, onAnswer);
+    return () => window.removeEventListener(TIMELINE_EVENT, onAnswer);
+  }, []);
 
   useEffect(() => {
     const top = document.querySelector(".top-quote");
@@ -147,7 +159,7 @@ export function StickyCallBar({
       cta_version: CALL_CTA_VERSION,
     });
 
-  const show = visible && !done;
+  const show = visible && !done && !later;
   return (
     <div className="sticky-call" hidden={!show} aria-hidden={!show}>
       <div className="sticky-call-price">
