@@ -14,6 +14,10 @@ describe("landingHeadline", () => {
     expect(landingHeadline("tile-roofs")).toBe("Keep your tiles or replace them? Compare the costs for your roof.");
   });
 
+  it("matches the ready-to-replace ad group", () => {
+    expect(landingHeadline("ready-to-replace")).toBe("Replacing your roof? Know what it should cost before you hire a roofer.");
+  });
+
   it("falls back to the default when the param is missing or empty", () => {
     expect(landingHeadline(undefined)).toBe(DEFAULT_LANDING_HEADLINE);
     expect(landingHeadline("")).toBe(DEFAULT_LANDING_HEADLINE);
