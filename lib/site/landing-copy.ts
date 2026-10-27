@@ -7,6 +7,7 @@ const HEADLINES_BY_AD_GROUP: Readonly<Record<string, string>> = {
   "cost-research": DEFAULT_LANDING_HEADLINE,
   "repair-or-replace": "Thinking about replacing your roof? See what it would cost first.",
   "tile-roofs": "Keep your tiles or replace them? Compare the costs for your roof.",
+  "ready-to-replace": "Replacing your roof? Know what it should cost before you hire a roofer.",
 };
 
 export const LANDING_LEDE =

@@ -1395,3 +1395,48 @@ body > main {
 .call-pending ~ .measurements-offer {
   display: none;
 }
+
+/* Replacement timeline question (Oct 26) above the sheet's call section. */
+.timeline {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.timeline legend {
+  padding: 0;
+  margin-bottom: 8px;
+}
+.timeline-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.timeline-choice {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--galvanized);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--asphalt);
+  font: inherit;
+  font-size: 15.5px;
+  cursor: pointer;
+}
+.timeline-choice:hover {
+  border-color: var(--asphalt);
+}
+.timeline-choice[aria-pressed="true"] {
+  border: 2px solid var(--chalk);
+  font-weight: 600;
+}
+.timeline-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* Later than 3 months: the measurements email leads and the call (with its pitch) follows. */
+.timeline-ctas[data-call-first="false"] .measurements-offer {
+  order: -1;
+}

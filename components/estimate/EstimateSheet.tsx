@@ -12,7 +12,7 @@ import { Explanation } from "./Explanation";
 import { NoCoveragePanel } from "./NoCoveragePanel";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { CallCta, StickyCallBar } from "./CallCta";
-import { MeasurementsOffer } from "./MeasurementsOffer";
+import { TimelineCta } from "./TimelineCta";
 import { QuoteLink } from "./QuoteLink";
 
 export const OTHER_LEGEND = "Tear-off, overhead, steep-roof work and permit";
@@ -88,17 +88,23 @@ function QuoteCta({ estimate }: { estimate: EstimateView }) {
   const tracking = estimate.coverage?.trackingNumber ?? null;
   return (
     <>
-      {types[0] === "call" && (
-        <div className="call-pitch">
-          <h3 className="h3">{callPitchHeading(estimate.options[0])}</h3>
-          <p>
-            This estimate can&apos;t see your decking, underlayment or flashing. On the call, a local roofer asks a few
-            questions about your roof and, if you want, sets up a visit to check those and give you a firm quote.
-          </p>
-        </div>
+      {types[0] === "call" ? (
+        <TimelineCta
+          estimateId={estimate.estimateId}
+          trackingNumber={tracking}
+          pitch={
+            <div className="call-pitch">
+              <h3 className="h3">{callPitchHeading(estimate.options[0])}</h3>
+              <p>
+                This estimate can&apos;t see your decking, underlayment or flashing. On the call, a local roofer asks a few
+                questions about your roof and, if you want, sets up a visit to check those and give you a firm quote.
+              </p>
+            </div>
+          }
+        />
+      ) : (
+        <PrimaryCta estimate={estimate} position="sheet" className="btn btn-primary btn-block" />
       )}
-      <PrimaryCta estimate={estimate} position="sheet" className="btn btn-primary btn-block" />
-      {types[0] === "call" && <MeasurementsOffer estimateId={estimate.estimateId} />}
       {types[0] !== "call" && types.includes("call") && tracking && (
         <CallCta estimateId={estimate.estimateId} trackingNumber={tracking} position="sheet" className="btn btn-secondary btn-block" />
       )}
